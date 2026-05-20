@@ -18,6 +18,8 @@ apply plugin: 'org.jetbrains.kotlin.android'
 
 android {
     namespace = 'org.firstinspires.ftc.teamcode'
+    compileSdk 34
+
     kotlinOptions {
         jvmTarget = '1.8'
     }
@@ -35,5 +37,5 @@ android {
 
 dependencies {
     implementation project(':FtcRobotController')
-    implementation 'androidx.core:core-ktx:1.18.0'
+//    implementation 'androidx.core:core-ktx:1.18.0'
 }

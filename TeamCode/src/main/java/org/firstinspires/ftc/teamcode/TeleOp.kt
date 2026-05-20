@@ -9,10 +9,6 @@ import dev.anygeneric.blazeftc.DummyPlugOpMode
 @TeleOp(name = "BlazeFTC Teleop")
 //@Configurable //put whatever configuration annotations you need
 class Teleop : DummyPlugOpMode() {
-    override fun runOpModeInBlaze() {
-        TODO("Not yet implemented")
-    }
-
     //@Configurable
     companion object {
         @JvmStatic
@@ -23,14 +19,14 @@ class Teleop : DummyPlugOpMode() {
         var nanosToWait = 0
     }
 
-    override fun runOpMode() {
+    override fun runOpModeInBlaze() {
         //this function can be called after waitForStart but like, don't do that
         //once you've supplied it telemetry, just use the "telemetry" variable it has been set
         initializeBlazeFTC(JoinedTelemetry(telemetry, PanelsTelemetry.ftcTelemetry))
 
         waitForStart()
 
-        runBlazeFTC(1)//always call this please. toRun is an integer passed into the rust code you can control
+        runBlazeFTC(toRun)//always call this please. toRun is an integer passed into the rust code you can control
 
         val timer = ElapsedTime()
         while (!isStopRequested) {

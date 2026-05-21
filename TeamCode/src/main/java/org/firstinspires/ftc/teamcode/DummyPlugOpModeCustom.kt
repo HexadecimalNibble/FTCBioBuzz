@@ -95,7 +95,7 @@ abstract class DummyPlugOpModeCustom : LinearOpMode() {
         val module = hardwareMap.getAll(LynxModule::class.java)
 
         module.forEach { it.bulkCachingMode = LynxModule.BulkCachingMode.MANUAL; it.clearBulkCache() }
-        module.forEach { println("MODULE ADDRESS: " + it.moduleAddress + ": " + it.isParent) }
+        module.forEach { println("MODULE ADDRESS: " + it.moduleAddress + ": " + it.isParent + " ; Ex hub: " + (it.revProductNumber == LynxConstants.EXPANSION_HUB_PRODUCT_NUMBER)) }
 
         val ctrlHub = module.first { it.isParent }
         inform(ctrlHub)
@@ -103,7 +103,7 @@ abstract class DummyPlugOpModeCustom : LinearOpMode() {
         val fileDescriptor = ctrlHubAccessor.extractUnderlyingFD()
         val ctrlStreams = getClosures(ctrlHubAccessor, ctrlHub.moduleAddress)
 
-        // Servo hubs have !isParent as true
+        // Servo hubs have !isParent as true, so need to check product number to find ex. hub
         val exHub = module.firstOrNull { !it.isParent && it.revProductNumber == LynxConstants.EXPANSION_HUB_PRODUCT_NUMBER }
         if (exHub != null) {
             inform(exHub)

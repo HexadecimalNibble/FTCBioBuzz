@@ -8,7 +8,7 @@ import dev.anygeneric.blazeftc.DummyPlugOpMode
 
 @TeleOp(name = "BlazeFTC Teleop")
 //@Configurable //put whatever configuration annotations you need
-class Teleop : DummyPlugOpMode() {
+class Teleop : DummyPlugOpModeCustom() {
     //@Configurable
     companion object {
         @JvmStatic

@@ -28,10 +28,12 @@ class NeutrinoTest : DummyPlugOpModeCustom() {
         //pass this function a telemetry, then use the opmode's telemetry after that.
         initializeBlazeFTC(JoinedTelemetry(telemetry, PanelsTelemetry.ftcTelemetry))
         //this mecanum code is just an example. do whatever you want here:
-        val mecanum = Mecanum(hardwareMap.get(DcMotorEx::class.java, "flMotor"),
-            hardwareMap.get(DcMotorEx::class.java, "frMotor"),
-            hardwareMap.get(DcMotorEx::class.java, "blMotor"),
-            hardwareMap.get(DcMotorEx::class.java, "brMotor"))
+        val mecanum = Mecanum(
+            hardwareMap.get(DcMotorEx::class.java, "LFMotor"),
+            hardwareMap.get(DcMotorEx::class.java, "RFMotor"),
+            hardwareMap.get(DcMotorEx::class.java, "LBMotor"),
+            hardwareMap.get(DcMotorEx::class.java, "RBMotor")
+        )
         waitForStart()
         runBlazeFTC(0)//call this and pass 0 to start the default neutrino handler
         val time = ElapsedTime()

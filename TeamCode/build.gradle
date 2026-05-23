@@ -37,5 +37,6 @@ android {
 
 dependencies {
     implementation project(':FtcRobotController')
+    implementation project(':HexLib')
 //    implementation 'androidx.core:core-ktx:1.18.0'
 }

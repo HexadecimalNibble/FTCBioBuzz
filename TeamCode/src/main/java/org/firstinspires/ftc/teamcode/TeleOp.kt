@@ -1,15 +1,22 @@
 package org.firstinspires.ftc.teamcode
 
-import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp
-import org.hexnibble.hexlib.L
+import org.hexnibble.hexlib.gamepad.ButtonGroupController
+import org.hexnibble.hexlib.opmode.CoreTeleOpMode
 
 @TeleOp(name = "Biobuzz Teleop")
-class Teleop : LinearOpMode() {
-  override fun runOpMode() {
-    waitForStart()
-    if (opModeIsActive()) {
-      L.i("Teleop", "Saved robot position: ${RobotData.robotPosition}")
+class Teleop : CoreTeleOpMode() {
+  override fun onPressInit() {
+    super.onPressInit()
+
+    // Prompt alliance info if no saved data from auto or options button pushed on either controller to force set alliance info
+    controller1.updateGamepadData()
+    controller2.updateGamepadData()
+    if (RobotData.allianceColor == null || RobotData.allianceSide == null || controller1.options.pressed() || controller2.options.pressed()) {
+      setAllianceInfo()
     }
+
+    // Put controller bindings here
+    ButtonGroupController.add(controller1.cross) {}
   }
 }

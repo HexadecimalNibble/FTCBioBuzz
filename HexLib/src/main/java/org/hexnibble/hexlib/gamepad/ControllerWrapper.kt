@@ -46,8 +46,8 @@ class ControllerWrapper(val gamepad: Gamepad) {
       get() = ButtonCondition { stateMatchesButton(buttonState(prevGamepad), buttonState(currentGamepad), ButtonState.Released) }
   }
 
-  val prevGamepad = Gamepad()
-  val currentGamepad = Gamepad()
+  private val prevGamepad = Gamepad()
+  private val currentGamepad = Gamepad()
 
   val touchpad_finger_1 by lazy { Button { it.touchpad_finger_1 } }
   val touchpad_finger_2 by lazy { Button { it.touchpad_finger_2 } }

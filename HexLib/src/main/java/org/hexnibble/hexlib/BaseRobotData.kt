@@ -10,4 +10,6 @@ import com.pedropathing.geometry.Pose
  */
 abstract class BaseRobotData {
     var robotPosition: Pose? = null
+    var allianceSide: AllianceSide? = null
+    var allianceColor: AllianceColor? = null
 }

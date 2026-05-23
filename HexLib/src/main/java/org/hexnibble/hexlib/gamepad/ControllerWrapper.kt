@@ -3,7 +3,7 @@ package org.hexnibble.hexlib.gamepad
 import com.qualcomm.robotcore.hardware.Gamepad
 
 /**
- * Functional interface to allow things like: button1 and button2 or !button3
+ * Functional interface to allow custom conditions like: button1 and button2 or !button3
  */
 fun interface ButtonCondition {
   operator fun invoke(): Boolean
@@ -46,8 +46,6 @@ class ControllerWrapper(val gamepad: Gamepad) {
       get() = ButtonCondition { stateMatchesButton(buttonState(prevGamepad), buttonState(currentGamepad), ButtonState.Released) }
   }
 
-  private val buttonGroups = mutableListOf<PressedAction>()
-
   val prevGamepad = Gamepad()
   val currentGamepad = Gamepad()
 
@@ -77,7 +75,7 @@ class ControllerWrapper(val gamepad: Gamepad) {
   val left_bumper by lazy { Button { it.left_bumper } }
   val right_bumper by lazy { Button { it.right_bumper } }
 
-  fun stateMatchesButton(prevButtonState: Boolean, currentButtonState: Boolean, requestedState: ButtonState): Boolean {
+  private fun stateMatchesButton(prevButtonState: Boolean, currentButtonState: Boolean, requestedState: ButtonState): Boolean {
     return when (requestedState) {
       ButtonState.Pressed -> currentButtonState
       ButtonState.NewlyPressed -> currentButtonState && !prevButtonState
@@ -88,7 +86,24 @@ class ControllerWrapper(val gamepad: Gamepad) {
     }
   }
 
-  fun addButtonGroup(buttonSequence: ButtonCondition, action: () -> Unit) {
+  /**
+   * Update previous and current gamepad data
+   * This should be called every loop
+   */
+  fun updateGamepadData() {
+    // Update previous gamepad state
+    prevGamepad.copy(currentGamepad)
+    // Update current gamepad state
+    currentGamepad.copy(gamepad)
+  }
+}
+
+object ButtonGroupController {
+  private val buttonGroups = mutableListOf<PressedAction>()
+
+  fun clearButtonGroups() = buttonGroups.clear()
+
+  fun add(buttonSequence: ButtonCondition, action: () -> Unit) {
     buttonGroups.add(PressedAction(buttonSequence, action))
   }
 
@@ -98,17 +113,10 @@ class ControllerWrapper(val gamepad: Gamepad) {
    */
   fun processButtonGroups() {
     // For all button groups, if condition true, run action
-    buttonGroups.forEach { if (it.condition()) it.action() }
-  }
-
-  /**
-   * Update prev and current gamepad data
-   * This should be called every loop
-   */
-  fun updateGamepadData() {
-    // Update previous gamepad state
-    prevGamepad.copy(currentGamepad)
-    // Update current gamepad state
-    currentGamepad.copy(gamepad)
+    for (buttonGroup in buttonGroups) {
+      if (buttonGroup.condition()) {
+        buttonGroup.action()
+      }
+    }
   }
 }

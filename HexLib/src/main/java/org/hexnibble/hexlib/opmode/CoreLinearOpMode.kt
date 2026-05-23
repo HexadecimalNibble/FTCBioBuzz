@@ -5,6 +5,7 @@ import org.hexnibble.hexlib.gamepad.ControllerWrapper
 import org.hexnibble.hexlib.L
 import org.hexnibble.hexlib.commands.RCController
 import org.hexnibble.hexlib.Robot
+import org.hexnibble.hexlib.gamepad.ButtonGroupController
 
 /**
  * ?
@@ -41,7 +42,7 @@ open class CoreLinearOpMode : LinearOpMode() {
       onPressPlay()
 
       while (!isStopRequested && !opModeComplete) {
-
+        opModeLoop()
       }
     }
 
@@ -52,23 +53,21 @@ open class CoreLinearOpMode : LinearOpMode() {
    * Custom logic that should be run when initialize is pressed
    */
   open fun onPressInit() {
-    // Bind controller actions & telemetry only in teleop
-    controller1.addButtonGroup(controller1.options and controller1.square) {
-      // reset imu
-    }
-
-    controller1.addButtonGroup(controller1.right_stick_button.newlyPressed) {
-      // enable slow mode
-    }
-    controller1.addButtonGroup(controller1.right_stick_button.newlyReleased) {
-      // disable slow mode
-    }
+    // Make sure controllers are reset properly
+    ButtonGroupController.clearButtonGroups()
   }
 
   /**
    * Override to run custom code when play pressed
    */
   open fun onPressPlay() {}
+
+  /**
+   * Override to run custom code when opmode is running
+   */
+  open fun opModeLoop() {
+//    rcController.processCommands()
+  }
 
   /**
    * Override to run custom code when stop pressed

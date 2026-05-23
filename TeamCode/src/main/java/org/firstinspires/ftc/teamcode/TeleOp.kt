@@ -11,7 +11,5 @@ class Teleop : LinearOpMode() {
     if (opModeIsActive()) {
       L.i("Teleop", "Saved robot position: ${RobotData.robotPosition}")
     }
-
-
   }
 }

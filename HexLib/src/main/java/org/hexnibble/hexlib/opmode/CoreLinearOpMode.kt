@@ -6,7 +6,7 @@ import org.hexnibble.hexlib.AllianceSide
 import org.hexnibble.hexlib.gamepad.ControllerWrapper
 import org.hexnibble.hexlib.L
 import org.hexnibble.hexlib.commands.RCController
-import org.hexnibble.hexlib.Robot
+import org.hexnibble.hexlib.BaseRobot
 import org.hexnibble.hexlib.StopOpModeException
 import org.hexnibble.hexlib.gamepad.ButtonGroupController
 
@@ -26,7 +26,7 @@ open class CoreLinearOpMode : LinearOpMode() {
   lateinit var allianceColor: AllianceColor
   lateinit var allianceSide: AllianceSide
 
-  val robot = Robot()
+  lateinit var robot: BaseRobot
 
   /**
    * Flag to end OpMode
@@ -35,11 +35,26 @@ open class CoreLinearOpMode : LinearOpMode() {
   open val opModeComplete: Boolean
     get() = false
 
+  /**
+   * Override this function to set the robot variable to the robot class for this season
+   */
+  open fun setRobot() {}
+
   override fun runOpMode() {
     try {
-      L.d(logTag, "onPressInit()")
+      L.i(logTag, "onPressInit()")
+
+      L.d(logTag, "Creating controllers")
       controller1 = ControllerWrapper(gamepad1)
       controller2 = ControllerWrapper(gamepad2)
+
+      L.d(logTag, "Creating robot")
+      setRobot()
+      if (!this::robot.isInitialized) {
+        L.e(logTag, "No robot object initialized!")
+        throw Exception("Override setRobot() and assign a value to the robot variable!")
+      }
+
       onPressInit()
     } catch (e: StopOpModeException) {
       L.i(logTag, "OpMode stopped")

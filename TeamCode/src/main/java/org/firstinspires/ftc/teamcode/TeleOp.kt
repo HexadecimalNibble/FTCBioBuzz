@@ -6,6 +6,10 @@ import org.hexnibble.hexlib.opmode.CoreTeleOpMode
 
 @TeleOp(name = "Biobuzz Teleop")
 class Teleop : CoreTeleOpMode() {
+  override fun setRobot() {
+    robot = BiobuzzRobot(hardwareMap)
+  }
+
   override fun onPressInit() {
     super.onPressInit()
 

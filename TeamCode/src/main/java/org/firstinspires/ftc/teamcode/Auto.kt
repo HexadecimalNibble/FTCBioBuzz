@@ -13,6 +13,10 @@ import org.hexnibble.hexlib.opmode.CoreAutoOpMode
 class Auto : CoreAutoOpMode() {
   lateinit var allianceColorText: String
 
+  override fun setRobot() {
+    robot = BiobuzzRobot(hardwareMap)
+  }
+
   override fun autoSetup() {
     super.autoSetup()
     allianceColorText = super.setAllianceInfo()

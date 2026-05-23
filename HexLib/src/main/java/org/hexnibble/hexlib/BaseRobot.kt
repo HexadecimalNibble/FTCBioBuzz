@@ -8,7 +8,7 @@ import com.qualcomm.robotcore.hardware.HardwareMap
  */
 abstract class BaseRobot(hwMap: HardwareMap) {
   private val logTag = "BaseRobot"
-  val controlHub = hwMap.get(LynxModule::class.java, "Control Hub")
+  val controlHub: LynxModule = hwMap.get(LynxModule::class.java, "Control Hub")
 
   val expansionHub: LynxModule? = try {
     hwMap.get(LynxModule::class.java, "Expansion Hub 2")

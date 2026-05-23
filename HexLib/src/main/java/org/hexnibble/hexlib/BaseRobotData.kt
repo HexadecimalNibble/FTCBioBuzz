@@ -8,6 +8,6 @@ import com.pedropathing.geometry.Pose
  *
  * @author Benjamin Kang
  */
-abstract class RobotData {
+abstract class BaseRobotData {
     var robotPosition: Pose? = null
 }

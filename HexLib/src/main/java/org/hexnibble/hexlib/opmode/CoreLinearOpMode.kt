@@ -53,6 +53,16 @@ open class CoreLinearOpMode : LinearOpMode() {
    */
   open fun onPressInit() {
     // Bind controller actions & telemetry only in teleop
+    controller1.addButtonGroup(controller1.options and controller1.square) {
+      // reset imu
+    }
+
+    controller1.addButtonGroup(controller1.right_stick_button.newlyPressed) {
+      // enable slow mode
+    }
+    controller1.addButtonGroup(controller1.right_stick_button.newlyReleased) {
+      // disable slow mode
+    }
   }
 
   /**

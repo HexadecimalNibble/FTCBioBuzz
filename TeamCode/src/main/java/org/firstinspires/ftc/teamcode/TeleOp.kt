@@ -11,6 +11,5 @@ class Teleop : LinearOpMode() {
         if (opModeIsActive()) {
             L.i("Teleop", "Saved robot position: ${SavedData.robotPosition}")
         }
-        SavedData.robotPosition = Pose(100.0, 100.0, 100.0)
     }
 }

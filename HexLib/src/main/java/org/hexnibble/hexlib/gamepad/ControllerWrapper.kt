@@ -75,6 +75,13 @@ class ControllerWrapper(val gamepad: Gamepad) {
   val left_bumper by lazy { Button { it.left_bumper } }
   val right_bumper by lazy { Button { it.right_bumper } }
 
+  val left_stick_x by lazy { currentGamepad.left_stick_x }
+  val left_stick_y by lazy { currentGamepad.left_stick_x }
+  val right_stick_x by lazy { currentGamepad.right_stick_x }
+  val right_stick_y by lazy { currentGamepad.right_stick_y }
+  val left_trigger by lazy { currentGamepad.left_trigger }
+  val right_trigger by lazy { currentGamepad.right_trigger }
+
   private fun stateMatchesButton(prevButtonState: Boolean, currentButtonState: Boolean, requestedState: ButtonState): Boolean {
     return when (requestedState) {
       ButtonState.Pressed -> currentButtonState

@@ -14,6 +14,10 @@ class Teleop : CoreTeleOpMode() {
     controller2.updateGamepadData()
     if (RobotData.allianceColor == null || RobotData.allianceSide == null || controller1.options.pressed() || controller2.options.pressed()) {
       setAllianceInfo()
+
+      // Save alliance info
+      RobotData.allianceColor = allianceColor
+      RobotData.allianceSide = allianceSide
     }
 
     // Put controller bindings here

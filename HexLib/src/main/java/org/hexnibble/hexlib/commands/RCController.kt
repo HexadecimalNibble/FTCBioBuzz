@@ -1,4 +1,4 @@
-package org.hexnibble.hexlib
+package org.hexnibble.hexlib.commands
 
 /**
  * ?

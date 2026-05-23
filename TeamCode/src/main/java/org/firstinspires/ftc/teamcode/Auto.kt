@@ -7,11 +7,11 @@ import org.hexnibble.hexlib.L
 
 @Autonomous(name = "Biobuzz Auto")
 class Auto : LinearOpMode() {
-    override fun runOpMode() {
-        waitForStart()
-        if (opModeIsActive()) {
-            RobotData.robotPosition = Pose(100.0, 100.0, 100.0)
-            L.i("Teleop", "Saving robot position: ${RobotData.robotPosition}")
-        }
+  override fun runOpMode() {
+    waitForStart()
+    if (opModeIsActive()) {
+      RobotData.robotPosition = Pose(100.0, 100.0, 100.0)
+      L.i("Teleop", "Saving robot position: ${RobotData.robotPosition}")
     }
+  }
 }

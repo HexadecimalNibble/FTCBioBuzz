@@ -7,7 +7,7 @@ import org.hexnibble.hexlib.L
  *
  * @author Benjamin Kang
  */
-open class CoreAutoOpMode() : CoreLinearOpMode() {
+open class CoreAutoOpMode : CoreLinearOpMode() {
   private val logTag = "CoreAutoOpMode"
 
   override fun onPressInit() {

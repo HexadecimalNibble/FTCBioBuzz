@@ -1,5 +1,6 @@
 package org.hexnibble.hexlib
 
+import com.pedropathing.follower.Follower
 import com.qualcomm.hardware.lynx.LynxModule
 import com.qualcomm.robotcore.hardware.HardwareMap
 
@@ -23,6 +24,10 @@ abstract class BaseRobot(hwMap: HardwareMap) {
     L.e(logTag, "Servo Hub was missing!")
     null
   }
+
+  lateinit var follower: Follower
+
+  open fun setFollower() {}
 
   init {
     // Set bulk caching mode for hubs.

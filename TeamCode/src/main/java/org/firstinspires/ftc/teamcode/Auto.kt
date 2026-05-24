@@ -2,6 +2,7 @@ package org.firstinspires.ftc.teamcode
 
 import com.pedropathing.geometry.Pose
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous
+import org.firstinspires.ftc.teamcode.pedroPathing.PedroConstants
 import org.hexnibble.hexlib.AllianceColor
 import org.hexnibble.hexlib.AllianceSide
 import org.hexnibble.hexlib.L

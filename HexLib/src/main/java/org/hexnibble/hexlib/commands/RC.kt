@@ -12,7 +12,7 @@ abstract class RC(val commandName: String = "RC", var maxCommandDuration: Durati
   var conflictBehavior = Behavior.Conflict.Override
   var interruptedBehavior = Behavior.Interrupted.End
 
-  val commandDurationTimer:
+//  val commandDurationTimer:
 }
 
 class Behavior {

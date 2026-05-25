@@ -4,54 +4,57 @@ import kotlin.time.Duration
 import kotlin.time.TimeMark
 import kotlin.time.TimeSource
 
-class Timer(initialDuration: Duration) {
-  // Keep track of the current total configuration
-  var totalDuration: Duration = initialDuration
+// Accept an optional timeSource that defaults to the Monotonic standard
+class Timer(
+  var totalDuration: Duration,
+  private val timeSource: TimeSource = TimeSource.Monotonic
+) {
+  var isPaused: Boolean = true
     private set
 
-  private var durationRemaining = initialDuration
+  private var durationRemaining: Duration = totalDuration
   private var lastStartMark: TimeMark? = null
-
-  val isPaused: Boolean
-    get() = lastStartMark == null
 
   fun start() {
     if (!isPaused) return
-    lastStartMark = TimeSource.Monotonic.markNow()
+    isPaused = false
+    // Use our injected timeSource
+    lastStartMark = timeSource.markNow()
   }
 
   fun pause() {
+    if (isPaused) return
     val startMark = lastStartMark ?: return
     durationRemaining = (durationRemaining - startMark.elapsedNow()).coerceAtLeast(Duration.ZERO)
+    isPaused = true
+    lastStartMark = null
+  }
+
+  fun reset() {
+    isPaused = true
+    durationRemaining = totalDuration
     lastStartMark = null
   }
 
   fun getRemainingTime(): Duration {
+    if (isPaused) return durationRemaining
     val startMark = lastStartMark ?: return durationRemaining
     return (durationRemaining - startMark.elapsedNow()).coerceAtLeast(Duration.ZERO)
   }
 
-  /**
-   * Updates the total duration.
-   * @param newDuration The new total time.
-   * @param resetIfRunning If true, the timer resets completely to the new time.
-   * If false, it dynamically adjusts the remaining time by the difference.
-   */
   fun updateDuration(newDuration: Duration, resetIfRunning: Boolean = false) {
     if (resetIfRunning) {
       totalDuration = newDuration
       reset()
     } else {
-      // Calculate the difference between old and new duration
       val difference = newDuration - totalDuration
       totalDuration = newDuration
-      // Adjust the remaining time by that difference
       durationRemaining = (durationRemaining + difference).coerceAtLeast(Duration.ZERO)
-    }
-  }
 
-  fun reset() {
-    lastStartMark = null
-    durationRemaining = totalDuration
+      // If running, shift our time anchor point forward/backward to adjust dynamically
+      if (!isPaused) {
+        lastStartMark = timeSource.markNow()
+      }
+    }
   }
 }

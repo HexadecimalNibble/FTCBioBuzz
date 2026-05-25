@@ -15,7 +15,7 @@ open class CoreTeleOpMode : CoreLinearOpMode() {
     ButtonGroupController.add(controller1.options and controller1.square) {
       // reset imu
       robot.follower.poseTracker.resetIMU()
-      setAllianceCFZeroIMUHdgDeg(0.0)
+//      setAllianceCFZeroIMUHdgDeg(0.0)
     }
 
     ButtonGroupController.add(controller1.right_stick_button.newlyPressed) {

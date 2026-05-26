@@ -39,7 +39,7 @@ class TimerTest {
   @Test
   fun `test initialization sets correct properties`() {
     val timer = Timer(10.seconds, testTimeSource)
-    assertEquals(10.seconds, timer.totalDuration)
+    assertEquals(10.seconds, timer.timeRemaining)
     assertEquals(10.seconds, timer.getRemainingTime())
     assertTrue(timer.isPaused)
   }
@@ -137,7 +137,7 @@ class TimerTest {
     // Hits the 'if (resetIfRunning)' branch
     timer.updateDuration(20.seconds, resetIfRunning = true)
 
-    assertEquals(20.seconds, timer.totalDuration)
+    assertEquals(20.seconds, timer.timeRemaining)
     assertEquals(20.seconds, timer.getRemainingTime())
     assertTrue(timer.isPaused)
   }
@@ -151,7 +151,7 @@ class TimerTest {
     // Hits the 'else' branch (adds 5s to total, adds 5s to remaining)
     timer.updateDuration(15.seconds, resetIfRunning = false)
 
-    assertEquals(15.seconds, timer.totalDuration)
+    assertEquals(15.seconds, timer.timeRemaining)
     assertEquals(12.seconds, timer.getRemainingTime())
     assertFalse(timer.isPaused) // Remains running
   }
@@ -165,7 +165,7 @@ class TimerTest {
     // Hits the 'else' branch (removes 4s from total, removes 4s from remaining)
     timer.updateDuration(6.seconds, resetIfRunning = false)
 
-    assertEquals(6.seconds, timer.totalDuration)
+    assertEquals(6.seconds, timer.timeRemaining)
     assertEquals(3.seconds, timer.getRemainingTime())
   }
 
@@ -178,7 +178,7 @@ class TimerTest {
     // Drop total duration by 8s. 6s + (-8s) = -2s -> Coerced to ZERO
     timer.updateDuration(2.seconds, resetIfRunning = false)
 
-    assertEquals(2.seconds, timer.totalDuration)
+    assertEquals(2.seconds, timer.timeRemaining)
     assertEquals(Duration.ZERO, timer.getRemainingTime())
   }
 
@@ -189,7 +189,7 @@ class TimerTest {
 
     timer.updateDuration(15.seconds, resetIfRunning = false)
 
-    assertEquals(15.seconds, timer.totalDuration)
+    assertEquals(15.seconds, timer.timeRemaining)
     assertEquals(15.seconds, timer.getRemainingTime())
     assertTrue(timer.isPaused)
   }
@@ -207,7 +207,7 @@ class TimerTest {
     timer.reset()
 
     assertTrue(timer.isPaused)
-    assertEquals(10.seconds, timer.totalDuration)
+    assertEquals(10.seconds, timer.timeRemaining)
     assertEquals(10.seconds, timer.getRemainingTime())
   }
 }

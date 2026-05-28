@@ -11,7 +11,7 @@ import java.lang.reflect.Modifier
 @TeleOp
 class StopTesting : LinearOpMode() {
   init {
-    AppUtil.getInstance().showToast(UILocation.BOTH, "Hi! Look at this cool message!")
+    AppUtil.getInstance().showToast(UILocation.BOTH, "Toast message! 25620 was here.")
     val opModeInternal = Class.forName("com.qualcomm.robotcore.eventloop.opmode.OpModeInternal")
     val constructor = opModeInternal.getDeclaredConstructor()
     constructor.isAccessible = true

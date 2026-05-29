@@ -1,6 +1,10 @@
 package org.hexnibble.hexlib.opmode
 
 import org.hexnibble.hexlib.gamepad.ButtonGroupController
+import kotlin.math.abs
+import kotlin.math.cos
+import kotlin.math.max
+import kotlin.math.sin
 
 /**
  * ?
@@ -38,14 +42,28 @@ open class CoreTeleOpMode : CoreLinearOpMode() {
     ButtonGroupController.processButtonGroups()
 
     // Run teleop drive
-    teleOpDrive(controller1.left_stick_x, controller1.left_stick_y, controller1.right_trigger - controller1.left_trigger, TODO())
+    teleOpDrive(controller1.left_stick_x, controller1.left_stick_y, controller1.right_trigger - controller1.left_trigger, robot.follower.pose.heading)
   }
 
   /**
    * Simple efficient function to drive field-centric in teleop
    */
   fun teleOpDrive(x: Float, y: Float, triggers: Float, imuHeading: Double) {
-    TODO()
-//    use dtSpeedMultiplier
+    val robotX = x * cos(-imuHeading) - y * sin(-imuHeading)
+    val robotY = x * sin(-imuHeading) + y * cos(-imuHeading)
+
+    val lFRaw = robotY + robotX + triggers
+    val lBRaw = robotY - robotX + triggers
+    val rFRaw = robotY - robotX - triggers
+    val rBRaw = robotY + robotX - triggers
+
+    val denom = maxOf(abs(lFRaw), abs(lBRaw), abs(rFRaw), abs(rBRaw), 1.0)
+
+    val lFMotor = lFRaw / denom * dtSpeedMultiplier
+    val lBMotor = lBRaw / denom * dtSpeedMultiplier
+    val rFMotor = rFRaw / denom * dtSpeedMultiplier
+    val rBMotor = rBRaw / denom * dtSpeedMultiplier
+
+    robot.follower.drivetrain.runDrive(doubleArrayOf(lFMotor, lBMotor, rFMotor, rBMotor))
   }
 }

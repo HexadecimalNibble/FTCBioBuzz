@@ -52,6 +52,9 @@ public class ExamplePedroSpeedLocalization extends DummyPlugOpMode {
       tele.update();
       return null;
     });
+
+    sendPropertyToRust("pinpoint2ndDelay", "1010");
+
     follower.followPath(new Path(new BezierLine(new Pose(0, 0), new Pose(10, 0))));
     runBlazeFTC(0);
 

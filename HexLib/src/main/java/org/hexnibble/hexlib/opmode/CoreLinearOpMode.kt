@@ -40,7 +40,7 @@ open class CoreLinearOpMode : LinearOpMode() {
   /**
    * Override this function to set the robot variable to the robot class for this season
    */
-  open fun setRobot() {}
+  open fun createRobot() {}
 
   override fun runOpMode() {
     try {
@@ -51,12 +51,16 @@ open class CoreLinearOpMode : LinearOpMode() {
       controller2 = ControllerWrapper(gamepad2)
 
       L.d(logTag, "Creating robot")
-      setRobot()
+      createRobot()
       if (!this::robot.isInitialized) {
         L.e(logTag, "No robot object initialized!")
-        throw Exception("Override setRobot() and assign a value to the robot variable!")
+        throw Exception("Override createRobot() and assign a value to the robot variable!")
       }
-
+      robot.createFollower()
+      if (!robot.isFollowerInitialized()) {
+        L.e(logTag, "Follower not initialized!")
+        throw Exception("Override createFollower() in the robot class and create the follower!")
+      }
       onPressInit()
 
       L.d(logTag, "Waiting for Start")

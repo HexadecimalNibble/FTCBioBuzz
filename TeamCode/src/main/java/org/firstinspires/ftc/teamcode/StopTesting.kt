@@ -36,7 +36,7 @@ class StopTesting : LinearOpMode() {
 
     val cmd = LynxSetMotorConstantPowerCommand(controlHub, 0, 32767)
     val msgNumFunction = LynxModule::class.java.getDeclaredMethod("getNewMessageNumber").also { it.isAccessible = true }
-    cmd.messageNumber = msgNumFunction(controlHub) as Int
+    cmd.messageNumber = (msgNumFunction(controlHub) as Byte).toInt()
 
     val serialization = LynxDatagram(cmd).toByteArray()
 

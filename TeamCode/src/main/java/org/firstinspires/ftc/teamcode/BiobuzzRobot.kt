@@ -5,7 +5,7 @@ import org.firstinspires.ftc.teamcode.pedroPathing.PedroConstants
 import org.hexnibble.hexlib.BaseRobot
 
 class BiobuzzRobot(val hwMap: HardwareMap) : BaseRobot(hwMap) {
-  override fun getFollower() {
+  override fun createFollower() {
     follower = PedroConstants.createFollower(hwMap)
   }
 }

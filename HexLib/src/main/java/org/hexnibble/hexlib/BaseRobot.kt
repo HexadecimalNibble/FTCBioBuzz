@@ -32,7 +32,9 @@ abstract class BaseRobot(hwMap: HardwareMap) {
 
   lateinit var follower: Follower
 
-  abstract fun getFollower()
+  abstract fun createFollower()
+
+  fun isFollowerInitialized(): Boolean = ::follower.isInitialized
 
   init {
     // Set bulk caching mode for hubs.

@@ -179,4 +179,13 @@ class PIDCoefficients(
    * Set this to something other than 0.0 to activate using the target tolerance.
    */
   var tolerance: Double = 0.0,
-)
+) {
+  fun setCoefficients(coefficients: PIDCoefficients) {
+    kS = coefficients.kS
+    kP = coefficients.kP
+    kI = coefficients.kI
+    kD = coefficients.kD
+    kF = coefficients.kF
+    tolerance = coefficients.tolerance
+  }
+}

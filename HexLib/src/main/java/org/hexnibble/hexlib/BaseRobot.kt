@@ -9,7 +9,12 @@ import com.qualcomm.robotcore.hardware.HardwareMap
  */
 abstract class BaseRobot(hwMap: HardwareMap) {
   private val logTag = "BaseRobot"
-  val controlHub: LynxModule = hwMap.get(LynxModule::class.java, "Control Hub")
+  val controlHub: LynxModule? = try {
+    hwMap.get(LynxModule::class.java, "Control Hub")
+  } catch (_: IllegalArgumentException) {
+    L.e(logTag, "Control Hub was missing!!!")
+    null
+  }
 
   val expansionHub: LynxModule? = try {
     hwMap.get(LynxModule::class.java, "Expansion Hub 2")
@@ -31,12 +36,12 @@ abstract class BaseRobot(hwMap: HardwareMap) {
 
   init {
     // Set bulk caching mode for hubs.
-    controlHub.setBulkCachingMode(LynxModule.BulkCachingMode.MANUAL)
+    controlHub?.setBulkCachingMode(LynxModule.BulkCachingMode.MANUAL)
     expansionHub?.setBulkCachingMode(LynxModule.BulkCachingMode.MANUAL)
   }
 
   fun bulkReadControlHub() {
-    controlHub.clearBulkCache()
+    controlHub?.clearBulkCache()
   }
 
   /**

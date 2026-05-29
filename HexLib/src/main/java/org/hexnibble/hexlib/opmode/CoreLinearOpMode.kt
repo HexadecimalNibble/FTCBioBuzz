@@ -1,6 +1,8 @@
 package org.hexnibble.hexlib.opmode
 
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode
+import org.firstinspires.ftc.robotcore.internal.system.AppUtil
+import org.firstinspires.ftc.robotcore.internal.ui.UILocation
 import org.hexnibble.hexlib.AllianceColor
 import org.hexnibble.hexlib.AllianceSide
 import org.hexnibble.hexlib.gamepad.ControllerWrapper
@@ -56,10 +58,12 @@ open class CoreLinearOpMode : LinearOpMode() {
       }
 
       onPressInit()
+
+      L.d(logTag, "Waiting for Start")
+      AppUtil.getInstance().showToast(UILocation.BOTH, "Initialization Complete. Waiting for Start.", 1)
     } catch (e: StopOpModeException) {
       L.i(logTag, "OpMode stopped")
     }
-    L.d(logTag, "Waiting for Start")
     waitForStart()
 
     // Play pressed

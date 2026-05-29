@@ -3,6 +3,7 @@ package org.hexnibble.hexlib
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.nanoseconds
 
+// TODO: FIX
 class Timer(
   private var timeRemaining: Duration,
 ) {
@@ -28,8 +29,7 @@ class Timer(
     }
   }
 
-  private fun updateTimeRemaining(now: Long) =
-    adjustTimeRemaining((startTime - now).nanoseconds)
+  private fun updateTimeRemaining(now: Long) = adjustTimeRemaining((startTime - now).nanoseconds)
 
   fun adjustTimeRemaining(change: Duration) {
     // Update timeRemaining var before doing calculations

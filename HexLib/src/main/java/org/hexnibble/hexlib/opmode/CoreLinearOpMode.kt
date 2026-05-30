@@ -64,8 +64,8 @@ open class CoreLinearOpMode : LinearOpMode() {
       onPressInit()
 
       L.d(logTag, "Waiting for Start")
-      AppUtil.getInstance().showToast(UILocation.BOTH, "Initialization Complete. Waiting for Start.", 1)
-    } catch (e: StopOpModeException) {
+      AppUtil.getInstance().showToast(UILocation.BOTH, "Initialization Complete. Waiting for Start.", 0)
+    } catch (_: StopOpModeException) {
       L.i(logTag, "OpMode stopped")
     }
     waitForStart()

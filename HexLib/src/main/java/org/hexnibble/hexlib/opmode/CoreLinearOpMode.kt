@@ -63,6 +63,7 @@ open class CoreLinearOpMode : LinearOpMode() {
       }
       onPressInit()
 
+      readyMessage()
       L.d(logTag, "Waiting for Start")
       AppUtil.getInstance().showToast(UILocation.BOTH, "Initialization Complete. Waiting for Start.", 0)
     } catch (_: StopOpModeException) {
@@ -160,6 +161,15 @@ open class CoreLinearOpMode : LinearOpMode() {
   }
 
   /**
+   * Override to set a custom start message
+   */
+  open fun readyMessage() {
+    L.i(logTag, "Initialize complete - ready to start!")
+    telemetry.addLine("READY")
+    telemetry.update()
+  }
+
+  /**
    * Override to run custom code when play pressed
    */
   open fun onPressPlay() {}
@@ -168,7 +178,7 @@ open class CoreLinearOpMode : LinearOpMode() {
    * Override to run custom code when opmode is running
    */
   open fun opModeLoop() {
-//    rcController.processCommands()
+    rcController.processCommands()
   }
 
   /**

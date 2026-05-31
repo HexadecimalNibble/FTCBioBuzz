@@ -14,7 +14,6 @@ open class CoreAutoOpMode : CoreLinearOpMode() {
     super.onPressInit()
     autoSetup()
     queueAutoCommands()
-    readyMessage()
   }
 
   /**
@@ -37,16 +36,10 @@ open class CoreAutoOpMode : CoreLinearOpMode() {
     telemetry.update()
   }
 
-  open fun readyMessage() {
-    L.i(logTag, "Initialize complete - ready to start!")
-    telemetry.addLine("READY")
-    telemetry.update()
-  }
-
   override fun onPressStop() {
     super.onPressStop()
   }
 
-//  override val opModeComplete: Boolean
-//    get() = !rcController.busy
+  override val opModeComplete: Boolean
+    get() = !rcController.busy
 }

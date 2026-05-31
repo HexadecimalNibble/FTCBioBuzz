@@ -7,6 +7,8 @@ package org.hexnibble.hexlib.commands
  */
 class RCController {
   val tag = "RCController"
-//    val busy: Boolean
-//        get() = toExecuteCommands.length > 0
+  val busy: Boolean
+    get() = true
+
+  fun processCommands() {}
 }

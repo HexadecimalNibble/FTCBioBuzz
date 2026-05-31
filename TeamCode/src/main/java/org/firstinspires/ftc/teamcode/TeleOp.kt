@@ -1,6 +1,7 @@
 package org.firstinspires.ftc.teamcode
 
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp
+import org.firstinspires.ftc.teamcode.robot.BiobuzzRobot
 import org.hexnibble.hexlib.gamepad.ButtonGroupController
 import org.hexnibble.hexlib.opmode.CoreTeleOpMode
 

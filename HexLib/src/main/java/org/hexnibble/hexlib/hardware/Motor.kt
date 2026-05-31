@@ -28,12 +28,12 @@ class Motor @JvmOverloads constructor(
   hwMap: HardwareMap,
   motorName: String,
   val motorType: MotorType,
+  val externalGearChange: Double = 1.0,
   val runDirection: DcMotorSimple.Direction = DcMotorSimple.Direction.FORWARD,
   runMode: DcMotor.RunMode = DcMotor.RunMode.RUN_WITHOUT_ENCODER,
   val encoderType: MotorEncoder = MotorEncoder.GOBILDA_INTERNAL,
   var encoderDirection: DcMotorSimple.Direction = DcMotorSimple.Direction.FORWARD,
-  val externalGearChange: Double = 1.0,
-  val pidController: PIDController,
+  val pidController: PIDController? = null,
 ) {
   var runMode: DcMotor.RunMode = runMode
     private set
@@ -137,10 +137,14 @@ class Motor @JvmOverloads constructor(
   fun getCurrentVelocityRPM(): Double = motorType.getPosition(motorObject.velocity, encoderType.CPR, externalGearChange)
 
   fun setPIDFCoefficients(pidfCoefficients: PIDCoefficients) {
+    if (pidController == null) return
     pidController.coefficients.setCoefficients(pidfCoefficients)
   }
 
-  fun pidfAtTargetPosition(): Boolean = abs(prevTargetPositionDeg - targetPositionDeg) < 0.25 && pidController.atTargetPosition()
+  fun pidfAtTargetPosition(): Boolean {
+    if (pidController == null) return false
+    return abs(prevTargetPositionDeg - targetPositionDeg) < 0.25 && pidController.atTargetPosition()
+  }
 
   /**
    * Function to run the PIDF.
@@ -148,6 +152,7 @@ class Motor @JvmOverloads constructor(
    * This will only run if the pidf is not at the target position.
    */
   fun processPIDF() {
+    if (pidController == null) return
     if (!pidfAtTargetPosition()) {
       val error = targetPositionDeg - getCurrentPositionDeg()
       pidController.updateError(error)
@@ -158,6 +163,7 @@ class Motor @JvmOverloads constructor(
 
   // TODO: FIX THIS
   fun processPIDFForce() {
+    if (pidController == null) return
     val error = targetPositionDeg - getCurrentPositionDeg()
     pidController.updateError(error)
     setPower(pidController.run())
@@ -177,6 +183,6 @@ class Motor @JvmOverloads constructor(
 
     setRunMode(runMode) // Set the motor to the requested run mode
 
-    pidController.reset()
+    pidController?.reset()
   }
 }

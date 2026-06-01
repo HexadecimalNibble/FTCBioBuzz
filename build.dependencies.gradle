@@ -3,6 +3,8 @@ repositories {
     mavenCentral()
     google() // Needed for androidx
     maven { url = "https://mymaven.bylazar.com/releases" }
+    gradlePluginPortal()
+    maven { url = "https://repo.dairy.foundation/releases" }
 }
 
 dependencies {
@@ -30,4 +32,5 @@ dependencies {
     testImplementation 'io.mockk:mockk-android:1.14.9'
     testImplementation 'io.mockk:mockk-agent:1.14.9'
     implementation("dev.anygeneric:blazeftc:0.1.36")
+    implementation("dev.frozenmilk.dairy:Mercurial:2.0.0-beta8")
 }

@@ -33,4 +33,6 @@ dependencies {
     testImplementation 'io.mockk:mockk-agent:1.14.9'
     implementation("dev.anygeneric:blazeftc:0.1.36")
     implementation("dev.frozenmilk.dairy:Mercurial:2.0.0-beta8")
+    implementation("dev.frozenmilk.sinister:Sloth:0.2.4")
+    implementation("org.jetbrains.kotlin:kotlin-reflect:2.2.21")
 }

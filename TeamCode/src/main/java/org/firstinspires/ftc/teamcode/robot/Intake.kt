@@ -2,7 +2,7 @@ package org.firstinspires.ftc.teamcode.robot
 
 import com.qualcomm.robotcore.hardware.HardwareMap
 import org.hexnibble.hexlib.hardware.Motor
-import org.hexnibble.localcorelib.newStuff.Motor.MotorType
+import org.hexnibble.hexlib.hardware.MotorType
 
 class Intake(hwMap: HardwareMap) {
   val intakeMotor = Motor(hwMap, "IntakeMotor", MotorType.GOBILDA_BARE)

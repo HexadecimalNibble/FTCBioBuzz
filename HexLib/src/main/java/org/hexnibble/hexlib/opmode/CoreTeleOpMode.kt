@@ -1,9 +1,9 @@
 package org.hexnibble.hexlib.opmode
 
+import org.hexnibble.hexlib.Constants
 import org.hexnibble.hexlib.gamepad.ButtonGroupController
 import kotlin.math.abs
 import kotlin.math.cos
-import kotlin.math.max
 import kotlin.math.sin
 
 /**
@@ -24,7 +24,8 @@ open class CoreTeleOpMode : CoreLinearOpMode() {
 
     ButtonGroupController.add(controller1.right_stick_button.newlyPressed) {
       // enable slow mode
-      dtSpeedMultiplier = 0.5 // TODO: SET BASED ON CONSTANTS SOMEWHERE
+      // TODO: FIX PROB WON'T UPDATE WITH OVERRIDDEN CLASS
+      dtSpeedMultiplier = Constants().slowModeDrivetrainSpeedMultiplier
     }
 
     ButtonGroupController.add(controller1.right_stick_button.newlyReleased) {

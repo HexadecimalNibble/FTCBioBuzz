@@ -3,7 +3,7 @@ package org.firstinspires.ftc.teamcode
 import org.hexnibble.hexlib.BaseRobotData
 
 /**
- * Singleton to store robot data that should be persistent between OpModes
+ * Singleton to store robot data that should be persistent between OpMode runs
  *
  * @author Benjamin Kang
  */

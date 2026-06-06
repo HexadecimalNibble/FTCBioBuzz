@@ -20,14 +20,22 @@ data class ServoEncoderInfo(
 
 class Servo(hwMap: HardwareMap, servoName: String) {
   private val servo: ServoImplEx = hwMap.get(ServoImplEx::class.java, servoName)
+  var reversed: Boolean = false
+    private set
 
   private var encoder: AnalogInput? = null
-  private var servoEncoderInfo: ServoEncoderInfo? = null
+  var servoEncoderInfo: ServoEncoderInfo? = null
+    private set
 
   // Builder functions
   fun withEncoder(encoder: AnalogInput, servoEncoderInfo: ServoEncoderInfo): Servo {
     this.encoder = encoder
     this.servoEncoderInfo = servoEncoderInfo
+    return this
+  }
+
+  fun setReversed(reversed: Boolean = true): Servo {
+    this.reversed = reversed
     return this
   }
 
@@ -37,7 +45,8 @@ class Servo(hwMap: HardwareMap, servoName: String) {
   fun getEncoderPosition(): Double {
     val encoder = checkNotNull(encoder) { "Encoder was not specified" }
     val encoderInfo = checkNotNull(servoEncoderInfo) { "servoEncoderInfo not specified" }
-    return encoder.voltage / (encoderInfo.maxEncoderVoltage - encoderInfo.minEncoderVoltage)
+    val pos = encoder.voltage / (encoderInfo.maxEncoderVoltage - encoderInfo.minEncoderVoltage)
+    return if (encoderInfo.reversed) 1 - pos else pos
   }
 
   fun getEncoderPositionDegrees(): Double {
@@ -61,7 +70,7 @@ class Servo(hwMap: HardwareMap, servoName: String) {
    * @param position Servo position in range [0,1]
    */
   fun setServoPosition(position: Double) {
-    servo.position = position
+    servo.position = if (reversed) 1 - position else position
   }
 
   /**

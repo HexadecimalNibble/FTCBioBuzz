@@ -1,31 +1,19 @@
 package org.firstinspires.ftc.teamcode
 
-import com.qualcomm.robotcore.eventloop.opmode.TeleOp
+import dev.frozenmilk.dairy.mercurial.continuations.Continuations.sequence
+import dev.frozenmilk.dairy.mercurial.continuations.Continuations.wait
+import dev.frozenmilk.dairy.mercurial.ftc.Mercurial
 import org.firstinspires.ftc.teamcode.robot.BiobuzzRobot
-import org.hexnibble.hexlib.gamepad.ButtonGroupController
-import org.hexnibble.hexlib.opmode.CoreTeleOpMode
+import org.hexnibble.hexlib.BaseRobot
 
-@TeleOp(name = "Biobuzz Teleop")
-class Teleop : CoreTeleOpMode() {
-  override fun createRobot() {
-    robot = BiobuzzRobot(hardwareMap)
-  }
+val TeleOp = Mercurial.teleop {
+  val robot: BaseRobot = BiobuzzRobot(hardwareMap)
 
-  override fun onPressInit() {
-    super.onPressInit()
+  schedule(
+    sequence(
+      // Wait for Start to be pressed
+      wait { inLoop },
 
-    // Prompt alliance info if no saved data from auto or options button pushed on either controller to force set alliance info
-    controller1.updateGamepadData()
-    controller2.updateGamepadData()
-    if (RobotData.allianceColor == null || RobotData.allianceSide == null || controller1.options.pressed() || controller2.options.pressed()) {
-      setAllianceInfo()
-
-      // Save alliance info
-      RobotData.allianceColor = allianceColor
-      RobotData.allianceSide = allianceSide
-    }
-
-    // Put controller bindings here
-    ButtonGroupController.add(controller1.cross) {}
-  }
+    )
+  )
 }

@@ -41,8 +41,8 @@ val myFirstMercurialTeleOp = Mercurial.teleop("Mercurial Test OpMode") {
         br.power = (drive - turn) * throttle
         fr.power = (drive - turn) * throttle
 
-        val currentTime = (System.nanoTime()).toULong()
-        println("Last loop time: ${currentTime - lastLoopTime}")
+        val currentTime = (System.nanoTime() / 1e6).toULong()
+        println("Last loop time: ${currentTime - lastLoopTime}ms")
         lastLoopTime = currentTime
       })
     )

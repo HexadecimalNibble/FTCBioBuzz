@@ -1,5 +1,6 @@
 [versions]
 agp = "8.7.0"
+ftcrobotcontroller = "11.1.0"
 kotlin = "2.4.0"
 coreKtx = "1.6.0"
 junitExt = "1.1.5"
@@ -29,6 +30,8 @@ ftc-hardware = { group = "org.firstinspires.ftc", name = "Hardware", version.ref
 ftc-common = { group = "org.firstinspires.ftc", name = "FtcCommon", version.ref = "ftc" }
 ftc-vision = { group = "org.firstinspires.ftc", name = "Vision", version.ref = "ftc" }
 
+ftcrobotcontroller = { module = "com.qualcomm.ftcrobotcontroller:FtcRobotController", version.ref = "ftcrobotcontroller" }
+
 fullpanels = { group = "com.bylazar", name = "fullpanels", version.ref = "fullpanels" }
 pedropathing = { group = "com.pedropathing", name = "ftc", version.ref = "pedropathing" }
 pedrotelemetry = { group = "com.pedropathing", name = "telemetry", version.ref = "pedrotelemetry" }
@@ -56,11 +59,11 @@ ftc-core = [
     "ftc-vision"
 ]
 common = [
-    "fullpanels",
+#    "fullpanels",
     "pedropathing",
     "pedrotelemetry",
-    "nextftc-control",
-    "blazeftc",
-    "mercurial",
-    "sloth"
+#    "nextftc-control",
+#    "blazeftc",
+#    "mercurial",
+#    "sloth"
 ]

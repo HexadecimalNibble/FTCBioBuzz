@@ -3,9 +3,10 @@ pluginManagement {
         google()
         mavenCentral()
         gradlePluginPortal()
+        maven("https://repo.dairy.foundation/releases")
     }
 }
 
-include(":FtcRobotController")
+//include(":FtcRobotController")
 include(":TeamCode")
 include(":HexLib")

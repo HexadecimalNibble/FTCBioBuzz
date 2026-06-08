@@ -1,43 +1,20 @@
 [versions]
 agp = "8.7.0"
-ftcrobotcontroller = "11.1.0"
 kotlin = "2.4.0"
-coreKtx = "1.6.0"
-junitExt = "1.1.5"
-appcompat = "1.7.1"
-ftc = "11.1.0"
 
-fullpanels = "1.0.12"
+dairy-fullpanels = "0.2.4.1+1.0.12"
 pedropathing = "2.1.2"
 pedrotelemetry = "1.0.0"
 nextftc = "1.0.0"
-blazeftc = "0.1.36"
 mercurial = "2.0.0-beta8"
 sloth = "0.2.4"
 
 [libraries]
-androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
-androidx-junit = { group = "androidx.test.ext", name = "junit", version.ref = "junitExt" }
-androidx-appcompat = { group = "androidx.appcompat", name = "appcompat", version.ref = "appcompat" }
-
-ftc-inspection = { group = "org.firstinspires.ftc", name = "Inspection", version.ref = "ftc" }
-ftc-blocks = { group = "org.firstinspires.ftc", name = "Blocks", version.ref = "ftc" }
-#noinspection Aligned16KB
-ftc-robotcore = { group = "org.firstinspires.ftc", name = "RobotCore", version.ref = "ftc" }
-ftc-robotserver = { group = "org.firstinspires.ftc", name = "RobotServer", version.ref = "ftc" }
-ftc-onbotjava = { group = "org.firstinspires.ftc", name = "OnBotJava", version.ref = "ftc" }
-ftc-hardware = { group = "org.firstinspires.ftc", name = "Hardware", version.ref = "ftc" }
-ftc-common = { group = "org.firstinspires.ftc", name = "FtcCommon", version.ref = "ftc" }
-ftc-vision = { group = "org.firstinspires.ftc", name = "Vision", version.ref = "ftc" }
-
-ftcrobotcontroller = { module = "com.qualcomm.ftcrobotcontroller:FtcRobotController", version.ref = "ftcrobotcontroller" }
-
-fullpanels = { group = "com.bylazar", name = "fullpanels", version.ref = "fullpanels" }
+dairy-fullpanels = { group = "com.bylazar.sloth", name = "fullpanels", version.ref = "dairy-fullpanels" }
 pedropathing = { group = "com.pedropathing", name = "ftc", version.ref = "pedropathing" }
 pedrotelemetry = { group = "com.pedropathing", name = "telemetry", version.ref = "pedrotelemetry" }
 nextftc-control = { group = "dev.nextftc", name = "control", version.ref = "nextftc" }
 
-blazeftc = { group = "dev.anygeneric", name = "blazeftc", version.ref = "blazeftc" }
 mercurial = { group = "dev.frozenmilk.dairy", name = "Mercurial", version.ref = "mercurial" }
 sloth = { group = "dev.frozenmilk.sinister", name = "Sloth", version.ref = "sloth" }
 kotlin-reflect = { group = "org.jetbrains.kotlin", name = "kotlin-reflect", version.ref = "kotlin" }
@@ -48,22 +25,7 @@ android-library = { id = "com.android.library", version.ref = "agp" }
 kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
 
 [bundles]
-ftc-core = [
-    "ftc-inspection",
-    "ftc-blocks",
-    "ftc-robotcore",
-    "ftc-robotserver",
-    "ftc-onbotjava",
-    "ftc-hardware",
-    "ftc-common",
-    "ftc-vision"
-]
-common = [
-#    "fullpanels",
+pedro = [
     "pedropathing",
     "pedrotelemetry",
-#    "nextftc-control",
-#    "blazeftc",
-#    "mercurial",
-#    "sloth"
 ]

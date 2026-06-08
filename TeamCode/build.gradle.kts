@@ -5,19 +5,14 @@ plugins {
 ftc {
   kotlin()
   sdk.TeamCode()
-  dairy {
-    implementation(Sloth)
-
-    ftControl {
-      implementation(fullpanels)
-    }
-
-    implementation(MercurialFTC)
-  }
 }
 
 dependencies {
   implementation(project(":HexLib"))
-  implementation(libs.bundles.common)
+  implementation(libs.bundles.pedro)
+
   implementation(libs.kotlin.reflect)
+  implementation(libs.mercurial)
+  implementation(libs.sloth)
+  implementation(libs.dairy.fullpanels)
 }

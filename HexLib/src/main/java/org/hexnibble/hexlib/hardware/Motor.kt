@@ -5,8 +5,6 @@ import com.qualcomm.robotcore.hardware.DcMotorImplEx
 import com.qualcomm.robotcore.hardware.DcMotorSimple
 import com.qualcomm.robotcore.hardware.HardwareMap
 import org.firstinspires.ftc.robotcore.external.navigation.CurrentUnit
-import org.hexnibble.hexlib.controllers.PIDCoefficients
-import org.hexnibble.hexlib.controllers.PIDController
 import kotlin.math.abs
 
 // The minimum difference between the current and requested motor power between motor writes
@@ -31,7 +29,6 @@ class Motor @JvmOverloads constructor(
   runMode: DcMotor.RunMode = DcMotor.RunMode.RUN_WITHOUT_ENCODER,
   val encoderType: MotorEncoder = MotorEncoder.GOBILDA_INTERNAL,
   var encoderDirection: DcMotorSimple.Direction = DcMotorSimple.Direction.FORWARD,
-  val pidController: PIDController? = null,
 ) {
   var runMode: DcMotor.RunMode = runMode
     private set
@@ -134,40 +131,6 @@ class Motor @JvmOverloads constructor(
    */
   fun getCurrentVelocityRPM(): Double = motorType.getPosition(motorObject.velocity, encoderType.CPR, externalGearChange)
 
-  fun setPIDFCoefficients(pidfCoefficients: PIDCoefficients) {
-    if (pidController == null) return
-    pidController.coefficients.setCoefficients(pidfCoefficients)
-  }
-
-  fun pidfAtTargetPosition(): Boolean {
-    if (pidController == null) return false
-    return abs(prevTargetPositionDeg - targetPositionDeg) < 0.25 && pidController.atTargetPosition()
-  }
-
-  /**
-   * Function to run the PIDF.
-   * This should be called every loop to update the PIDF.
-   * This will only run if the pidf is not at the target position.
-   */
-  fun processPIDF() {
-    if (pidController == null) return
-    if (!pidfAtTargetPosition()) {
-      val error = targetPositionDeg - getCurrentPositionDeg()
-      pidController.updateError(error)
-      setPower(pidController.run())
-    }
-    prevTargetPositionDeg = targetPositionDeg
-  }
-
-  // TODO: FIX THIS
-  fun processPIDFForce() {
-    if (pidController == null) return
-    val error = targetPositionDeg - getCurrentPositionDeg()
-    pidController.updateError(error)
-    setPower(pidController.run())
-    prevTargetPositionDeg = targetPositionDeg
-  }
-
   /**
    * Call this function to reinitialize this motor when restarting an OpMode. It will revert back to
    * the most recent stored values. This function will NOT reset encoders.
@@ -180,8 +143,6 @@ class Motor @JvmOverloads constructor(
     motorObject.zeroPowerBehavior = zeroPowerBehavior
 
     setRunMode(runMode) // Set the motor to the requested run mode
-
-    pidController?.reset()
   }
 }
 

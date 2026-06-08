@@ -5,18 +5,20 @@ kotlin = "2.4.0"
 dairy-fullpanels = "0.2.4.1+1.0.12"
 pedropathing = "2.1.2"
 pedrotelemetry = "1.0.0"
-nextftc = "1.0.0"
-mercurial = "2.0.0-beta8"
-sloth = "0.2.4"
+nextftc-control = "1.0.0"
+#mercurial = "2.0.0-beta8"
+#sloth = "0.2.4"
+mercurial-ftc = "2.0.0-beta9"
 
 [libraries]
 dairy-fullpanels = { group = "com.bylazar.sloth", name = "fullpanels", version.ref = "dairy-fullpanels" }
 pedropathing = { group = "com.pedropathing", name = "ftc", version.ref = "pedropathing" }
 pedrotelemetry = { group = "com.pedropathing", name = "telemetry", version.ref = "pedrotelemetry" }
-nextftc-control = { group = "dev.nextftc", name = "control", version.ref = "nextftc" }
+nextftc-control = { group = "dev.nextftc", name = "control", version.ref = "nextftc-control" }
 
-mercurial = { group = "dev.frozenmilk.dairy", name = "Mercurial", version.ref = "mercurial" }
-sloth = { group = "dev.frozenmilk.sinister", name = "Sloth", version.ref = "sloth" }
+#mercurial = { group = "dev.frozenmilk.dairy", name = "Mercurial", version.ref = "mercurial" }
+#sloth = { group = "dev.frozenmilk.sinister", name = "Sloth", version.ref = "sloth" }
+mercurial-ftc = { group = "dev.frozenmilk.dairy", name = "MercurialFTC", version.ref = "mercurial-ftc" }
 kotlin-reflect = { group = "org.jetbrains.kotlin", name = "kotlin-reflect", version.ref = "kotlin" }
 
 [plugins]

@@ -12,7 +12,7 @@ dependencies {
   implementation(libs.bundles.pedro)
 
   implementation(libs.kotlin.reflect)
-  implementation(libs.mercurial)
-  implementation(libs.sloth)
+  implementation(libs.mercurial.ftc)
   implementation(libs.dairy.fullpanels)
+  implementation(libs.nextftc.control)
 }

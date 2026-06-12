@@ -8,13 +8,23 @@ import android.util.Log
  */
 object L {
     @JvmStatic
-    fun v(logTag: String, logString: String) = Log.v("HexNibble", "($logTag) $logString")
+    fun v(logTag: String, logString: String) {
+        Log.v("HexNibble", "($logTag) $logString")
+    }
     @JvmStatic
-    fun d(logTag: String, logString: String) = Log.d("HexNibble", "($logTag) $logString")
+    fun d(logTag: String, logString: String) {
+        Log.d("HexNibble", "($logTag) $logString")
+    }
     @JvmStatic
-    fun i(logTag: String, logString: String) = Log.i("HexNibble", "($logTag) $logString")
+    fun i(logTag: String, logString: String) {
+        Log.i("HexNibble", "($logTag) $logString")
+    }
     @JvmStatic
-    fun w(logTag: String, logString: String) = Log.w("HexNibble", "($logTag) $logString")
+    fun w(logTag: String, logString: String) {
+        Log.w("HexNibble", "($logTag) $logString")
+    }
     @JvmStatic
-    fun e(logTag: String, logString: String) = Log.e("HexNibble", "($logTag) $logString")
+    fun e(logTag: String, logString: String) {
+      Log.e("HexNibble", "($logTag) $logString")
+    }
 }

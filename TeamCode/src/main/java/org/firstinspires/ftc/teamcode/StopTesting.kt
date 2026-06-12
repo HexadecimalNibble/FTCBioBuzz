@@ -14,6 +14,8 @@ class StopTesting : LinearOpMode() {
     AppUtil.getInstance().showToast(UILocation.BOTH, "Hi", 1)
   }
   override fun runOpMode() {
+    var lastLoopTime = 0UL
+
     val lFMotor = hardwareMap.get(DcMotorImplEx::class.java, "LFMotor").also { it.direction = DcMotorSimple.Direction.REVERSE }
     val lBMotor = hardwareMap.get(DcMotorImplEx::class.java, "LBMotor").also { it.direction = DcMotorSimple.Direction.REVERSE }
     val rFMotor = hardwareMap.get(DcMotorImplEx::class.java, "RFMotor")
@@ -36,6 +38,10 @@ class StopTesting : LinearOpMode() {
       lBMotor.power = lBRaw / denom
       rFMotor.power = rFRaw / denom
       rBMotor.power = rBRaw / denom
+
+      val currentTime = (System.nanoTime() / 1e6).toULong()
+      println("Last loop time: ${currentTime - lastLoopTime}ms")
+      lastLoopTime = currentTime
     }
   }
 }

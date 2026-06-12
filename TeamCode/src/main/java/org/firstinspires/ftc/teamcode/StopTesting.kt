@@ -14,7 +14,6 @@ class StopTesting : LinearOpMode() {
     AppUtil.getInstance().showToast(UILocation.BOTH, "Hi", 1)
   }
   override fun runOpMode() {
-    var lastLoopTime = 0UL
 
     val lFMotor = hardwareMap.get(DcMotorImplEx::class.java, "LFMotor").also { it.direction = DcMotorSimple.Direction.REVERSE }
     val lBMotor = hardwareMap.get(DcMotorImplEx::class.java, "LBMotor").also { it.direction = DcMotorSimple.Direction.REVERSE }
@@ -22,10 +21,12 @@ class StopTesting : LinearOpMode() {
     val rBMotor = hardwareMap.get(DcMotorImplEx::class.java, "RBMotor")
 
     waitForStart()
+    var lastLoopTime = System.nanoTime() / 1e6
+
     while (opModeIsActive()) {
-      val robotX = gamepad1.left_stick_x
-      val robotY = -gamepad1.left_stick_y
-      val triggers = gamepad1.right_trigger - gamepad1.left_trigger
+      val robotX = gamepad1.left_stick_x.takeIf { abs(it) > 0.1 } ?: 0f
+      val robotY = (-gamepad1.left_stick_y).takeIf { abs(it) > 0.1 } ?: 0f
+      val triggers = (gamepad1.right_trigger - gamepad1.left_trigger).takeIf { abs(it) > 0.1 } ?: 0f
 
       val lFRaw = robotY + robotX + triggers
       val lBRaw = robotY - robotX + triggers
@@ -34,14 +35,17 @@ class StopTesting : LinearOpMode() {
 
       val denom = maxOf(abs(lFRaw), abs(lBRaw), abs(rFRaw), abs(rBRaw), 1f).toDouble()
 
+      val startTime = System.nanoTime() / 1e6
+
       lFMotor.power = lFRaw / denom
       lBMotor.power = lBRaw / denom
       rFMotor.power = rFRaw / denom
       rBMotor.power = rBRaw / denom
 
-      val currentTime = (System.nanoTime() / 1e6).toULong()
-      println("Last loop time: ${currentTime - lastLoopTime}ms")
-      lastLoopTime = currentTime
+      val loop = System.nanoTime() / 1e6 - startTime
+      if (loop > 3) {
+        println("Loop time: ${loop}ms")
+      }
     }
   }
 }

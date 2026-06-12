@@ -14,10 +14,10 @@ class StopTesting : LinearOpMode() {
     AppUtil.getInstance().showToast(UILocation.BOTH, "Hi", 1)
   }
   override fun runOpMode() {
-    val LFMotor = hardwareMap.get(DcMotorImplEx::class.java, "LFMotor").also { it.direction = DcMotorSimple.Direction.REVERSE }
-    val LBMotor = hardwareMap.get(DcMotorImplEx::class.java, "LBMotor").also { it.direction = DcMotorSimple.Direction.REVERSE }
-    val RFMotor = hardwareMap.get(DcMotorImplEx::class.java, "RFMotor")
-    val RBMotor = hardwareMap.get(DcMotorImplEx::class.java, "RBMotor")
+    val lFMotor = hardwareMap.get(DcMotorImplEx::class.java, "LFMotor").also { it.direction = DcMotorSimple.Direction.REVERSE }
+    val lBMotor = hardwareMap.get(DcMotorImplEx::class.java, "LBMotor").also { it.direction = DcMotorSimple.Direction.REVERSE }
+    val rFMotor = hardwareMap.get(DcMotorImplEx::class.java, "RFMotor")
+    val rBMotor = hardwareMap.get(DcMotorImplEx::class.java, "RBMotor")
 
     waitForStart()
     while (opModeIsActive()) {
@@ -30,12 +30,12 @@ class StopTesting : LinearOpMode() {
       val rFRaw = robotY - robotX - triggers
       val rBRaw = robotY + robotX - triggers
 
-      val denom = maxOf(abs(lFRaw), abs(lBRaw), abs(rFRaw), abs(rBRaw), 1f)
+      val denom = maxOf(abs(lFRaw), abs(lBRaw), abs(rFRaw), abs(rBRaw), 1f).toDouble()
 
-      val lFMotor = lFRaw / denom
-      val lBMotor = lBRaw / denom
-      val rFMotor = rFRaw / denom
-      val rBMotor = rBRaw / denom
+      lFMotor.power = lFRaw / denom
+      lBMotor.power = lBRaw / denom
+      rFMotor.power = rFRaw / denom
+      rBMotor.power = rBRaw / denom
     }
   }
 }

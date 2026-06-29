@@ -15,4 +15,6 @@ dependencies {
   implementation(libs.mercurial.ftc)
   implementation(libs.dairy.fullpanels)
   implementation(libs.nextftc.control)
+
+  implementation(libs.blaze.ftc)
 }

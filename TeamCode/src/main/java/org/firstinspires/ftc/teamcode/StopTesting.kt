@@ -21,7 +21,6 @@ class StopTesting : LinearOpMode() {
     val rBMotor = hardwareMap.get(DcMotorImplEx::class.java, "RBMotor")
 
     waitForStart()
-    var lastLoopTime = System.nanoTime() / 1e6
 
     while (opModeIsActive()) {
       val robotX = gamepad1.left_stick_x.takeIf { abs(it) > 0.1 } ?: 0f

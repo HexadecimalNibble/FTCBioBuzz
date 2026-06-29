@@ -21,6 +21,8 @@ nextftc-control = { group = "dev.nextftc", name = "control", version.ref = "next
 mercurial-ftc = { group = "dev.frozenmilk.dairy", name = "MercurialFTC", version.ref = "mercurial-ftc" }
 kotlin-reflect = { group = "org.jetbrains.kotlin", name = "kotlin-reflect", version.ref = "kotlin" }
 
+blaze-ftc = { group = "dev.anygeneric", name = "blazeftc", version = "0.1.36"}
+
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
 android-library = { id = "com.android.library", version.ref = "agp" }

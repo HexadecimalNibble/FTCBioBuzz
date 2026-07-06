@@ -7,6 +7,12 @@ ftc {
   sdk.TeamCode()
 }
 
+androidComponents {
+  finalizeDsl { extension ->
+    extension.compileSdk = 34
+  }
+}
+
 dependencies {
   implementation(project(":HexLib"))
   implementation(libs.bundles.pedro)

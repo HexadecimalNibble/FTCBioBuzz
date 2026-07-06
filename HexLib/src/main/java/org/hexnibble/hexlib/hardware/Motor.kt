@@ -1,6 +1,7 @@
 package org.hexnibble.hexlib.hardware
 
 import com.qualcomm.robotcore.hardware.DcMotor
+import com.qualcomm.robotcore.hardware.DcMotorEx
 import com.qualcomm.robotcore.hardware.DcMotorImplEx
 import com.qualcomm.robotcore.hardware.DcMotorSimple
 import com.qualcomm.robotcore.hardware.HardwareMap
@@ -33,7 +34,7 @@ class Motor @JvmOverloads constructor(
   var runMode: DcMotor.RunMode = runMode
     private set
 
-  private val motorObject: DcMotorImplEx = hwMap.get(DcMotorImplEx::class.java, motorName)
+  private val motorObject: DcMotorEx = hwMap.get(DcMotorEx::class.java, motorName)
   var power: Double = 0.0
     private set
   var zeroPowerBehavior: DcMotor.ZeroPowerBehavior = DcMotor.ZeroPowerBehavior.BRAKE

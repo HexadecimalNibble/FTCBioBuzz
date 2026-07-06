@@ -1,14 +1,9 @@
 package org.firstinspires.ftc.teamcode;
 
 import com.pedropathing.follower.Follower;
-import com.pedropathing.ftc.localization.localizers.PinpointLocalizer;
 import com.pedropathing.geometry.BezierLine;
 import com.pedropathing.geometry.Pose;
-import com.pedropathing.localization.Localizer;
-import com.pedropathing.localization.PoseTracker;
-import com.pedropathing.math.Vector;
 import com.pedropathing.paths.Path;
-import com.qualcomm.hardware.gobilda.GoBildaPinpointDriver;
 import com.qualcomm.hardware.lynx.LynxModule;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.util.ElapsedTime;
@@ -16,99 +11,60 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.teamcode.pedroPathing.PedroConstants;
 
-import java.util.List;
-
 import dev.anygeneric.blazeftc.DummyPlugOpMode;
-import dev.anygeneric.blazeftc.PositionData;
+import dev.anygeneric.blazeftc_pedro.PedroSingleDataLocalizer;
 
 @TeleOp(name = "Example Pedro High Speed Localization")
 public class ExamplePedroSpeedLocalization extends DummyPlugOpMode {
   @Override
   public void runOpModeInBlaze() {
+    //this does several important things internally. You *must* call it before anything else.
+    //You can pass whatever telemetry object in you want, including the split ones that go to a web dashboard.
+    //However, you need to use the object it returns, and you should under no circumstances replace it with
+    //`telemetry = initializeBlazeFTC(telemetry);` which replaces the OpMode's telemetry and breaks everything.
+    //Feel free to try and fix this, but it's out of scope for me, sorry.
     Telemetry tele = initializeBlazeFTC(telemetry);
-    List<LynxModule> mods = hardwareMap.getAll(LynxModule.class);
-    for (LynxModule i : mods)
+    //Normal manual cache setup.
+    for (LynxModule i : hardwareMap.getAll(LynxModule.class))
       i.setBulkCachingMode(LynxModule.BulkCachingMode.MANUAL);
-    engageMotorAcceleration();//this sends cmds directly to blaze, skipping Java serialization
+    //this sends motor cmds directly to blaze, skipping Java serialization completely
+    //it reaches into the hwMap to replace the motors there so don't pull the motors out/init pedro before calling it
+    engageMotorAcceleration();
     //we create the follower. NOTE that this uses the pinpoint java driver to set all your settings and offsets
-    Follower follower = PedroConstants.INSTANCE.createFollower(hardwareMap);
-    //we have to take the pinpoint out of pedro. currently kind of a no-op though
-    GoBildaPinpointDriver ppd = ((PinpointLocalizer)follower.poseTracker.getLocalizer()).getPinpoint();
+    Follower follower = PedroConstants.createFollower(hardwareMap);
     waitForStart();
-    //we replace pedro's localizer with ours
-    SingleDataLocalizer sdl = new SingleDataLocalizer();
-    follower.poseTracker = new PoseTracker(sdl);
     ElapsedTime elt = new ElapsedTime();
-    //this closure should be called every time we get new data. we have to do some gymnastics because
-    //pedro doesn't like us doing it this way.
-    //TODO replace the pinpointBus (0 rn) with the port number the pinpoint is in
-    engagePinpointAcceleration(ppd, true, 3, (it) -> {
-      tele.addData("loop time (ms)", elt.milliseconds());
+    //the closure you pass will be called every time we get new data.
+    //you may call `setup` at any time during the opmode, but it *must* be called before runBlazeFTC(0);
+    //if you call it later, it will be ignored.
+    PedroSingleDataLocalizer.setup(follower, () -> {
+      tele.addData("pedro loop time (ms)", elt.milliseconds());
       elt.reset();
-
-      sdl.lastData = it;
       follower.update();
       tele.addData("x,y", follower.getPose().getX() + ", " + follower.getPose().getY());
-      tele.update();
-      return null;
     });
+    //this is a test path. Replace it with your team's logic
+//    follower.followPath(new Path(new BezierLine(new Pose(0, 0), new Pose(10, 0))));
+    follower.startTeleOpDrive(true);
 
-    sendPropertyToRust("pinpoint2ndDelay", "1010");
-
-    follower.followPath(new Path(new BezierLine(new Pose(0, 0), new Pose(10, 0))));
+    //this turns control over to Blaze. The 0 tells blaze to use Neutrino, not a different rust opmode.
+    //If you wrote other rust opmodes, you would start them instead by passing in a different number.
+    //You absolutely have to call this some time after waitForStart
     runBlazeFTC(0);
 
+    //This should be replaced with your own code.
+    ElapsedTime elt2 = new ElapsedTime();
     while (!isStopRequested()) {
+      for (LynxModule i : hardwareMap.getAll(LynxModule.class))
+        i.clearBulkCache();
+
+      follower.setTeleOpDrive(-gamepad1.left_stick_y, -gamepad1.left_stick_x, gamepad1.right_trigger - gamepad1.left_trigger, true);
+
       //it doesn't matter what you do here
-      sleep(20);
+      sleep(2);
+      tele.addData("main loop time (ms)", elt2.milliseconds());
+      elt2.reset();
+      tele.update();
     }
-  }
-  public static class SingleDataLocalizer implements Localizer {
-    public PositionData lastData = new PositionData();
-
-    @Override
-    public Pose getPose() {
-      return new Pose(lastData.getXPosition(), lastData.getYPosition(), lastData.getDirection());
-    }
-
-    @Override
-    public Pose getVelocity() {
-      return new Pose(lastData.getXVelocity(), lastData.getYVelocity(), lastData.getAngVelocity());
-    }
-
-    @Override
-    public Vector getVelocityVector() {
-      return getVelocity().getAsVector();
-    }
-
-    @Override
-    public void setStartPose(Pose setStart) {
-      throw new RuntimeException("not implemented");
-    }
-
-    @Override
-    public void setPose(Pose setPose) {
-      throw new RuntimeException("not implemented");
-    }
-
-    @Override
-    public void update() {
-      //this doesn't do anything. we receive new data asynchronously
-    }
-
-    @Override
-    public double getTotalHeading() {throw new RuntimeException("not implemented");}
-    @Override
-    public double getForwardMultiplier() {throw new RuntimeException("not implemented");}
-    @Override
-    public double getLateralMultiplier() {throw new RuntimeException("not implemented");}
-    @Override
-    public double getTurningMultiplier() {throw new RuntimeException("not implemented");}
-    @Override
-    public void resetIMU() {}
-    @Override
-    public double getIMUHeading() {throw new RuntimeException("not implemented");}
-    @Override
-    public boolean isNAN() {return false;}
   }
 }

@@ -61,6 +61,7 @@ object PedroConstants {
     1.0 // brakingStart
   )
 
+  @JvmStatic
   fun createFollower(hardwareMap: HardwareMap?): Follower {
     return FollowerBuilder(followerConstants, hardwareMap)
       .mecanumDrivetrain(mecanumConstants)

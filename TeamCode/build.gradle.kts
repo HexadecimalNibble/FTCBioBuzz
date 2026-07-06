@@ -17,4 +17,5 @@ dependencies {
   implementation(libs.nextftc.control)
 
   implementation(libs.blaze.ftc)
+  implementation(libs.blaze.ftc.pedro)
 }

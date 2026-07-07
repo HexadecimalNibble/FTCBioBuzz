@@ -40,11 +40,6 @@ class Motor @JvmOverloads constructor(
   var zeroPowerBehavior: DcMotor.ZeroPowerBehavior = DcMotor.ZeroPowerBehavior.BRAKE
     private set
 
-  // Previous target position used to know when targetPositionDeg updates
-  var prevTargetPositionDeg: Double = 0.0
-    private set
-  var targetPositionDeg: Double = 0.0
-
   init {
     if (encoderType is MotorEncoder.GOBILDA_INTERNAL || encoderType is MotorEncoder.REV_CORE_HEX_INTERNAL) {
       this.encoderDirection = runDirection
@@ -130,7 +125,7 @@ class Motor @JvmOverloads constructor(
    *
    * @return Output shaft current velocity (rpm)
    */
-  fun getCurrentVelocityRPM(): Double = motorType.getPosition(motorObject.velocity, encoderType.CPR, externalGearChange)
+  fun getCurrentVelocityRPM(): Double = motorType.getVelocity(motorObject.velocity, encoderType.CPR, externalGearChange)
 
   /**
    * Call this function to reinitialize this motor when restarting an OpMode. It will revert back to

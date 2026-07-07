@@ -1,18 +1,24 @@
 package org.firstinspires.ftc.teamcode;
 
+import com.bylazar.configurables.annotations.Configurable;
 import com.pedropathing.follower.Follower;
+import com.pedropathing.geometry.Pose;
 import com.qualcomm.hardware.lynx.LynxModule;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.teamcode.pedroPathing.PedroConstants;
+import org.firstinspires.ftc.teamcode.robot.Shooter;
 
 import dev.anygeneric.blazeftc.DummyPlugOpMode;
 import dev.anygeneric.blazeftc_pedro.PedroSingleDataLocalizer;
 
+@Configurable
 @TeleOp(name = "Example Pedro High Speed Localization")
 public class ExamplePedroSpeedLocalization extends DummyPlugOpMode {
+  public static double p = 0.2;
+  public static double d = 0.01;
   @Override
   public void runOpModeInBlaze() {
     //this does several important things internally. You *must* call it before anything else.
@@ -51,13 +57,29 @@ public class ExamplePedroSpeedLocalization extends DummyPlugOpMode {
 
     //This should be replaced with your own code.
     ElapsedTime elt2 = new ElapsedTime();
+
+    Shooter shooter = new Shooter(hardwareMap);
+//    follower.setPose(new Pose(72.0, 72.0, 0.0));
     while (!isStopRequested()) {
       for (LynxModule i : hardwareMap.getAll(LynxModule.class)) i.clearBulkCache();
 
       follower.setTeleOpDrive(-gamepad1.left_stick_y, -gamepad1.left_stick_x, -gamepad1.right_trigger + gamepad1.left_trigger, true);
 
-      sleep(20 );
+      shooter.setPD(p, d);
+
+//      shooter.setTargetAngle(90.0 - Math.toDegrees(follower.getHeading()));
+
+      shooter.goalAlign(follower.getPose(), follower.getVelocity());
+
+//      shooter.setShooterVelocity(3000.0);
+
+      shooter.processCommands();
+
+//      sleep(6);
       tele.addData("main loop time (ms)", elt2.milliseconds());
+      tele.addData("turret pos", shooter.getTurretMotor().getCurrentPositionDeg());
+      tele.addData("shooter vel", shooter.getShooterMotor1().getCurrentVelocityRPM());
+      tele.addData("shooter target vel", shooter.getShooterControlSystem().getGoal().getVelocity());
       elt2.reset();
       tele.update();
     }

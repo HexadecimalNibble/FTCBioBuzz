@@ -1,10 +1,13 @@
 package org.firstinspires.ftc.teamcode;
 
-import com.bylazar.configurables.annotations.Configurable;
 import com.pedropathing.follower.Follower;
 import com.pedropathing.geometry.Pose;
 import com.qualcomm.hardware.lynx.LynxModule;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
+import com.qualcomm.robotcore.hardware.AnalogInput;
+import com.qualcomm.robotcore.hardware.DcMotorEx;
+import com.qualcomm.robotcore.hardware.DigitalChannel;
+import com.qualcomm.robotcore.hardware.ServoImplEx;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
@@ -14,11 +17,8 @@ import org.firstinspires.ftc.teamcode.robot.Shooter;
 import dev.anygeneric.blazeftc.DummyPlugOpMode;
 import dev.anygeneric.blazeftc_pedro.PedroSingleDataLocalizer;
 
-@Configurable
 @TeleOp(name = "Example Pedro High Speed Localization")
 public class ExamplePedroSpeedLocalization extends DummyPlugOpMode {
-  public static double p = 0.2;
-  public static double d = 0.01;
   @Override
   public void runOpModeInBlaze() {
     //this does several important things internally. You *must* call it before anything else.
@@ -53,33 +53,53 @@ public class ExamplePedroSpeedLocalization extends DummyPlugOpMode {
     //this turns control over to Blaze. The 0 tells blaze to use Neutrino, not a different rust opmode.
     //If you wrote other rust opmodes, you would start them instead by passing in a different number.
     //You absolutely have to call this some time after waitForStart
+
+    ElapsedTime e1 = new ElapsedTime();
+//    engageBulkReadAcceleration(true, 1, () -> {
+//      tele.addData("bulk read loop time (ms)", e1.milliseconds());
+//      e1.reset();
+//      ServoImplEx rLED = hardwareMap.get(ServoImplEx.class, "RLED");
+//      rLED.setPosition(0.7);
+//
+//      DigitalChannel intakeDistanceSensor = hardwareMap.get(DigitalChannel.class, "IntakeDistanceSensor");
+//      intakeDistanceSensor.setMode(DigitalChannel.Mode.INPUT);
+//      tele.addData("Intake distance sensor: ", intakeDistanceSensor.getState());
+//
+//      AnalogInput loaderServoEncoder = hardwareMap.get(AnalogInput.class, "LoaderServoEncoder");
+//      tele.addData("Loader servo encoder: ", loaderServoEncoder.getVoltage());
+//
+//      DcMotorEx turretMotor = hardwareMap.get(DcMotorEx.class, "TurretMotor");
+//      tele.addData("Turret motor pos: ", turretMotor.getCurrentPosition());
+//
+//      follower.setTeleOpDrive(-gamepad1.left_stick_y, -gamepad1.left_stick_x, -gamepad1.right_trigger + gamepad1.left_trigger, true);
+//
+//      return null;
+//    });
+
     runBlazeFTC(0);
 
     //This should be replaced with your own code.
     ElapsedTime elt2 = new ElapsedTime();
 
     Shooter shooter = new Shooter(hardwareMap);
-//    follower.setPose(new Pose(72.0, 72.0, 0.0));
+    follower.setPose(new Pose(72.0, 72.0, 0.0));
+
     while (!isStopRequested()) {
-      for (LynxModule i : hardwareMap.getAll(LynxModule.class)) i.clearBulkCache();
+//      for (LynxModule i : hardwareMap.getAll(LynxModule.class)) i.clearBulkCache();
 
-      follower.setTeleOpDrive(-gamepad1.left_stick_y, -gamepad1.left_stick_x, -gamepad1.right_trigger + gamepad1.left_trigger, true);
 
-      shooter.setPD(p, d);
+      double y = gamepad1.right_stick_y;
+      shooter.getShooterMotor1().setPower(y);
+      shooter.getShooterMotor2().setPower(-y);
 
-//      shooter.setTargetAngle(90.0 - Math.toDegrees(follower.getHeading()));
+      double x = gamepad1.right_stick_x;
+      shooter.getTurretMotor().setPower(-x);
 
-      shooter.goalAlign(follower.getPose(), follower.getVelocity());
-
-//      shooter.setShooterVelocity(3000.0);
-
-      shooter.processCommands();
-
-//      sleep(6);
-      tele.addData("main loop time (ms)", elt2.milliseconds());
+      sleep(5);
       tele.addData("turret pos", shooter.getTurretMotor().getCurrentPositionDeg());
-      tele.addData("shooter vel", shooter.getShooterMotor1().getCurrentVelocityRPM());
-      tele.addData("shooter target vel", shooter.getShooterControlSystem().getGoal().getVelocity());
+//      tele.addData("shooter vel", shooter.getShooterMotor1().getCurrentVelocityRPM());
+//      tele.addData("shooter target vel", shooter.getShooterControlSystem().getGoal().getVelocity());
+      tele.addData("main loop time (ms)", elt2.milliseconds());
       elt2.reset();
       tele.update();
     }

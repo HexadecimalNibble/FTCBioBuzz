@@ -1,5 +1,7 @@
 package org.firstinspires.ftc.teamcode;
 
+import static com.qualcomm.robotcore.hardware.configuration.LynxConstants.EXPANSION_HUB_PRODUCT_NUMBER;
+
 import com.pedropathing.follower.Follower;
 import com.pedropathing.geometry.Pose;
 import com.qualcomm.hardware.lynx.LynxModule;
@@ -11,8 +13,13 @@ import com.qualcomm.robotcore.hardware.ServoImplEx;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
+import org.firstinspires.ftc.robotcore.external.navigation.VoltageUnit;
 import org.firstinspires.ftc.teamcode.pedroPathing.PedroConstants;
 import org.firstinspires.ftc.teamcode.robot.Shooter;
+
+import java.lang.reflect.Field;
+import java.util.Arrays;
+import java.util.Objects;
 
 import dev.anygeneric.blazeftc.DummyPlugOpMode;
 import dev.anygeneric.blazeftc_pedro.PedroSingleDataLocalizer;
@@ -32,7 +39,7 @@ public class ExamplePedroSpeedLocalization extends DummyPlugOpMode {
       i.setBulkCachingMode(LynxModule.BulkCachingMode.MANUAL);
     //this sends motor cmds directly to blaze, skipping Java serialization completely
     //it reaches into the hwMap to replace the motors there so don't pull the motors out/init pedro before calling it
-    engageMotorAcceleration();
+//    engageMotorAcceleration();
     //we create the follower. NOTE that this uses the pinpoint java driver to set all your settings and offsets
     Follower follower = PedroConstants.createFollower(hardwareMap);
     waitForStart();
@@ -55,26 +62,27 @@ public class ExamplePedroSpeedLocalization extends DummyPlugOpMode {
     //You absolutely have to call this some time after waitForStart
 
     ElapsedTime e1 = new ElapsedTime();
-//    engageBulkReadAcceleration(true, 1, () -> {
-//      tele.addData("bulk read loop time (ms)", e1.milliseconds());
-//      e1.reset();
-//      ServoImplEx rLED = hardwareMap.get(ServoImplEx.class, "RLED");
-//      rLED.setPosition(0.7);
-//
-//      DigitalChannel intakeDistanceSensor = hardwareMap.get(DigitalChannel.class, "IntakeDistanceSensor");
-//      intakeDistanceSensor.setMode(DigitalChannel.Mode.INPUT);
-//      tele.addData("Intake distance sensor: ", intakeDistanceSensor.getState());
-//
-//      AnalogInput loaderServoEncoder = hardwareMap.get(AnalogInput.class, "LoaderServoEncoder");
-//      tele.addData("Loader servo encoder: ", loaderServoEncoder.getVoltage());
-//
-//      DcMotorEx turretMotor = hardwareMap.get(DcMotorEx.class, "TurretMotor");
-//      tele.addData("Turret motor pos: ", turretMotor.getCurrentPosition());
-//
-//      follower.setTeleOpDrive(-gamepad1.left_stick_y, -gamepad1.left_stick_x, -gamepad1.right_trigger + gamepad1.left_trigger, true);
-//
-//      return null;
-//    });
+    engageBulkReadAcceleration(true, 1, (byteArray) -> {
+      tele.addData("bulk read loop time (ms)", e1.milliseconds());
+      e1.reset();
+      try {
+        for (LynxModule i : hardwareMap.getAll(LynxModule.class)) {
+          Field bulkData = LynxModule.class.getDeclaredField("lastBulkData");
+          bulkData.setAccessible(true);
+          LynxModule.BulkData b = (LynxModule.BulkData) bulkData.get(i);
+          if (b != null) {
+            System.out.println(i.hashCode() + b.toString() + "; shooter motor pos: " + b.getMotorCurrentPosition(1) + "; Intake loader: " + b.getAnalogInputVoltage(0));
+          }
+        }
+      } catch (Exception e) {
+        throw new RuntimeException(e);
+      }
+      telemetry.update();
+
+      follower.setTeleOpDrive(-gamepad1.left_stick_y, -gamepad1.left_stick_x, -gamepad1.right_trigger + gamepad1.left_trigger, true);
+
+      return null;
+    });
 
     runBlazeFTC(0);
 
@@ -83,6 +91,14 @@ public class ExamplePedroSpeedLocalization extends DummyPlugOpMode {
 
     Shooter shooter = new Shooter(hardwareMap);
     follower.setPose(new Pose(72.0, 72.0, 0.0));
+
+    LynxModule exHub = null;
+    for (LynxModule l : hardwareMap.getAll(LynxModule.class)) {
+      if (!l.isParent() && l.getRevProductNumber() == EXPANSION_HUB_PRODUCT_NUMBER) {
+        exHub = l;
+        break;
+      }
+    }
 
     while (!isStopRequested()) {
 //      for (LynxModule i : hardwareMap.getAll(LynxModule.class)) i.clearBulkCache();
@@ -96,12 +112,13 @@ public class ExamplePedroSpeedLocalization extends DummyPlugOpMode {
       shooter.getTurretMotor().setPower(-x);
 
       sleep(5);
-      tele.addData("turret pos", shooter.getTurretMotor().getCurrentPositionDeg());
+//      tele.addData("turret pos", shooter.getTurretMotor().getCurrentPositionDeg());
 //      tele.addData("shooter vel", shooter.getShooterMotor1().getCurrentVelocityRPM());
 //      tele.addData("shooter target vel", shooter.getShooterControlSystem().getGoal().getVelocity());
-      tele.addData("main loop time (ms)", elt2.milliseconds());
+//      tele.addData("main loop time (ms)", elt2.milliseconds());
+//      tele.addData("exhub voltage", exHub.getInputVoltage(VoltageUnit.VOLTS));
       elt2.reset();
-      tele.update();
+//      tele.update();
     }
   }
 }

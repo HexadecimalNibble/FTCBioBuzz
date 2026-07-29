@@ -1,28 +1,29 @@
 [versions]
 agp = "8.7.0"
 kotlin = "2.4.0"
-
 dairy-fullpanels = "0.2.4.1+1.0.12"
 pedropathing = "2.1.2"
 pedrotelemetry = "1.0.0"
-nextftc-control = "1.0.0"
-#mercurial = "2.0.0-beta8"
-#sloth = "0.2.4"
-mercurial-ftc = "2.0.0-beta9"
+blaze-ftc = "0.1.44"
+ivy = "1.0.0"
+nextftc = "0.1.0"
 
 [libraries]
 dairy-fullpanels = { group = "com.bylazar.sloth", name = "fullpanels", version.ref = "dairy-fullpanels" }
 pedropathing = { group = "com.pedropathing", name = "ftc", version.ref = "pedropathing" }
 pedrotelemetry = { group = "com.pedropathing", name = "telemetry", version.ref = "pedrotelemetry" }
-nextftc-control = { group = "dev.nextftc", name = "control", version.ref = "nextftc-control" }
 
-#mercurial = { group = "dev.frozenmilk.dairy", name = "Mercurial", version.ref = "mercurial" }
+nextftc-control = { group = "dev.nextftc.v2", name = "control", version.ref = "nextftc" }
+nextftc-hardware = { group = "dev.nextftc.v2", name = "hardware", version.ref = "nextftc" }
+nextftc-robot = { group = "dev.nextftc.v2", name = "robot", version.ref = "nextftc" }
+
 #sloth = { group = "dev.frozenmilk.sinister", name = "Sloth", version.ref = "sloth" }
-mercurial-ftc = { group = "dev.frozenmilk.dairy", name = "MercurialFTC", version.ref = "mercurial-ftc" }
 kotlin-reflect = { group = "org.jetbrains.kotlin", name = "kotlin-reflect", version.ref = "kotlin" }
 
-blaze-ftc = { group = "dev.anygeneric", name = "blazeftc", version = "0.1.44"}
-blaze-ftc-pedro = { group = "dev.anygeneric", name = "blazeftc_pedro", version = "0.1.44"}
+blaze-ftc = { group = "dev.anygeneric", name = "blazeftc", version.ref = "blaze-ftc" }
+blaze-ftc-pedro = { group = "dev.anygeneric", name = "blazeftc_pedro", version.ref = "blaze-ftc" }
+
+ivy = { group = "com.pedropathing", name = "ivy", version.ref = "ivy"}
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
@@ -33,4 +34,9 @@ kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
 pedro = [
     "pedropathing",
     "pedrotelemetry",
+]
+nextftc = [
+    "nextftc-control",
+    "nextftc-hardware",
+    "nextftc-robot"
 ]

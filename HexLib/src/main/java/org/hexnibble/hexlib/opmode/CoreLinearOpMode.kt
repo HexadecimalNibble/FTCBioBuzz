@@ -1,16 +1,16 @@
 package org.hexnibble.hexlib.opmode
 
+import com.pedropathing.ivy.Scheduler
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode
 import org.firstinspires.ftc.robotcore.internal.system.AppUtil
 import org.firstinspires.ftc.robotcore.internal.ui.UILocation
 import org.hexnibble.hexlib.AllianceColor
 import org.hexnibble.hexlib.AllianceSide
-import org.hexnibble.hexlib.gamepad.ControllerWrapper
-import org.hexnibble.hexlib.L
-import org.hexnibble.hexlib.commands.RCController
 import org.hexnibble.hexlib.BaseRobot
+import org.hexnibble.hexlib.L
 import org.hexnibble.hexlib.StopOpModeException
 import org.hexnibble.hexlib.gamepad.ButtonGroupController
+import org.hexnibble.hexlib.gamepad.ControllerWrapper
 
 /**
  * ?
@@ -20,7 +20,6 @@ import org.hexnibble.hexlib.gamepad.ButtonGroupController
 
 open class CoreLinearOpMode : LinearOpMode() {
   private val logTag = "CoreLinearOpMode"
-  val rcController = RCController()
 
   lateinit var controller1: ControllerWrapper
   lateinit var controller2: ControllerWrapper
@@ -45,6 +44,9 @@ open class CoreLinearOpMode : LinearOpMode() {
   override fun runOpMode() {
     try {
       L.i(logTag, "onPressInit()")
+
+      L.d(logTag, "Resetting scheduler")
+      Scheduler.reset()
 
       L.d(logTag, "Creating controllers")
       controller1 = ControllerWrapper(gamepad1)
@@ -178,7 +180,7 @@ open class CoreLinearOpMode : LinearOpMode() {
    * Override to run custom code when opmode is running
    */
   open fun opModeLoop() {
-    rcController.processCommands()
+    Scheduler.execute()
   }
 
   /**

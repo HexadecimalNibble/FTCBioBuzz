@@ -1,12 +1,10 @@
 package org.firstinspires.ftc.teamcode.robot
 
-import com.qualcomm.robotcore.hardware.HardwareMap
+import dev.nextftc.robot.NextRobot
 import org.firstinspires.ftc.teamcode.pedroPathing.PedroConstants
-import org.hexnibble.hexlib.BaseRobot
 
-class BiobuzzRobot(val hwMap: HardwareMap) : BaseRobot(hwMap) {
-  val intake: Intake = Intake(hwMap)
-  override fun createFollower() {
-    follower = PedroConstants.createFollower(hwMap)
-  }
+class BiobuzzRobot : NextRobot {
+  val intake: Intake = Intake()
+
+  override val mechanisms = setOf(intake)
 }

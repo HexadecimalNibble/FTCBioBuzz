@@ -15,13 +15,13 @@ androidComponents {
 
 dependencies {
   implementation(project(":HexLib"))
-  implementation(libs.bundles.pedro)
 
   implementation(libs.kotlin.reflect)
-//  implementation(libs.mercurial.ftc)
-//  implementation(libs.dairy.fullpanels)
-  implementation(libs.nextftc.control)
 
   implementation(libs.blaze.ftc)
   implementation(libs.blaze.ftc.pedro)
+  implementation(libs.ivy)
+
+  implementation(libs.bundles.pedro)
+  implementation(libs.bundles.nextftc)
 }

@@ -14,4 +14,5 @@ ftc {
 
 dependencies {
   implementation(libs.bundles.pedro)
+  implementation(libs.ivy)
 }

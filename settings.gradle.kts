@@ -12,4 +12,3 @@ plugins {
 
 //include(":FtcRobotController")
 include(":TeamCode")
-include(":HexLib")

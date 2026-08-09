@@ -6,7 +6,7 @@ import dev.nextftc.robot.Mechanism
 class Intake : Mechanism {
   val intakeMotor = NextMotor("intakeMotor")
 
-  val servo = NextFeedbackServo()
+//  val servo = NextFeedbackServo()
 
   fun startIntake() = instant { intakeMotor.throttle = 1.0 }
   fun stopIntake() = instant { intakeMotor.throttle = 0.0 }

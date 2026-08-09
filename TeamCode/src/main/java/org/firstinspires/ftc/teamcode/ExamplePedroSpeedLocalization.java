@@ -10,7 +10,6 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.teamcode.pedroPathing.PedroConstants;
-import org.firstinspires.ftc.teamcode.robot.Shooter;
 
 import java.lang.reflect.Field;
 
@@ -81,8 +80,6 @@ public class ExamplePedroSpeedLocalization extends DummyPlugOpMode {
 
     //This should be replaced with your own code.
     ElapsedTime elt2 = new ElapsedTime();
-
-    Shooter shooter = new Shooter(hardwareMap);
     follower.setPose(new Pose(72.0, 72.0, 0.0));
 
     LynxModule exHub = null;
@@ -95,14 +92,6 @@ public class ExamplePedroSpeedLocalization extends DummyPlugOpMode {
 
     while (!isStopRequested()) {
 //      for (LynxModule i : hardwareMap.getAll(LynxModule.class)) i.clearBulkCache();
-
-
-      double y = gamepad1.right_stick_y;
-      shooter.getShooterMotor1().setPower(y);
-      shooter.getShooterMotor2().setPower(-y);
-
-      double x = gamepad1.right_stick_x;
-      shooter.getTurretMotor().setPower(-x);
 
       sleep(5);
 //      tele.addData("turret pos", shooter.getTurretMotor().getCurrentPositionDeg());

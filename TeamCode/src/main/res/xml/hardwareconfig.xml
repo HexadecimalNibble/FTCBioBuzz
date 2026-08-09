@@ -1,5 +1,6 @@
 <?xml version='1.0' encoding='UTF-8' standalone='yes' ?>
 
+<!-- https://beepbot99.github.io/FtcXmlConfigGenerator/ -->
 <!-- Motors -->
 <!--<goBILDA5202SeriesMotor name="MotorName" port="0" />-->
 <!--<RevRoboticsUltraplanetaryHDHexMotor name="MotorName" port="0" />-->

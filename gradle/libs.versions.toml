@@ -4,7 +4,7 @@ kotlin = "2.4.0"
 dairy-fullpanels = "0.2.4.1+1.0.12"
 pedropathing = "2.1.2"
 pedrotelemetry = "1.0.0"
-blaze-ftc = "0.1.44"
+blaze-ftc = "0.1.57"
 ivy = "1.0.0"
 nextftc = "0.1.0"
 

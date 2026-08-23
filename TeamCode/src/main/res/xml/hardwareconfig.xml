@@ -18,6 +18,11 @@
         </LynxModule>
         <LynxModule name="Control Hub" port="173">
             <goBILDAPinpoint name="pinpoint" port="0" bus="3" />
+            <goBILDA5202SeriesMotor name="LFMotor" port="0" />
+            <goBILDA5202SeriesMotor name="LBMotor" port="1" />
+            <goBILDA5202SeriesMotor name="RFMotor" port="2" />
+            <goBILDA5202SeriesMotor name="RBMotor" port="3" />
+            <Servo name="servo" port="0" />
         </LynxModule>
     </LynxUsbDevice>
     <EthernetDevice serialNumber="EthernetOverUsb:eth0:172.29.0.23" name="Limelight" port="-1" ipAddress="172.29.0.1" />

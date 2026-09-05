@@ -6,7 +6,7 @@ pedropathing = "2.1.2"
 pedrotelemetry = "1.0.0"
 blaze-ftc = "0.1.57"
 ivy = "1.0.0"
-nextftc = "0.1.0"
+nextftc = "0.2.0"
 
 [libraries]
 dairy-fullpanels = { group = "com.bylazar.sloth", name = "fullpanels", version.ref = "dairy-fullpanels" }

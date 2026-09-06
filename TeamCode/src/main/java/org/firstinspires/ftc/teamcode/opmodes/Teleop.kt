@@ -10,7 +10,7 @@ import org.firstinspires.ftc.teamcode.RobotData
 import org.firstinspires.ftc.teamcode.robot.BiobuzzRobot
 
 @NextTeleop(name = "Biobuzz Teleop")
-class BiobuzzTeleop(robot: BiobuzzRobot) : NextOpMode(robot, BulkReadHook) {
+class Teleop(robot: BiobuzzRobot) : NextOpMode(robot, BulkReadHook) {
   lateinit var driver: CommandGamepad
 
   init {
@@ -18,9 +18,9 @@ class BiobuzzTeleop(robot: BiobuzzRobot) : NextOpMode(robot, BulkReadHook) {
     telemetry.setDisplayFormat(Telemetry.DisplayFormat.HTML)
   }
 
-  fun checkAndSetAllianceInfo() {
+  fun checkAndSetAllianceColor() {
     // If options pressed at any time, reset alliance info
-    if (gamepad1.options || gamepad2.options) {
+    if (gamepad1.options) {
       RobotData.allianceColor = null
     }
 
@@ -36,13 +36,15 @@ class BiobuzzTeleop(robot: BiobuzzRobot) : NextOpMode(robot, BulkReadHook) {
       } else if (gamepad1.rightBumperWasPressed()) {
         RobotData.allianceColor = AllianceColor.Red
       }
+    } else {
+
     }
 
     telemetry.update()
   }
 
   override fun disabledPeriodic() {
-    checkAndSetAllianceInfo()
+    checkAndSetAllianceColor()
   }
 
   override fun start() {

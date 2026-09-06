@@ -7,4 +7,5 @@ package org.firstinspires.ftc.teamcode
  */
 object RobotData {
     var value: Int? = null
+    var allianceColor: AllianceColor? = null
 }

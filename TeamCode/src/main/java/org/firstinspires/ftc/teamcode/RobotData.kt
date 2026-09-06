@@ -1,6 +1,6 @@
 package org.firstinspires.ftc.teamcode
 
-import RobotAuto
+import org.firstinspires.ftc.teamcode.opmodes.RobotAuto
 import com.pedropathing.geometry.Pose
 
 /**

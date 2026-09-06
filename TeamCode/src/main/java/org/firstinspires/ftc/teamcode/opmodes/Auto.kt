@@ -1,3 +1,5 @@
+package org.firstinspires.ftc.teamcode.opmodes
+
 import dev.nextftc.robot.opmode.BulkReadHook
 import dev.nextftc.robot.opmode.NextAutonomous
 import dev.nextftc.robot.opmode.NextOpMode

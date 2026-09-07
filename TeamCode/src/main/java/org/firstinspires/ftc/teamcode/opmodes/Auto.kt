@@ -1,11 +1,13 @@
 package org.firstinspires.ftc.teamcode.opmodes
 
+import com.pedropathing.geometry.Pose
 import dev.nextftc.robot.opmode.BulkReadHook
 import dev.nextftc.robot.opmode.NextAutonomous
 import dev.nextftc.robot.opmode.NextOpMode
 import org.firstinspires.ftc.robotcore.external.Telemetry
 import org.firstinspires.ftc.teamcode.AllianceColor
 import org.firstinspires.ftc.teamcode.RobotData
+import org.firstinspires.ftc.teamcode.pedroPathing.PedroConstants
 import org.firstinspires.ftc.teamcode.robot.BiobuzzRobot
 
 enum class RobotAuto {
@@ -14,8 +16,10 @@ enum class RobotAuto {
 }
 
 @NextAutonomous("Biobuzz Auto")
-class Auto(robot: BiobuzzRobot) : NextOpMode(robot, BulkReadHook) {
+class Auto(robot: BiobuzzRobot) : NextOpMode(robot, BulkReadHook), HexOpMode {
   var selectedAutoIndex = 0
+  val follower = PedroConstants.createFollower(hardwareMap)
+
   init {
     // Set telemetry display format to HTML for cooler setup menu
     telemetry.setDisplayFormat(Telemetry.DisplayFormat.HTML)
@@ -25,19 +29,12 @@ class Auto(robot: BiobuzzRobot) : NextOpMode(robot, BulkReadHook) {
     // If options pressed at any time, reset alliance info
     if (gamepad1.options) {
       RobotData.allianceColor = null
+      RobotData.auto = null
     }
 
     // Set alliance color if not previously set
     if (RobotData.allianceColor == null) {
-      telemetry.addLine("<big><b>Select an alliance color</b></big>")
-      telemetry.addLine("🟦 Blue (Left Bumper)")
-      telemetry.addLine("🟥 Red (Right Bumper)")
-
-      if (gamepad1.leftBumperWasPressed()) {
-        RobotData.allianceColor = AllianceColor.Blue
-      } else if (gamepad1.rightBumperWasPressed()) {
-        RobotData.allianceColor = AllianceColor.Red
-      }
+      setAllianceColor(gamepad1, telemetry)
     } else if (RobotData.auto == null) {
       telemetry.addLine("<big><b>Select an auto</b></big>")
       for (auto in RobotAuto.entries) {
@@ -52,10 +49,21 @@ class Auto(robot: BiobuzzRobot) : NextOpMode(robot, BulkReadHook) {
         RobotData.auto = RobotAuto.entries[selectedAutoIndex]
       }
     } else {
-      // TODO: Set up follower
+      when (RobotData.auto) {
+        RobotAuto.Close -> {
+          follower.setStartingPose(Pose(0.0, 0.0, Math.toRadians(0.0)))
 
-      // TODO: Create auto
+          // TODO: Create auto
+        }
+        RobotAuto.Far -> {
+          follower.setStartingPose(Pose(0.0, 0.0, Math.toRadians(0.0)))
 
+          // TODO: Create auto
+        }
+        else -> {
+          throw Error("RobotData.auto is null?")
+        }
+      }
       telemetry.addLine("<big><b>Ready to start</b></big>")
     }
 

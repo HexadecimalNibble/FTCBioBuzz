@@ -7,11 +7,13 @@ import dev.nextftc.robot.triggers.CommandGamepad
 import org.firstinspires.ftc.robotcore.external.Telemetry
 import org.firstinspires.ftc.teamcode.AllianceColor
 import org.firstinspires.ftc.teamcode.RobotData
+import org.firstinspires.ftc.teamcode.pedroPathing.PedroConstants
 import org.firstinspires.ftc.teamcode.robot.BiobuzzRobot
 
 @NextTeleop(name = "Biobuzz Teleop")
-class Teleop(robot: BiobuzzRobot) : NextOpMode(robot, BulkReadHook) {
+class Teleop(robot: BiobuzzRobot) : NextOpMode(robot, BulkReadHook), HexOpMode {
   lateinit var driver: CommandGamepad
+  val follower = PedroConstants.createFollower(hardwareMap)
 
   init {
     // Set telemetry display format to HTML for cooler setup menu
@@ -26,18 +28,9 @@ class Teleop(robot: BiobuzzRobot) : NextOpMode(robot, BulkReadHook) {
 
     // Set alliance color if not previously set
     if (RobotData.allianceColor == null) {
-      telemetry.addLine("<big><b>Select an alliance color</b></big>")
-
-      telemetry.addLine("🟦 Blue (Left Bumper)")
-      telemetry.addLine("🟥 Red (Right Bumper)")
-
-      if (gamepad1.leftBumperWasPressed()) {
-        RobotData.allianceColor = AllianceColor.Blue
-      } else if (gamepad1.rightBumperWasPressed()) {
-        RobotData.allianceColor = AllianceColor.Red
-      }
+      setAllianceColor(gamepad1, telemetry)
     } else {
-
+      telemetry.addLine("<big><b>Ready to start</b></big>")
     }
 
     telemetry.update()

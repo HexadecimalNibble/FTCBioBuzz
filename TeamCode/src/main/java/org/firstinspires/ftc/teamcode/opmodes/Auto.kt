@@ -1,6 +1,8 @@
 package org.firstinspires.ftc.teamcode.opmodes
 
 import com.pedropathing.geometry.Pose
+import com.pedropathing.ivy.Scheduler
+import com.pedropathing.ivy.groups.Groups.sequential
 import dev.nextftc.robot.opmode.BulkReadHook
 import dev.nextftc.robot.opmode.NextAutonomous
 import dev.nextftc.robot.opmode.NextOpMode
@@ -19,6 +21,8 @@ enum class RobotAuto {
 class Auto(robot: BiobuzzRobot) : NextOpMode(robot, BulkReadHook), HexOpMode {
   var selectedAutoIndex = 0
   val follower = PedroConstants.createFollower(hardwareMap)
+
+  lateinit var auto: AutoProgram
 
   init {
     // Set telemetry display format to HTML for cooler setup menu
@@ -52,18 +56,20 @@ class Auto(robot: BiobuzzRobot) : NextOpMode(robot, BulkReadHook), HexOpMode {
       when (RobotData.auto) {
         RobotAuto.Close -> {
           follower.setStartingPose(Pose(0.0, 0.0, Math.toRadians(0.0)))
-
-          // TODO: Create auto
+          auto = TestAuto()
         }
         RobotAuto.Far -> {
           follower.setStartingPose(Pose(0.0, 0.0, Math.toRadians(0.0)))
-
-          // TODO: Create auto
+          auto = TestAuto()
         }
         else -> {
           throw Error("RobotData.auto is null?")
         }
       }
+
+      // Create selected auto
+      Scheduler.schedule(auto.createAuto())
+
       telemetry.addLine("<big><b>Ready to start</b></big>")
     }
 

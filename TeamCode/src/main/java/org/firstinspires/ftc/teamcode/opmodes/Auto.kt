@@ -1,14 +1,14 @@
 package org.firstinspires.ftc.teamcode.opmodes
 
+import com.pedropathing.api.PoseFactory
 import com.pedropathing.ivy.Scheduler
-import com.pedropathing.ivy.groups.Groups.sequential
+import com.pedropathing.math.Pose
 import dev.nextftc.robot.opmode.BulkReadHook
 import dev.nextftc.robot.opmode.NextAutonomous
 import dev.nextftc.robot.opmode.NextOpMode
 import org.firstinspires.ftc.robotcore.external.Telemetry
-import org.firstinspires.ftc.teamcode.AllianceColor
 import org.firstinspires.ftc.teamcode.RobotData
-import org.firstinspires.ftc.teamcode.pedroPathing.PedroConstants
+import org.firstinspires.ftc.teamcode.pedro.PedroConstants
 import org.firstinspires.ftc.teamcode.robot.BiobuzzRobot
 
 enum class RobotAuto {
@@ -19,7 +19,8 @@ enum class RobotAuto {
 @NextAutonomous("Biobuzz Auto")
 class Auto(robot: BiobuzzRobot) : NextOpMode(robot, BulkReadHook), HexOpMode {
   var selectedAutoIndex = 0
-  val follower = PedroConstants.createFollower(hardwareMap)
+  val follower = PedroConstants.create(hardwareMap)
+  val p = PoseFactory.degrees()
 
   lateinit var auto: AutoProgram
 
@@ -54,11 +55,12 @@ class Auto(robot: BiobuzzRobot) : NextOpMode(robot, BulkReadHook), HexOpMode {
     } else {
       when (RobotData.auto) {
         RobotAuto.Close -> {
-          follower.setStartingPose(Pose(0.0, 0.0, Math.toRadians(0.0)))
+          // TODO: REDO
+          follower.setPose(Pose(0.0, 0.0, Math.toRadians(0.0)))
           auto = TestAuto()
         }
         RobotAuto.Far -> {
-          follower.setStartingPose(Pose(0.0, 0.0, Math.toRadians(0.0)))
+          follower.setPose(Pose(0.0, 0.0, Math.toRadians(0.0)))
           auto = TestAuto()
         }
         else -> {

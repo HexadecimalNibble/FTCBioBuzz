@@ -1,6 +1,5 @@
 package org.firstinspires.ftc.teamcode.opmodes
 
-import com.pedropathing.geometry.Pose
 import com.pedropathing.ivy.Scheduler
 import com.pedropathing.ivy.groups.Groups.sequential
 import dev.nextftc.robot.opmode.BulkReadHook

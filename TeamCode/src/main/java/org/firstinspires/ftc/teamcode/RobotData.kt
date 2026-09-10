@@ -1,7 +1,7 @@
 package org.firstinspires.ftc.teamcode
 
+import com.pedropathing.math.Pose
 import org.firstinspires.ftc.teamcode.opmodes.RobotAuto
-import com.pedropathing.geometry.Pose
 
 /**
  * Singleton to store robot data that should be persistent between OpMode runs

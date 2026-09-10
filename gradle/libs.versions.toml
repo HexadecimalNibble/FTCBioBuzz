@@ -1,17 +1,15 @@
 [versions]
 agp = "8.7.0"
 kotlin = "2.4.0"
-dairy-fullpanels = "0.2.4.1+1.0.12"
-pedropathing = "2.1.2"
-pedrotelemetry = "1.0.0"
+pedro-revhub = "3.0.0"
+pedro-tuning = "1.0.0"
 blaze-ftc = "0.1.57"
 ivy = "1.0.0"
 nextftc = "0.2.0"
 
 [libraries]
-dairy-fullpanels = { group = "com.bylazar.sloth", name = "fullpanels", version.ref = "dairy-fullpanels" }
-pedropathing = { group = "com.pedropathing", name = "ftc", version.ref = "pedropathing" }
-pedrotelemetry = { group = "com.pedropathing", name = "telemetry", version.ref = "pedrotelemetry" }
+pedro-revhub = { group = "com.pedropathing", name = "revhub", version.ref = "pedro-revhub" }
+pedro-tuning = { group = "com.pedropathing", name = "tuning", version.ref = "pedro-tuning" }
 
 nextftc-control = { group = "dev.nextftc.v2", name = "control", version.ref = "nextftc" }
 nextftc-hardware = { group = "dev.nextftc.v2", name = "hardware", version.ref = "nextftc" }
@@ -32,8 +30,8 @@ kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
 
 [bundles]
 pedro = [
-    "pedropathing",
-    "pedrotelemetry",
+    "pedro-revhub",
+    "pedro-tuning",
 ]
 nextftc = [
     "nextftc-control",

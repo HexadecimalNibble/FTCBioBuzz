@@ -1,8 +1,6 @@
 package org.firstinspires.ftc.teamcode.opmodes
 
-import com.pedropathing.api.PoseFactory
 import com.pedropathing.ivy.Scheduler
-import com.pedropathing.math.Pose
 import dev.nextftc.robot.opmode.BulkReadHook
 import dev.nextftc.robot.opmode.NextAutonomous
 import dev.nextftc.robot.opmode.NextOpMode
@@ -13,16 +11,15 @@ import org.firstinspires.ftc.teamcode.robot.BiobuzzRobot
 
 enum class RobotAuto {
   Close,
-  Far,
 }
 
 @NextAutonomous("Biobuzz Auto")
 class Auto(robot: BiobuzzRobot) : NextOpMode(robot, BulkReadHook), HexOpMode {
   var selectedAutoIndex = 0
   val follower = PedroConstants.create(hardwareMap)
-  val p = PoseFactory.degrees()
 
   lateinit var auto: AutoProgram
+  var autoCreated: Boolean = false
 
   init {
     // Set telemetry display format to HTML for cooler setup menu
@@ -52,26 +49,20 @@ class Auto(robot: BiobuzzRobot) : NextOpMode(robot, BulkReadHook), HexOpMode {
       } else if (gamepad1.crossWasPressed()) {
         RobotData.auto = RobotAuto.entries[selectedAutoIndex]
       }
-    } else {
+    } else if (!autoCreated) {
       when (RobotData.auto) {
         RobotAuto.Close -> {
-          // TODO: REDO
-          follower.setPose(Pose(0.0, 0.0, Math.toRadians(0.0)))
-          auto = TestAuto()
-        }
-        RobotAuto.Far -> {
-          follower.setPose(Pose(0.0, 0.0, Math.toRadians(0.0)))
-          auto = TestAuto()
+          auto = TestAuto(follower, RobotData.allianceColor!!)
         }
         else -> {
-          throw Error("RobotData.auto is null?")
+          throw Error("RobotData.auto is somehow null?")
         }
       }
 
       // Create selected auto
       Scheduler.schedule(auto.createAuto())
-
       telemetry.addLine("<big><b>Ready to start</b></big>")
+      autoCreated = true
     }
 
     telemetry.update()

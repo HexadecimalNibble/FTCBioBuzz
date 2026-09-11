@@ -5,15 +5,14 @@ import dev.nextftc.robot.opmode.NextOpMode
 import dev.nextftc.robot.opmode.NextTeleop
 import dev.nextftc.robot.triggers.CommandGamepad
 import org.firstinspires.ftc.robotcore.external.Telemetry
-import org.firstinspires.ftc.teamcode.AllianceColor
 import org.firstinspires.ftc.teamcode.RobotData
-import org.firstinspires.ftc.teamcode.pedroPathing.PedroConstants
+import org.firstinspires.ftc.teamcode.pedro.PedroConstants
 import org.firstinspires.ftc.teamcode.robot.BiobuzzRobot
 
 @NextTeleop(name = "Biobuzz Teleop")
 class Teleop(robot: BiobuzzRobot) : NextOpMode(robot, BulkReadHook), HexOpMode {
   lateinit var driver: CommandGamepad
-  val follower = PedroConstants.createFollower(hardwareMap)
+  val follower = PedroConstants.create(hardwareMap)
 
   init {
     // Set telemetry display format to HTML for cooler setup menu

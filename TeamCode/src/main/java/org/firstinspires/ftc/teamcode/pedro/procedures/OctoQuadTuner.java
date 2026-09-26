@@ -33,7 +33,7 @@ public class OctoQuadTuner extends Procedure {
         Inputs.Field<String> octoquadName = inputs.s("HardwareMap Name").withDefault("octoquad");
         Inputs.Field<Integer> xPort =  inputs.i("Forward Pod Port").withDefault(0);
         Inputs.Field<Integer> yPort =  inputs.i("Strafe Pod Port").withDefault(1);
-        Inputs.Field<PodType> podType = inputs.e("Odometry Pod Type", PodType.class).withDefault(PodType.FOUR_BAR);
+        Inputs.Field<OctoQuadTuner.PodType> podType = inputs.e("Odometry Pod Type", OctoQuadTuner.PodType.class).withDefault(OctoQuadTuner.PodType.FOUR_BAR);
         Inputs.Field<OctoQuad.I2cRecoveryMode> recoveryMode = inputs.e("Recovery Mode", OctoQuad.I2cRecoveryMode.class).withDefault(OctoQuad.I2cRecoveryMode.MODE_1_PERIPH_RST_ON_FRAME_ERR);
         awaitInputs(inputs);
 
@@ -72,19 +72,19 @@ public class OctoQuadTuner extends Procedure {
         result("yPodOffset", offsets.get(1));
 
         code(Language.JAVA,"public static OctoQuadConfig localizerConfig = new OctoQuadConfig(c -> {\n" +
-                "    c.name.set(\"" + octoquadName.get() + "\");\n" +
-                "    c.xPodPort.set(" + xPort.get() + ");\n" +
-                "    c.yPodPort.set(" + yPort.get() + ");\n" +
-                (podType.get() == PodType.CUSTOM ? "    c.ticksPerUnit.set(" + customPodScalar + ");\n" : "    c.ticksPerUnit.set(" + (podType.get() == PodType.SWING_ARM ? SWING_ARM : FOUR_BAR) + ");\n") +
-                "    c.xPodOffset.set(" + offsets.get(0) + ");\n" +
-                "    c.yPodOffset.set(" + offsets.get(1) + ");\n" +
-                "    c.xPodDirection.set(" + (forwardPodReversed ? "OctoQuad.EncoderDirection.REVERSE" : "OctoQuad.EncoderDirection.FORWARD") + ");\n" +
-                "    c.yPodDirection.set(" + (strafePodReversed ? "OctoQuad.EncoderDirection.REVERSE" : "OctoQuad.EncoderDirection.FORWARD") + ");\n" +
-                "    c.globalDistanceUnit.set(DistanceUnit.INCH);\n" +
-                "    c.offsetUnits.set(DistanceUnit.INCH);\n" +
-                "    c.i2cRecoveryMode.set(OctoQuad.I2cRecoveryMode." + recoveryMode.get() + ");\n" +
-                "    c.headingScalar.set(" + headingScalar + ");\n" +
-                "});");
+            "    c.name.set(\"" + octoquadName.get() + "\");\n" +
+            "    c.xPodPort.set(" + xPort.get() + ");\n" +
+            "    c.yPodPort.set(" + yPort.get() + ");\n" +
+            (podType.get() == PodType.CUSTOM ? "    c.ticksPerUnit.set(" + customPodScalar + ");\n" : "    c.ticksPerUnit.set(" + (podType.get() == OctoQuadTuner.PodType.SWING_ARM ? SWING_ARM : FOUR_BAR) + ");\n") +
+            "    c.xPodOffset.set(" + offsets.get(0) + ");\n" +
+            "    c.yPodOffset.set(" + offsets.get(1) + ");\n" +
+            "    c.xPodDirection.set(" + (forwardPodReversed ? "OctoQuad.EncoderDirection.REVERSE" : "OctoQuad.EncoderDirection.FORWARD") + ");\n" +
+            "    c.yPodDirection.set(" + (strafePodReversed ? "OctoQuad.EncoderDirection.REVERSE" : "OctoQuad.EncoderDirection.FORWARD") + ");\n" +
+            "    c.globalDistanceUnit.set(DistanceUnit.INCH);\n" +
+            "    c.offsetUnits.set(DistanceUnit.INCH);\n" +
+            "    c.i2cRecoveryMode.set(OctoQuad.I2cRecoveryMode." + recoveryMode.get() + ");\n" +
+            "    c.headingScalar.set(" + headingScalar + ");\n" +
+            "});");
     }
 }
 
@@ -98,9 +98,9 @@ class OctoQuadHeadingScalar extends TuningOpMode<Double> {
 
     public OctoQuadHeadingScalar(String name, int turns, int xPodPort, int yPodPort) {
         super("Heading Scalar Identification",
-                "Determines the scalar for the custom pods of the OctoQuad localizer. \n"
-                        + "Turn your robot " + turns * 360 + " degrees exactly ("+ turns + " times) exactly and then stop the OpMode.",
-                true);
+            "Determines the scalar for the custom pods of the OctoQuad localizer. \n"
+                + "Turn your robot " + turns * 360 + " degrees exactly ("+ turns + " times) exactly and then stop the OpMode.",
+            true);
         this.name = name;
         this.turns = turns;
         this.xPodPort = xPodPort;
@@ -144,9 +144,9 @@ class OctoQuadCustomPodScalar extends TuningOpMode<Double> {
 
     public OctoQuadCustomPodScalar(Double distance, String name, int xPodPort, int yPodPort) {
         super("Custom Scalar Identification",
-                "Determines the scalar for the custom pods of the OctoQuad localizer. \n"
-                        + "Push your robot forward " + distance + " inches exactly and then stop the Opmode",
-                true);
+            "Determines the scalar for the custom pods of the OctoQuad localizer. \n"
+                + "Push your robot forward " + distance + " inches exactly and then stop the Opmode",
+            true);
         this.name = name;
         this.distance = distance;
         this.xPodPort = xPodPort;
@@ -195,9 +195,9 @@ class OctoQuadForwardDirection extends TuningOpMode<Boolean> {
     public OctoQuadForwardDirection(String name, OctoQuadTuner.PodType podType, double customPodScalar, double headingScalar,
                                     int xPodPort, int yPodPort) {
         super("Forward Direction Identification",
-                "Determines if your forward pod needs to be reversed. \n"
-                        + "Push your robot forward and then stop the Opmode",
-                true);
+            "Determines if your forward pod needs to be reversed. \n"
+                + "Push your robot forward and then stop the Opmode",
+            true);
         this.name = name;
         this.podType = podType;
         this.customPodScalar = customPodScalar;
@@ -244,9 +244,9 @@ class OctoQuadStrafeDirection extends TuningOpMode<Boolean> {
     public OctoQuadStrafeDirection(String name, OctoQuadTuner.PodType podType, double customPodScalar, double headingScalar,
                                    int xPodPort, int yPodPort) {
         super("Strafe Direction Identification",
-                "Determines if your strafe pod needs to be reversed. \n"
-                        + "Push your robot to the left and then stop the Opmode",
-                true);
+            "Determines if your strafe pod needs to be reversed. \n"
+                + "Push your robot to the left and then stop the Opmode",
+            true);
         this.name = name;
         this.podType = podType;
         this.customPodScalar = customPodScalar;
@@ -296,9 +296,9 @@ class OctoQuadOffsets extends TuningOpMode<List<Double>> {
     public OctoQuadOffsets(String name, OctoQuadTuner.PodType podType, double customPodScalar, Boolean forwardPodReversed, Boolean strafePodReversed, double headingScalar,
                            int xPodPort, int yPodPort) {
         super("OctoQuadOffsets Identification",
-                "Automatically identifies the offsets for your OctoQuad localizer. \n"
-                        + "Spin your robot in place 180 degrees counterclockwise and then stop the Opmode",
-                true);
+            "Automatically identifies the offsets for your OctoQuad localizer. \n"
+                + "Spin your robot in place 180 degrees counterclockwise and then stop the Opmode",
+            true);
         this.name = name;
         this.podType = podType;
         this.customPodScalar = customPodScalar;

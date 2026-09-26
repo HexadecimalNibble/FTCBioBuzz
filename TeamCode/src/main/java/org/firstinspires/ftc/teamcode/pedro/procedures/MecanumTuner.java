@@ -40,15 +40,15 @@ public class MecanumTuner extends Procedure {
         result("backRightDirection", backRightDirection);
 
         code(Language.JAVA, "public static MecanumConfig drivetrainConfig = new MecanumConfig(c -> {\n" +
-                "    c.frontLeftName.set(\"" + frontLeftName.get() + "\");\n" +
-                "    c.frontRightName.set(\"" + frontRightName.get() + "\");\n" +
-                "    c.backLeftName.set(\"" + backLeftName.get() + "\");\n" +
-                "    c.backRightName.set(\"" + backRightName.get() + "\");\n" +
-                "    c.frontLeftDirection.set(DcMotorSimple.Direction." + frontLeftDirection + ");\n" +
-                "    c.frontRightDirection.set(DcMotorSimple.Direction." + frontRightDirection + ");\n" +
-                "    c.backLeftDirection.set(DcMotorSimple.Direction." + backLeftDirection + ");\n" +
-                "    c.backRightDirection.set(DcMotorSimple.Direction." + backRightDirection + ");\n" +
-                "});");
+            "    c.frontLeftName.set(\"" + frontLeftName.get() + "\");\n" +
+            "    c.frontRightName.set(\"" + frontRightName.get() + "\");\n" +
+            "    c.backLeftName.set(\"" + backLeftName.get() + "\");\n" +
+            "    c.backRightName.set(\"" + backRightName.get() + "\");\n" +
+            "    c.frontLeftDirection.set(DcMotorSimple.Direction." + frontLeftDirection + ");\n" +
+            "    c.frontRightDirection.set(DcMotorSimple.Direction." + frontRightDirection + ");\n" +
+            "    c.backLeftDirection.set(DcMotorSimple.Direction." + backLeftDirection + ");\n" +
+            "    c.backRightDirection.set(DcMotorSimple.Direction." + backRightDirection + ");\n" +
+            "});");
     }
 
     private Direction testMotor(Wheel wheel, String displayName, String hardwareName) throws InterruptedException {

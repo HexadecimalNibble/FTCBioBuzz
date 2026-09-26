@@ -24,8 +24,8 @@ public class OTOSTuner extends Procedure {
         awaitInputs(inputs);
 
         Inputs scalar = inputs(
-                "Scalar Identification",
-                "Set the distance you will push your robot forward in inches and the number of full rotations for the angular test"
+            "Scalar Identification",
+            "Set the distance you will push your robot forward in inches and the number of full rotations for the angular test"
         );
         Inputs.Field<Double> distance = scalar.d("Distance to push robot").withDefault(48.0);
         Inputs.Field<Integer> turns = scalar.i("Full rotations").withDefault(10);
@@ -56,12 +56,12 @@ public class OTOSTuner extends Procedure {
         result("yOffset", offsets.get(1));
 
         code(Language.JAVA,"public static OTOSConfig localizerConfig = new OTOSConfig(c -> {\n" +
-                "    c.name.set(\"" + name.get() + "\");\n" +
-                "    c.linearScalar.set(" + linearScalar + ");\n" +
-                "    c.angularScalar.set(" + angularScalar + ");\n" +
-                "    c.offset.set(new Pose(" + offsets.get(0) + ", " + offsets.get(1) + "));\n" +
-                "    c.linearUnit.set(DistanceUnit.INCH);\n" +
-                "});");
+            "    c.name.set(\"" + name.get() + "\");\n" +
+            "    c.linearScalar.set(" + linearScalar + ");\n" +
+            "    c.angularScalar.set(" + angularScalar + ");\n" +
+            "    c.offset.set(new Pose(" + offsets.get(0) + ", " + offsets.get(1) + "));\n" +
+            "    c.linearUnit.set(DistanceUnit.INCH);\n" +
+            "});");
     }
 
 }
@@ -72,9 +72,9 @@ class OTOSLinearScalar extends TuningOpMode<Double> {
 
     public OTOSLinearScalar(String name, double distance) {
         super("Linear Scalar Identification",
-                "Determines the linear scalar for the OTOS localizer. \n"
-                        + "Push your robot forward " + distance + " inches, stop moving, then press Stop",
-                true);
+            "Determines the linear scalar for the OTOS localizer. \n"
+                + "Push your robot forward " + distance + " inches, stop moving, then press Stop",
+            true);
         this.name = name;
         this.distance = distance;
     }
@@ -117,9 +117,9 @@ class OTOSAngularScalar extends TuningOpMode<Double> {
 
     public OTOSAngularScalar(String name, int turns) {
         super("Angular Scalar Identification",
-                "Determines the angular scalar for the OTOS localizer. \n"
-                        + "Spin your robot " + turns + " full rotations, stop moving, then press Stop",
-                true);
+            "Determines the angular scalar for the OTOS localizer. \n"
+                + "Spin your robot " + turns + " full rotations, stop moving, then press Stop",
+            true);
         this.name = name;
         this.turns = turns;
         this.targetRadians = turns * 2.0 * Math.PI;
@@ -169,9 +169,9 @@ class OTOSOffsets extends TuningOpMode<List<Double>> {
 
     public OTOSOffsets(String name, double linearScalar, double angularScalar) {
         super("OTOS Offset Identification",
-                "Automatically identifies the X/Y offset for your OTOS localizer. \n"
-                        + "Rotate the robot 180 degrees counterclockwise about the robot center without translating it, stop moving, then press Stop",
-                true);
+            "Automatically identifies the X/Y offset for your OTOS localizer. \n"
+                + "Rotate the robot 180 degrees counterclockwise about the robot center without translating it, stop moving, then press Stop",
+            true);
         this.name = name;
         this.linearScalar = linearScalar;
         this.angularScalar = angularScalar;

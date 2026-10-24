@@ -1,11 +1,11 @@
 [versions]
 agp = "8.7.0"
 kotlin = "2.4.0"
-pedro-revhub = "3.0.1"
+pedro-revhub = "3.0.2"
 pedro-tuning = "1.0.1"
 blaze-ftc = "0.1.57"
 ivy = "1.0.0"
-nextftc = "0.2.1"
+nextftc = "0.3.0"
 
 [libraries]
 pedro-revhub = { group = "com.pedropathing", name = "revhub", version.ref = "pedro-revhub" }

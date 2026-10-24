@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode.opmodes
 
+import com.pedropathing.follower.ManualDrive
 import dev.nextftc.robot.opmode.BulkReadHook
 import dev.nextftc.robot.opmode.NextOpMode
 import dev.nextftc.robot.opmode.NextTeleop
@@ -10,7 +11,7 @@ import org.firstinspires.ftc.teamcode.pedro.PedroConstants
 import org.firstinspires.ftc.teamcode.robot.BiobuzzRobot
 
 @NextTeleop(name = "Biobuzz Teleop")
-class Teleop(robot: BiobuzzRobot) : NextOpMode(robot, BulkReadHook), HexOpMode {
+class Teleop(val robot: BiobuzzRobot) : NextOpMode(robot, BulkReadHook), HexOpMode {
   lateinit var driver: CommandGamepad
   val follower = PedroConstants.create(hardwareMap)
 
@@ -31,8 +32,6 @@ class Teleop(robot: BiobuzzRobot) : NextOpMode(robot, BulkReadHook), HexOpMode {
     } else {
       telemetry.addLine("<big><b>Ready to start</b></big>")
     }
-
-    telemetry.update()
   }
 
   override fun disabledPeriodic() {
@@ -40,9 +39,33 @@ class Teleop(robot: BiobuzzRobot) : NextOpMode(robot, BulkReadHook), HexOpMode {
   }
 
   override fun start() {
-    driver = CommandGamepad(gamepad1)
-
     // Reset telemetry display format
     telemetry.setDisplayFormat(Telemetry.DisplayFormat.CLASSIC)
+
+    // Create teleop controller
+    driver = CommandGamepad(gamepad1)
+
+    // Bind teleop controls
+    driver.cross.onTrue(robot.intake.startAutoIntake())
+    driver.triangle.onTrue(robot.intake.startIntake())
+    driver.cross.and(driver.start).onTrue(robot.intake.reverseIntake())
+
+    driver.square.onTrue(robot.intake.stopIntake())
+  }
+
+  override fun periodic() {
+    // Driving
+    val powers = ManualDrive.fieldCentric(
+      -gamepad1.left_stick_y.toDouble(), // Forward
+      gamepad1.left_stick_x.toDouble(), // Strafe
+      (gamepad1.right_trigger - gamepad1.left_trigger).toDouble(), // Turn
+      follower.pose().heading()
+    )
+    follower.manual(powers)
+    follower.update()
+
+    telemetry.addData("Robot X", follower.pose().x())
+    telemetry.addData("Robot Y", follower.pose().y())
+    telemetry.addData("Robot Heading", Math.toDegrees(follower.pose().heading()))
   }
 }

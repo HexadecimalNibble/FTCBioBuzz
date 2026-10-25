@@ -1,11 +1,13 @@
 package org.firstinspires.ftc.teamcode.opmodes
 
 import com.pedropathing.follower.ManualDrive
+import com.pedropathing.ivy.commands.Commands.instant
 import dev.nextftc.robot.opmode.BulkReadHook
 import dev.nextftc.robot.opmode.NextOpMode
 import dev.nextftc.robot.opmode.NextTeleop
 import dev.nextftc.robot.triggers.CommandGamepad
 import org.firstinspires.ftc.robotcore.external.Telemetry
+import org.firstinspires.ftc.teamcode.AllianceColor
 import org.firstinspires.ftc.teamcode.RobotData
 import org.firstinspires.ftc.teamcode.pedro.PedroConstants
 import org.firstinspires.ftc.teamcode.robot.BiobuzzRobot
@@ -13,6 +15,7 @@ import org.firstinspires.ftc.teamcode.robot.BiobuzzRobot
 @NextTeleop(name = "Biobuzz Teleop")
 class Teleop(val robot: BiobuzzRobot) : NextOpMode(robot, BulkReadHook), HexOpMode {
   lateinit var driver: CommandGamepad
+  lateinit var shooter: CommandGamepad
   val follower = PedroConstants.create(hardwareMap)
 
   init {
@@ -44,22 +47,39 @@ class Teleop(val robot: BiobuzzRobot) : NextOpMode(robot, BulkReadHook), HexOpMo
 
     // Create teleop controller
     driver = CommandGamepad(gamepad1)
+    shooter = CommandGamepad(gamepad2)
 
     // Bind teleop controls
-    driver.cross.onTrue(robot.intake.startAutoIntake())
-    driver.triangle.onTrue(robot.intake.startIntake())
-    driver.cross.and(driver.start).onTrue(robot.intake.reverseIntake())
+    driver.cross.and(driver.back.negate().and(driver.start.negate())).onTrue(robot.autoIntake())
+    driver.triangle.onTrue(robot.intake.startFullIntakeTesting())
+    driver.cross.and(driver.back).onTrue(robot.intake.reverseIntake())
 
     driver.square.onTrue(robot.intake.stopIntake())
+
+    driver.square.and(driver.start).onTrue(
+      instant {
+        if (RobotData.allianceColor == AllianceColor.Red) {
+          follower.setHeading(0.0)
+        } else {
+          follower.setHeading(Math.PI)
+        }
+      }
+    )
+
+    shooter.cross.and(driver.back.negate().and(driver.start.negate())).onTrue(robot.autoShoot())
   }
 
   override fun periodic() {
     // Driving
+    var heading = follower.pose().heading()
+    if (RobotData.allianceColor == AllianceColor.Blue) {
+      heading = (heading + Math.PI) % (Math.PI * 2)
+    }
     val powers = ManualDrive.fieldCentric(
       -gamepad1.left_stick_y.toDouble(), // Forward
-      gamepad1.left_stick_x.toDouble(), // Strafe
-      (gamepad1.right_trigger - gamepad1.left_trigger).toDouble(), // Turn
-      follower.pose().heading()
+      -gamepad1.left_stick_x.toDouble(), // Strafe
+      (gamepad1.left_trigger -gamepad1.right_trigger).toDouble(), // Turn
+      heading
     )
     follower.manual(powers)
     follower.update()

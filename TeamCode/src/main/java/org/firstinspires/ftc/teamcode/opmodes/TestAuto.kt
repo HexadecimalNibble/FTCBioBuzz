@@ -1,17 +1,31 @@
 package org.firstinspires.ftc.teamcode.opmodes
 
+import com.pedropathing.api.Paths
 import com.pedropathing.api.PoseFactory
 import com.pedropathing.follower.Follower
 import com.pedropathing.ivy.Command
 import com.pedropathing.ivy.groups.Groups.sequential
+import com.pedropathing.paths.Path
+import dev.nextftc.robot.coroutine.command
 import org.firstinspires.ftc.teamcode.AllianceColor
+import org.firstinspires.ftc.teamcode.BioBuzzConstants
 
 class TestAuto(val follower: Follower, val allianceColor: AllianceColor) : AutoProgram {
   val p = PoseFactory.degrees()
 
+  // TODO: ADJUST STARTING X COORD
+  val startPose = p.of(58.0, BioBuzzConstants.robotWidth / 2, 180.0)
+  val gardenPose = p.of(BioBuzzConstants.robotLength / 2, BioBuzzConstants.robotWidth / 2 + 1, 180.0)
+
   init {
-    follower.setPose(p.of(0.0, 0.0, 90.0))
+    // Set starting pose
+    follower.setPose(startPose)
   }
-  override fun createAuto(): Command = sequential(
-  )
+
+  fun grabGarden(): Path = Paths.line(startPose, gardenPose).linear(startPose, gardenPose)
+
+  override fun createAuto() = command {
+    wait(0.5)
+    follower.follow(grabGarden())
+  }
 }

@@ -1,11 +1,13 @@
 package org.firstinspires.ftc.teamcode.opmodes
 
+import com.qualcomm.robotcore.eventloop.opmode.Disabled
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp
 import com.qualcomm.robotcore.hardware.DcMotor
 import com.qualcomm.robotcore.hardware.DcMotorSimple
 
 @TeleOp(name = "Sans opmode")
+@Disabled
 class sansteleop : LinearOpMode() {
     lateinit var frontLeftMotor : DcMotor
     lateinit var frontRightMotor : DcMotor

@@ -6,6 +6,7 @@ import com.pedropathing.follower.Follower
 import com.pedropathing.ivy.Command
 import com.pedropathing.ivy.groups.Groups.sequential
 import com.pedropathing.paths.Path
+import dev.nextftc.robot.coroutine.CoroutineCommandBuilder
 import dev.nextftc.robot.coroutine.command
 import org.firstinspires.ftc.teamcode.AllianceColor
 import org.firstinspires.ftc.teamcode.BioBuzzConstants
@@ -24,8 +25,16 @@ class TestAuto(val follower: Follower, val allianceColor: AllianceColor) : AutoP
 
   fun grabGarden(): Path = Paths.line(startPose, gardenPose).linear(startPose, gardenPose)
 
-  override fun createAuto() = command {
-    wait(0.5)
-    follower.follow(grabGarden())
+  override fun createAuto(): Command {
+    println("Creating auto")
+    return command {
+      wait(0.5)
+      follower.follow(grabGarden())
+      while (!follower.isBusy) {
+        follower.update()
+        println("in loop")
+        yield()
+      }
+    }
   }
 }

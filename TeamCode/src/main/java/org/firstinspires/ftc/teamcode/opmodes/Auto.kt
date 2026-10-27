@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode.opmodes
 
+import com.pedropathing.ivy.Command
 import com.pedropathing.ivy.Scheduler
 import dev.nextftc.robot.opmode.BulkReadHook
 import dev.nextftc.robot.opmode.NextAutonomous
@@ -20,6 +21,7 @@ class Auto(robot: BiobuzzRobot) : NextOpMode(robot, BulkReadHook), HexOpMode {
 
   lateinit var auto: AutoProgram
   var autoCreated: Boolean = false
+  lateinit var autoCommand: Command
 
   init {
     // Set telemetry display format to HTML for cooler setup menu
@@ -60,8 +62,11 @@ class Auto(robot: BiobuzzRobot) : NextOpMode(robot, BulkReadHook), HexOpMode {
       }
 
       // Create selected auto
-      Scheduler.schedule(auto.createAuto())
+      autoCommand = auto.createAuto()
+      Scheduler.schedule(autoCommand)
       telemetry.addLine("<big><b>Ready to start</b></big>")
+
+      println("Command scheduled: ${Scheduler.isScheduled(autoCommand)}")
       autoCreated = true
     }
 
@@ -73,6 +78,7 @@ class Auto(robot: BiobuzzRobot) : NextOpMode(robot, BulkReadHook), HexOpMode {
   }
 
   override fun start() {
+    println("Command scheduled: ${Scheduler.isScheduled(autoCommand)}")
     // Reset telemetry display format
     telemetry.setDisplayFormat(Telemetry.DisplayFormat.CLASSIC)
   }

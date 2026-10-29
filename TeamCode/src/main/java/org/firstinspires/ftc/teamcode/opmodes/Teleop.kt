@@ -6,6 +6,8 @@ import dev.nextftc.robot.opmode.BulkReadHook
 import dev.nextftc.robot.opmode.NextOpMode
 import dev.nextftc.robot.opmode.NextTeleop
 import dev.nextftc.robot.triggers.CommandGamepad
+import dev.nextftc.units.RotationsPerMinute
+import dev.nextftc.units.rpm
 import org.firstinspires.ftc.robotcore.external.Telemetry
 import org.firstinspires.ftc.teamcode.AllianceColor
 import org.firstinspires.ftc.teamcode.RobotData
@@ -67,6 +69,15 @@ class Teleop(val robot: BiobuzzRobot) : NextOpMode(robot, BulkReadHook), HexOpMo
     )
 
     shooter.cross.and(driver.back.negate().and(driver.start.negate())).onTrue(robot.autoShoot())
+
+    driver.dpadUp.onTrue(instant {
+      robot.shooter.setShooterPower(robot.shooter.shooterMotor1.throttle + 0.05)
+    })
+
+    driver.dpadDown.onTrue(instant {
+      robot.shooter.setShooterPower(robot.shooter.shooterMotor1.throttle - 0.05)
+    })
+    5.0.rpm
   }
 
   override fun periodic() {
@@ -87,5 +98,7 @@ class Teleop(val robot: BiobuzzRobot) : NextOpMode(robot, BulkReadHook), HexOpMo
     telemetry.addData("Robot X", follower.pose().x())
     telemetry.addData("Robot Y", follower.pose().y())
     telemetry.addData("Robot Heading", Math.toDegrees(follower.pose().heading()))
+    telemetry.addData("Shooter power: ", robot.shooter.shooterMotor1.throttle)
+    telemetry.addData("Shooter rpm: ", robot.shooter.shooterMotor1.encoderVelocity / 28 * 60)
   }
 }

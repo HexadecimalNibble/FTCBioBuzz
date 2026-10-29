@@ -5,8 +5,9 @@ import dev.nextftc.robot.coroutine.command
 
 class BiobuzzRobot : NextRobot {
   val intake: Intake = Intake()
+  val shooter: Shooter = Shooter()
 
-  override val mechanisms = setOf(intake)
+  override val mechanisms = setOf(intake, shooter)
 
   fun autoIntake() = command {
     intake.intakeMotor.throttle = 1.0

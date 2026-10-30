@@ -7,6 +7,8 @@
 
 <!-- Servos -->
 <!--<Servo name="ServoName" port="0" />-->
+<!--<ContinuousRotationServo name="ServoName" port="0" />-->
+<!--<ServoHub name="Servo Hub 3" port="3"></ServoHub>-->
 
 <!-- General -->
 <!--<AnalogInput name="AnalogInputName" port="0" />-->
@@ -26,12 +28,13 @@
             <goBILDA5202SeriesMotor name="LBMotor" port="1" />
             <goBILDA5202SeriesMotor name="RFMotor" port="2" />
             <goBILDA5202SeriesMotor name="RBMotor" port="3" />
-            <AnalogInput name="TurretServoEncoder" port="0"/>
+            <AnalogInput name="TurretServoEncoder1" port="0"/>
+            <AnalogInput name="TurretServoEncoder1" port="0"/>
         </LynxModule>
-        <LynxModule name="Servo Hub 3" port="1">
-            <Servo name="LTurretServo" port="0"/>
-            <Servo name="RTurretServo" port="1"/>
-        </LynxModule>
+        <ServoHub name="Servo Hub 3" port="3">
+            <ContinuousRotationServo name="LTurretServo" port="0"/>
+            <ContinuousRotationServo name="RTurretServo" port="1"/>
+        </ServoHub>
     </LynxUsbDevice>
     <EthernetDevice serialNumber="EthernetOverUsb:eth0:172.29.0.23" name="Limelight" port="-1" ipAddress="172.29.0.1" />
 </Robot>

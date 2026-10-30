@@ -71,13 +71,12 @@ class Teleop(val robot: BiobuzzRobot) : NextOpMode(robot, BulkReadHook), HexOpMo
     shooter.cross.and(driver.back.negate().and(driver.start.negate())).onTrue(robot.autoShoot())
 
     driver.dpadUp.onTrue(instant {
-      robot.shooter.setShooterPower(robot.shooter.shooterMotor1.throttle + 0.05)
+      robot.shooter.setShooterVelocity(3500.0.rpm)
     })
 
     driver.dpadDown.onTrue(instant {
-      robot.shooter.setShooterPower(robot.shooter.shooterMotor1.throttle - 0.05)
+      robot.shooter.setShooterVelocity(0.0.rpm)
     })
-    5.0.rpm
   }
 
   override fun periodic() {
@@ -99,6 +98,6 @@ class Teleop(val robot: BiobuzzRobot) : NextOpMode(robot, BulkReadHook), HexOpMo
     telemetry.addData("Robot Y", follower.pose().y())
     telemetry.addData("Robot Heading", Math.toDegrees(follower.pose().heading()))
     telemetry.addData("Shooter power: ", robot.shooter.shooterMotor1.throttle)
-    telemetry.addData("Shooter rpm: ", robot.shooter.shooterMotor1.encoderVelocity / 28 * 60)
+    telemetry.addData("Shooter rpm: ", robot.shooter.shooterMotor1.encoderVelocity.into(RotationsPerMinute))
   }
 }

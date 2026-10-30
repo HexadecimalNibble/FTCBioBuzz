@@ -6,7 +6,7 @@ pedro-tuning = "1.0.1"
 blaze-ftc = "0.1.57"
 ivy = "1.0.0"
 nextftc = "0.3.0"
-panels = "1.0.12"
+panels = "0.3.2+1.0.13"
 
 [libraries]
 pedro-revhub = { group = "com.pedropathing", name = "revhub", version.ref = "pedro-revhub" }
@@ -24,7 +24,7 @@ blaze-ftc-pedro = { group = "dev.anygeneric", name = "blazeftc_pedro", version.r
 
 ivy = { group = "com.pedropathing", name = "ivy", version.ref = "ivy"}
 
-panels = { group = "com.bylazar", name = "fullpanels", version.ref = "panels" }
+panels = { group = "com.bylazar.sloth", name = "fullpanels", version.ref = "panels" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }

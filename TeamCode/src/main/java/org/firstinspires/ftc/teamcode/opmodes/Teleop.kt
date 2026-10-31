@@ -3,6 +3,8 @@ package org.firstinspires.ftc.teamcode.opmodes
 import NewCommandGamepad
 import com.pedropathing.follower.ManualDrive
 import com.pedropathing.ivy.commands.Commands.instant
+import com.pedropathing.math.Pose
+import dev.nextftc.robot.coroutine.command
 import dev.nextftc.robot.opmode.BulkReadHook
 import dev.nextftc.robot.opmode.NextOpMode
 import dev.nextftc.robot.opmode.NextTeleop
@@ -11,6 +13,7 @@ import dev.nextftc.units.degrees
 import dev.nextftc.units.rpm
 import org.firstinspires.ftc.robotcore.external.Telemetry
 import org.firstinspires.ftc.teamcode.AllianceColor
+import org.firstinspires.ftc.teamcode.BioBuzzConstants
 import org.firstinspires.ftc.teamcode.RobotData
 import org.firstinspires.ftc.teamcode.pedro.PedroConstants
 import org.firstinspires.ftc.teamcode.robot.BiobuzzRobot
@@ -77,9 +80,9 @@ class Teleop(val robot: BiobuzzRobot) : NextOpMode(robot, BulkReadHook), HexOpMo
     driverController.cross.and(driverController.back.negate().and(driverController.start.negate())).onTrue(robot.autoIntake())
     driverController.cross.and(driverController.back).onTrue(robot.intake.reverseIntake())
 
-    driverController.square.onTrue(robot.intake.stopIntake())
+    driverController.square.and(driverController.options.negate()).onTrue(instant { robot.intake.stopIntakeAndTransfer() })
 
-    driverController.square.and(driverController.start).onTrue(
+    driverController.square.and(driverController.options).onTrue(
       instant {
         if (RobotData.allianceColor == AllianceColor.Red) {
           follower.setHeading(0.0)
@@ -89,13 +92,33 @@ class Teleop(val robot: BiobuzzRobot) : NextOpMode(robot, BulkReadHook), HexOpMo
       }
     )
 
-    driverController.dpadUp.onTrue(instant {
-      robot.shooter.setShooterVelocity(3500.0.rpm)
+//    driverController.dpadUp.onTrue(instant {
+//      robot.shooter.setShooterVelocity(3500.0.rpm)
+//    })
+//
+//    driverController.dpadDown.onTrue(instant {
+//      robot.shooter.setShooterVelocity(0.0.rpm)
+//    })
+
+    driverController.dpadUp.and(driverController.ps).onTrue(instant {
+      // TODO
     })
 
-    driverController.dpadDown.onTrue(instant {
-      robot.shooter.setShooterVelocity(0.0.rpm)
+    driverController.dpadDown.and(driverController.ps).onTrue(instant {
+      if (RobotData.allianceColor == AllianceColor.Red) {
+        follower.setPose(Pose(BioBuzzConstants.robotLength / 2, 140.0 - BioBuzzConstants.robotWidth / 2, 0.0))
+      } else {
+        follower.setPose(Pose(140.0 - BioBuzzConstants.robotLength / 2, BioBuzzConstants.robotWidth / 2, Math.PI))
+      }
     })
+
+    driverController.dpadUp.and(driverController.ps.negate()).onTrue(robot.intake.retractFlowerIntake())
+
+    driverController.dpadDown.and(driverController.ps.negate()).onTrue(instant {
+      robot.intake.extendFlowerIntake()
+      robot.intake.startIntake()
+    })
+
     // endregion * Driver *
     // region * Shooter *
     shooterController.cross.and(driverController.share.negate().and(driverController.options.negate())).onTrue(robot.autoShoot())
@@ -104,12 +127,18 @@ class Teleop(val robot: BiobuzzRobot) : NextOpMode(robot, BulkReadHook), HexOpMo
       robot.shooter.resetTurretAngle()
     })
 
-    shooterController.ps.and(shooterController.leftTrigger.isOver(0.2)).onTrue(instant {
+    shooterController.ps.and(shooterController.leftTrigger.isOver(0.2)).and(shooterController.options.negate()).onTrue(instant {
       robot.shooter.setTurretAngle((-90.0).degrees)
     })
 
-    shooterController.ps.and(shooterController.rightTrigger.isOver(0.2)).onTrue(instant {
+    shooterController.ps.and(shooterController.rightTrigger.isOver(0.2)).and(shooterController.options.negate()).onTrue(instant {
       robot.shooter.setTurretAngle(90.0.degrees)
+    })
+
+    shooterController.rightTrigger.isOver(0.2).or(shooterController.leftTrigger.isOver(0.2)).and(shooterController.ps.negate()).and(shooterController.options.negate()).onTrue(instant {
+      robot.shooter.setTurretPower(shooterController.rightTrigger.value - shooterController.leftTrigger.value)
+    }).onFalse(instant {
+      robot.shooter.setTurretPower(0.0)
     })
 
     shooterController.touchpad.onTrue(instant {
@@ -122,10 +151,22 @@ class Teleop(val robot: BiobuzzRobot) : NextOpMode(robot, BulkReadHook), HexOpMo
 
     shooterController.square.onTrue(instant {
       robot.shooter.autoAlign = false
+      robot.stopAutoShoot()
     })
 
-    shooterController.leftStickY.isOver(0.2).onTrue(instant {
+    shooterController.rightStickY.isUnder(-0.2).onTrue(instant {
+      robot.shooter.engageBlocker()
+    })
 
+    shooterController.rightStickY.isOver(0.2).onTrue(instant {
+      robot.shooter.disengageBlocker()
+    })
+
+    shooterController.dpadUp.onTrue(instant {
+      robot.shooter.changeShooterVelocity(100.0.rpm)
+    })
+    shooterController.dpadDown.onTrue(instant {
+      robot.shooter.changeShooterVelocity((-100.0).rpm)
     })
     // endregion * Shooter *
 
@@ -138,6 +179,9 @@ class Teleop(val robot: BiobuzzRobot) : NextOpMode(robot, BulkReadHook), HexOpMo
       else -> {}
     }
     robot.shooter.poseSupplier = { follower.pose() }
+
+    // Move hood to default position
+    robot.shooter.setHoodPosition()
   }
 
   override fun periodic() {

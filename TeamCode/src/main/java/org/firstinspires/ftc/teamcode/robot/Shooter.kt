@@ -8,6 +8,7 @@ import dev.nextftc.control.feedforward.SimpleFeedforward
 import dev.nextftc.control.model.MotionState
 import dev.nextftc.hardware.actuators.NextFeedbackCRServo
 import dev.nextftc.hardware.actuators.NextMotor
+import dev.nextftc.hardware.actuators.NextServo
 import dev.nextftc.hardware.sensors.NextAnalogInput
 import dev.nextftc.robot.Mechanism
 import dev.nextftc.units.degrees
@@ -36,11 +37,11 @@ enum class HivePosition(val pose: Pose) {
 class Shooter : Mechanism {
   companion object {
     @JvmField
-    var shooterP = 0.0
+    var shooterP = 0.01
     @JvmField
     var shooterD = 0.0
     @JvmField
-    var shooterkV = 0.01
+    var shooterkV = 0.00020
 
     @JvmField
     var turretP = 0.4
@@ -52,9 +53,9 @@ class Shooter : Mechanism {
     @JvmField
     var turretAutoAlign = true
     @JvmField
-    var shooterAutoAlign = true
+    var shooterAutoAlign = false
     @JvmField
-    var hoodAutoAlign = true
+    var hoodAutoAlign = false
 
     @JvmField
     var shooterVelocity1 = 0.0
@@ -92,6 +93,9 @@ class Shooter : Mechanism {
       it.reverse()
     }
 
+  private val hoodServo = NextServo("HoodServo")
+  private val blockerServo = NextServo("BlockerServo")
+
   // Turret is 28mm behind wheel-base center with intake at front.
   private val turretFBOffsetIn = -28.0 / 25.4
 
@@ -109,7 +113,7 @@ class Shooter : Mechanism {
     kD = turretD
   )
 
-  private var targetTurretAngle: Angle = 0.0.degrees
+  var targetTurretAngle: Angle = 0.0.degrees
   // endregion
   // region Shooter Motor Vars
   // Shooter motor 1 has encoder.
@@ -123,7 +127,7 @@ class Shooter : Mechanism {
       it.direction = NextMotor.Direction.REVERSE
     }
 
-  private var targetShooterVelocity = 0.0.rpm
+  private var targetShooterVelocity = 3000.0.rpm
 
   private val shooterMotorPID = PIDController(kP = shooterP, kD = shooterD)
 
@@ -136,6 +140,9 @@ class Shooter : Mechanism {
   lateinit var poseSupplier: () -> Pose
 
   lateinit var velocitySupplier: () -> Velocity
+
+  private var turretPIDOn = false
+  private var shooterPIDOn = false
   // endregion Shooter Motor Vars
 
   fun initSystem() {
@@ -172,12 +179,40 @@ class Shooter : Mechanism {
 
 
   fun setTurretAngle(angle: Angle) {
+    turretPIDOn = true
     targetTurretAngle = angle
   }
   // endregion
   // region Shooter
+  fun stopShooter() {
+    shooterPIDOn = false
+    shooterMotor1.throttle = 0.0
+    shooterMotor2.throttle = 0.0
+  }
+
   fun setShooterVelocity(velocity: AngularVelocity) {
+    shooterPIDOn = true
     targetShooterVelocity = velocity
+  }
+
+  fun changeShooterVelocity(change: AngularVelocity) {
+    setShooterVelocity(targetShooterVelocity + change)
+  }
+
+  // endregion
+  // region Blocker
+  fun engageBlocker() {
+    blockerServo.position = 0.65
+  }
+
+  fun disengageBlocker() {
+    blockerServo.position = 0.243
+  }
+  // endregion
+
+  // region Hood
+  fun setHoodPosition() {
+    hoodServo.position = 0.5
   }
   // endregion
 
@@ -241,7 +276,6 @@ class Shooter : Mechanism {
 
         // Iteratively calculate interception time.
         repeat(6) {
-
           // Predict where the HIVE will be relative to
           // the moving turret pivot at impact.
           aimX = dx - turretVx * flightTime
@@ -279,49 +313,64 @@ class Shooter : Mechanism {
     }
   }
 
+  /**
+   * Manually set the turret power
+   * Used for manual teleop turret movements
+   */
+  fun setTurretPower(power: Double) {
+    turretPIDOn = false
+    leftTurretServo.power = power
+    rightTurretServo.power = power
+  }
 
   override fun periodic() {
     updateTurretAngle()
     if (autoAlign) {
-      autoAlign(poseSupplier())
+      setTurretAngle(0.0.degrees)
+//      autoAlign(poseSupplier())
     }
 
-    // PID tuning
-    turretPID.coefficients.kP = turretP
-    turretPID.coefficients.kD = turretD
-    shooterMotorPID.coefficients.kP = shooterP
-    shooterMotorPID.coefficients.kD = shooterD
-    shooterMotorFeedforward.coefficients.kV = shooterkV
+    if (turretPIDOn) {
+      // PID tuning
+      turretPID.coefficients.kP = turretP
+      turretPID.coefficients.kD = turretD
 
-    // region Turret
-    val turretError = (targetTurretAngle - totalTurretAngle).baseUnitMagnitude
+      // region Turret
+      val turretError = (targetTurretAngle - totalTurretAngle).baseUnitMagnitude
 
-    // Static friction compensation
-    val turretFF = if (abs(turretError) > 0.01) {
-      turretkS * sign(turretError)
-    } else {
-      0.0
+      // Static friction compensation
+      val turretFF = if (abs(turretError) > 0.01) {
+        turretkS * sign(turretError)
+      } else {
+        0.0
+      }
+
+      val turretPower = (turretPID.calculate(error = turretError) + turretFF).coerceIn(-1.0, 1.0)
+      leftTurretServo.power = turretPower
+      rightTurretServo.power = turretPower
     }
-
-    val turretPower = (turretPID.calculate(error = turretError) + turretFF).coerceIn(-1.0, 1.0)
-    leftTurretServo.power = turretPower
-    rightTurretServo.power = turretPower
     // endregion
     // region Shooter Motor
-    val motorVelocity = shooterMotor1.encoderVelocity
-    val motorFF = shooterMotorFeedforward.calculate(
-      MotionState(
-        position = shooterMotor1.encoderPosition,
-        velocity = targetShooterVelocity
+    if (shooterPIDOn) {
+      shooterMotorPID.coefficients.kP = shooterP
+      shooterMotorPID.coefficients.kD = shooterD
+      shooterMotorFeedforward.coefficients.kV = shooterkV
+
+      val motorVelocity = shooterMotor1.encoderVelocity
+      val motorFF = shooterMotorFeedforward.calculate(
+        MotionState(
+          position = shooterMotor1.encoderPosition,
+          velocity = targetShooterVelocity
+        )
       )
-    )
 
-    val velocityError = (targetShooterVelocity - motorVelocity).baseUnitMagnitude
+      val velocityError = (targetShooterVelocity - motorVelocity).baseUnitMagnitude
 
-    val shooterPower = (shooterMotorPID.calculate(error = velocityError) + motorFF).coerceIn(-1.0, 1.0)
+      val shooterPower = (shooterMotorPID.calculate(error = velocityError) + motorFF).coerceIn(-1.0, 1.0)
 
-    shooterMotor1.throttle = shooterPower
-    shooterMotor2.throttle = shooterPower
+      shooterMotor1.throttle = shooterPower
+      shooterMotor2.throttle = shooterPower
+    }
     // endregion
   }
 }

@@ -51,7 +51,7 @@ class Shooter : Mechanism {
     var turretkS = 0.03
 
     @JvmField
-    var turretAutoAlign = true
+    var turretAutoAlign = false
     @JvmField
     var shooterAutoAlign = false
     @JvmField
@@ -198,7 +198,6 @@ class Shooter : Mechanism {
   fun changeShooterVelocity(change: AngularVelocity) {
     setShooterVelocity(targetShooterVelocity + change)
   }
-
   // endregion
   // region Blocker
   fun engageBlocker() {
@@ -209,10 +208,17 @@ class Shooter : Mechanism {
     blockerServo.position = 0.243
   }
   // endregion
-
   // region Hood
+  fun decrementHoodPosition() {
+    hoodServo.position -= 0.05
+  }
+
+  fun incrementHoodPosition() {
+    hoodServo.position += 0.05
+  }
+
   fun setHoodPosition() {
-    hoodServo.position = 0.5
+    hoodServo.position = 0.72
   }
   // endregion
 

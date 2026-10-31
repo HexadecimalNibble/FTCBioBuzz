@@ -19,12 +19,16 @@ class Intake : Mechanism {
     intakeMotor.throttle = 0.0
     transferMotor.throttle = 0.0
   }
-  fun reverseIntake() = instant { intakeMotor.throttle = -1.0 }
+  fun reverseIntake() {
+    intakeMotor.throttle = -1.0
+    transferMotor.throttle = -1.0
+  }
 
   fun extendFlowerIntake() {
     println("extending flower intake set pos")
     flowerIntakeServo.position = 0.155
   }
+
   fun retractFlowerIntake() = instant {
     println("retracting flower intake set pos")
     flowerIntakeServo.position = 0.4

@@ -78,7 +78,7 @@ class Teleop(val robot: BiobuzzRobot) : NextOpMode(robot, BulkReadHook), HexOpMo
     // Bind teleop controls
     // region * Driver *
     driverController.cross.and(driverController.back.negate().and(driverController.start.negate())).onTrue(robot.autoIntake())
-    driverController.cross.and(driverController.back).onTrue(robot.intake.reverseIntake())
+    driverController.cross.and(driverController.back).onTrue(instant { robot.intake.reverseIntake() })
 
     driverController.square.and(driverController.options.negate()).onTrue(instant { robot.intake.stopIntakeAndTransfer() })
 
@@ -92,13 +92,6 @@ class Teleop(val robot: BiobuzzRobot) : NextOpMode(robot, BulkReadHook), HexOpMo
       }
     )
 
-//    driverController.dpadUp.onTrue(instant {
-//      robot.shooter.setShooterVelocity(3500.0.rpm)
-//    })
-//
-//    driverController.dpadDown.onTrue(instant {
-//      robot.shooter.setShooterVelocity(0.0.rpm)
-//    })
 
     driverController.dpadUp.and(driverController.ps).onTrue(instant {
       // TODO
@@ -123,23 +116,23 @@ class Teleop(val robot: BiobuzzRobot) : NextOpMode(robot, BulkReadHook), HexOpMo
     // region * Shooter *
     shooterController.cross.and(driverController.share.negate().and(driverController.options.negate())).onTrue(robot.autoShoot())
 
-    shooterController.options.and(shooterController.leftTrigger.isOver(0.2)).onTrue(instant {
-      robot.shooter.resetTurretAngle()
-    })
-
-    shooterController.ps.and(shooterController.leftTrigger.isOver(0.2)).and(shooterController.options.negate()).onTrue(instant {
-      robot.shooter.setTurretAngle((-90.0).degrees)
-    })
-
-    shooterController.ps.and(shooterController.rightTrigger.isOver(0.2)).and(shooterController.options.negate()).onTrue(instant {
-      robot.shooter.setTurretAngle(90.0.degrees)
-    })
-
-    shooterController.rightTrigger.isOver(0.2).or(shooterController.leftTrigger.isOver(0.2)).and(shooterController.ps.negate()).and(shooterController.options.negate()).onTrue(instant {
-      robot.shooter.setTurretPower(shooterController.rightTrigger.value - shooterController.leftTrigger.value)
-    }).onFalse(instant {
-      robot.shooter.setTurretPower(0.0)
-    })
+//    shooterController.options.and(shooterController.leftTrigger.isOver(0.2)).onTrue(instant {
+//      robot.shooter.resetTurretAngle()
+//    })
+//
+//    shooterController.ps.and(shooterController.leftTrigger.isOver(0.2)).and(shooterController.options.negate()).onTrue(instant {
+//      robot.shooter.setTurretAngle((-90.0).degrees)
+//    })
+//
+//    shooterController.ps.and(shooterController.rightTrigger.isOver(0.2)).and(shooterController.options.negate()).onTrue(instant {
+//      robot.shooter.setTurretAngle(90.0.degrees)
+//    })
+//
+//    shooterController.rightTrigger.isOver(0.2).or(shooterController.leftTrigger.isOver(0.2)).and(shooterController.ps.negate()).and(shooterController.options.negate()).onTrue(instant {
+//      robot.shooter.setTurretPower(shooterController.rightTrigger.value - shooterController.leftTrigger.value)
+//    }).onFalse(instant {
+//      robot.shooter.setTurretPower(0.0)
+//    })
 
     shooterController.touchpad.onTrue(instant {
       robot.shooter.toggleHivePosition()
@@ -160,6 +153,14 @@ class Teleop(val robot: BiobuzzRobot) : NextOpMode(robot, BulkReadHook), HexOpMo
 
     shooterController.rightStickY.isOver(0.2).onTrue(instant {
       robot.shooter.disengageBlocker()
+    })
+
+    shooterController.leftStickY.isUnder(-0.2).onTrue(instant {
+      robot.shooter.incrementHoodPosition()
+    })
+
+    shooterController.leftStickY.isOver(0.2).onTrue(instant {
+      robot.shooter.decrementHoodPosition()
     })
 
     shooterController.dpadUp.onTrue(instant {

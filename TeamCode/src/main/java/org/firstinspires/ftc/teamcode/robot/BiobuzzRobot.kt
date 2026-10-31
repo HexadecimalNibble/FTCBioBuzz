@@ -10,13 +10,14 @@ class BiobuzzRobot : NextRobot {
   override val mechanisms = setOf(intake, shooter)
 
   fun autoIntake() = command {
+    shooter.engageBlocker()
     intake.stopIntakeAndTransfer()
     intake.startIntake()
   }.requiring(intake)
 
   fun stopAutoShoot() {
+//    shooter.stopShooter()
     shooter.engageBlocker()
-    shooter.stopShooter()
     intake.stopIntakeAndTransfer()
   }
 

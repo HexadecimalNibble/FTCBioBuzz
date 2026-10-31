@@ -15,7 +15,7 @@ enum class RobotAuto {
 }
 
 @NextAutonomous("Biobuzz Auto")
-class Auto(robot: BiobuzzRobot) : NextOpMode(robot, BulkReadHook), HexOpMode {
+class Auto(val robot: BiobuzzRobot) : NextOpMode(robot, BulkReadHook), HexOpMode {
   var selectedAutoIndex = 0
   val follower = PedroConstants.create(hardwareMap)
 
@@ -54,7 +54,7 @@ class Auto(robot: BiobuzzRobot) : NextOpMode(robot, BulkReadHook), HexOpMode {
     } else if (!autoCreated) {
       when (RobotData.auto) {
         RobotAuto.Close -> {
-          auto = TestAuto(follower, RobotData.allianceColor!!)
+          auto = TestAuto(follower, RobotData.allianceColor!!, robot)
         }
         else -> {
           throw Error("RobotData.auto is somehow null?")

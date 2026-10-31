@@ -16,6 +16,21 @@ import org.firstinspires.ftc.teamcode.pedro.PedroConstants
 import org.firstinspires.ftc.teamcode.robot.BiobuzzRobot
 import org.firstinspires.ftc.teamcode.robot.HivePosition
 
+/*
+500us-2500us pulse width
+hood:
+min 1535us (0.035) - bottom
+max 2060us (0.56) - top
+
+flower intake:
+min 1655us (0.155) - extended
+max 2500us (0.4) - retracted
+
+Blocker:
+min 1280us (-0.22) retracted
+max 1743us (0.243) blocking
+ */
+
 @NextTeleop(name = "Biobuzz Teleop")
 class Teleop(val robot: BiobuzzRobot) : NextOpMode(robot, BulkReadHook), HexOpMode {
   lateinit var driverController: NewCommandGamepad
@@ -107,6 +122,10 @@ class Teleop(val robot: BiobuzzRobot) : NextOpMode(robot, BulkReadHook), HexOpMo
 
     shooterController.square.onTrue(instant {
       robot.shooter.autoAlign = false
+    })
+
+    shooterController.leftStickY.isOver(0.2).onTrue(instant {
+
     })
     // endregion * Shooter *
 

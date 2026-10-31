@@ -33,10 +33,10 @@
         </LynxModule>
         <ServoHub name="Servo Hub 3" port="3">
             <ContinuousRotationServo name="LTurretServo" port="0"/>
-            <ContinuousRotationServo name="RTurretServo" port="1"/>
+            <Servo name="HoodServo" port="1"/>
             <Servo name="BlockerServo" port="2"/>
             <Servo name="FlowerIntakeServo" port="3"/>
-            <Servo name="HoodServo" port="4"/>
+            <ContinuousRotationServo name="RTurretServo" port="4"/>
         </ServoHub>
     </LynxUsbDevice>
     <EthernetDevice serialNumber="EthernetOverUsb:eth0:172.29.0.23" name="Limelight" port="-1" ipAddress="172.29.0.1" />

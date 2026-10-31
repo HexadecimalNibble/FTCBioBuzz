@@ -45,4 +45,5 @@ class NewCommandGamepad @JvmOverloads constructor(
   val options = Trigger(eventLoop) { gamepad.options }
   val share = Trigger(eventLoop) { gamepad.share }
   val ps = Trigger(eventLoop) { gamepad.ps }
+  val touchpad = Trigger(eventLoop) { gamepad.touchpad }
 }

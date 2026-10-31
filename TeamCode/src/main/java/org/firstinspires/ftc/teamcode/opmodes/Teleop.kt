@@ -6,7 +6,6 @@ import com.pedropathing.ivy.commands.Commands.instant
 import dev.nextftc.robot.opmode.BulkReadHook
 import dev.nextftc.robot.opmode.NextOpMode
 import dev.nextftc.robot.opmode.NextTeleop
-import dev.nextftc.robot.triggers.CommandGamepad
 import dev.nextftc.units.RotationsPerMinute
 import dev.nextftc.units.degrees
 import dev.nextftc.units.rpm
@@ -15,6 +14,7 @@ import org.firstinspires.ftc.teamcode.AllianceColor
 import org.firstinspires.ftc.teamcode.RobotData
 import org.firstinspires.ftc.teamcode.pedro.PedroConstants
 import org.firstinspires.ftc.teamcode.robot.BiobuzzRobot
+import org.firstinspires.ftc.teamcode.robot.HivePosition
 
 @NextTeleop(name = "Biobuzz Teleop")
 class Teleop(val robot: BiobuzzRobot) : NextOpMode(robot, BulkReadHook), HexOpMode {
@@ -58,8 +58,8 @@ class Teleop(val robot: BiobuzzRobot) : NextOpMode(robot, BulkReadHook), HexOpMo
     shooterController = NewCommandGamepad(gamepad2)
 
     // Bind teleop controls
+    // region * Driver *
     driverController.cross.and(driverController.back.negate().and(driverController.start.negate())).onTrue(robot.autoIntake())
-    driverController.triangle.onTrue(robot.intake.startFullIntakeTesting())
     driverController.cross.and(driverController.back).onTrue(robot.intake.reverseIntake())
 
     driverController.square.onTrue(robot.intake.stopIntake())
@@ -74,8 +74,6 @@ class Teleop(val robot: BiobuzzRobot) : NextOpMode(robot, BulkReadHook), HexOpMo
       }
     )
 
-    shooterController.cross.and(driverController.share.negate().and(driverController.options.negate())).onTrue(robot.autoShoot())
-
     driverController.dpadUp.onTrue(instant {
       robot.shooter.setShooterVelocity(3500.0.rpm)
     })
@@ -83,21 +81,44 @@ class Teleop(val robot: BiobuzzRobot) : NextOpMode(robot, BulkReadHook), HexOpMo
     driverController.dpadDown.onTrue(instant {
       robot.shooter.setShooterVelocity(0.0.rpm)
     })
+    // endregion * Driver *
+    // region * Shooter *
+    shooterController.cross.and(driverController.share.negate().and(driverController.options.negate())).onTrue(robot.autoShoot())
 
     shooterController.options.and(shooterController.leftTrigger.isOver(0.2)).onTrue(instant {
       robot.shooter.resetTurretAngle()
     })
 
     shooterController.ps.and(shooterController.leftTrigger.isOver(0.2)).onTrue(instant {
-      robot.shooter.targetTurretAngle = (-90.0).degrees
+      robot.shooter.setTurretAngle((-90.0).degrees)
     })
 
     shooterController.ps.and(shooterController.rightTrigger.isOver(0.2)).onTrue(instant {
-      robot.shooter.targetTurretAngle = 90.0.degrees
+      robot.shooter.setTurretAngle(90.0.degrees)
     })
+
+    shooterController.touchpad.onTrue(instant {
+      robot.shooter.toggleHivePosition()
+    })
+
+    shooterController.triangle.onTrue(instant {
+      robot.shooter.autoAlign = true
+    })
+
+    shooterController.square.onTrue(instant {
+      robot.shooter.autoAlign = false
+    })
+    // endregion * Shooter *
 
     // Initialize shooter subsystem
     robot.shooter.initSystem()
+
+    when (RobotData.allianceColor) {
+      AllianceColor.Red -> robot.shooter.hivePosition = HivePosition.RedAudience
+      AllianceColor.Blue -> robot.shooter.hivePosition = HivePosition.BlueNonAudience
+      else -> {}
+    }
+    robot.shooter.poseSupplier = { follower.pose() }
   }
 
   override fun periodic() {

@@ -17,8 +17,10 @@ import dev.nextftc.units.radians
 import dev.nextftc.units.rpm
 import dev.nextftc.units.volts
 import kotlin.math.PI
+import kotlin.math.abs
 import kotlin.math.cos
 import kotlin.math.pow
+import kotlin.math.sign
 import kotlin.math.sin
 
 enum class HivePosition(val pose: Pose) {
@@ -43,7 +45,7 @@ class Shooter : Mechanism {
     @JvmField
     var turretD = 0.008
     @JvmField
-    var turretkS = 0.0
+    var turretkS = 0.03
 
     @JvmField
     var turretAutoAlign = true
@@ -74,11 +76,6 @@ class Shooter : Mechanism {
   private var servoOffsetAngle: Angle = 0.0.degrees
 
   private val turretPID = PIDController(kP = turretP, kD = turretD)
-  private val turretFeedforward = SimpleFeedforward(
-    kV = 0.0,
-    kS = turretkS,
-    kA = 0.0
-  )
 
   private var targetTurretAngle: Angle = 0.0.degrees
   // endregion * Turret Vars *
@@ -170,10 +167,8 @@ class Shooter : Mechanism {
     println("Current position: $currentPosition")
     println("Hive position: ${hivePosition.pose}")
 
-    val heading = currentPosition.heading()
-
     // rotate calculation: x * Math.cos(angle) - y * Math.sin(angle), x * Math.sin(angle) + y * Math.cos(angle)
-    val turretOffsetFieldCentric = Pose(turretFBOffsetIn * cos(heading), turretFBOffsetIn * sin(heading))
+    val turretOffsetFieldCentric = Pose(turretFBOffsetIn * cos(currentPosition.heading()), turretFBOffsetIn * sin(currentPosition.heading()))
     println("Turret Offset Field Centric: $turretOffsetFieldCentric")
     val turretFieldCentric = turretOffsetFieldCentric + currentPosition
     println("Turret Field Centric: $turretFieldCentric")
@@ -186,7 +181,7 @@ class Shooter : Mechanism {
     println("Angle to hive: $angleToHive")
 
     if (turretAutoAlign) {
-      setTurretAngle(angleToHive.degrees)
+      setTurretAngle(angleToHive.degrees - currentPosition.heading().radians)
     }
     if (shooterAutoAlign) {
       val shooterVelocity = (shooterVelocity1 * distanceToHive.pow(2) + shooterVelocity2 * distanceToHive + shooterVelocity3).rpm
@@ -206,19 +201,20 @@ class Shooter : Mechanism {
     // For PID tuning
     turretPID.coefficients.kP = turretP
     turretPID.coefficients.kD = turretD
-    turretFeedforward.coefficients.kS = turretkS
     shooterMotorPID.coefficients.kP = shooterP
     shooterMotorPID.coefficients.kD = shooterD
     shooterMotorFeedforward.coefficients.kV = shooterkV
 
     // region * Turret *
-    val turretFF = turretFeedforward.calculate(MotionState(
-      position = totalTurretAngle
-    ))
-    // TODO: FIX NOT CHANGING?
-//    println("Turret FF: $turretFF")
-
     val turretError = (targetTurretAngle - totalTurretAngle).baseUnitMagnitude
+
+    val turretFF = if (abs(turretError) > 0.01) {
+      turretkS * sign(turretError)
+    } else {
+      0.0
+    }
+    println("Turret FF: $turretFF")
+
 //    println("turret error: $turretError")
 
     val turretPower = (turretPID.calculate(error = turretError) + turretFF).coerceIn(-1.0, 1.0)

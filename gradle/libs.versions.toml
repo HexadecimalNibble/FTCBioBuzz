@@ -1,5 +1,5 @@
 [versions]
-agp = "8.7.0"
+agp = "9.2.1"
 kotlin = "2.4.10"
 pedro-revhub = "3.0.2"
 pedro-tuning = "1.0.3"
@@ -15,7 +15,7 @@ nextftc-control = { group = "dev.nextftc.v2", name = "control", version.ref = "n
 nextftc-hardware = { group = "dev.nextftc.v2", name = "hardware", version.ref = "nextftc" }
 nextftc-robot = { group = "dev.nextftc.v2", name = "robot", version.ref = "nextftc" }
 
-sloth = { group = "dev.frozenmilk.sinister", name = "sloth", version = "0.3.2" }
+#sloth = { group = "dev.frozenmilk.sinister", name = "Sloth", version = "0.3.2" }
 kotlin-reflect = { group = "org.jetbrains.kotlin", name = "kotlin-reflect", version.ref = "kotlin" }
 
 blaze-ftc = { group = "dev.anygeneric", name = "blazeftc", version.ref = "blaze-ftc" }
@@ -33,8 +33,8 @@ pedro = [
     "pedro-revhub",
     "pedro-tuning",
 ]
-nextftc = [
-    "nextftc-control",
-    "nextftc-hardware",
-    "nextftc-robot"
-]
+#nextftc = [
+#    "nextftc-control",
+#    "nextftc-hardware",
+#    "nextftc-robot"
+#]

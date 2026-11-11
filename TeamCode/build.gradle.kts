@@ -1,27 +1,46 @@
 plugins {
-  id("dev.frozenmilk.teamcode") version "12.0.0-1.2.3"
+  alias(libs.plugins.android.application)
+  alias(libs.plugins.kotlin.android)
 }
 
-ftc {
-  kotlin()
-  sdk.TeamCode()
+// Official FTC application configuration
+apply(from = "../build.common.gradle")
+
+// Official FTC SDK dependencies
+apply(from = "../build.dependencies.gradle")
+
+android {
+  namespace = "org.firstinspires.ftc.teamcode"
+
+  packaging {
+    jniLibs {
+      useLegacyPackaging = true
+    }
+  }
 }
 
-androidComponents {
-  finalizeDsl { extension ->
-    extension.compileSdk = 34
+kotlin {
+  compilerOptions {
+    jvmTarget.set(
+      org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_1_8
+    )
   }
 }
 
 dependencies {
-  implementation(libs.kotlin.reflect)
+  // Local FTC SDK module
+  implementation(project(":FtcRobotController"))
 
+  // BlazeFTC
   implementation(libs.blaze.ftc)
   implementation(libs.blaze.ftc.pedro)
-//  implementation(libs.sloth)
-//  implementation(libs.ivy)
 
   implementation(libs.bundles.pedro)
-  implementation(libs.bundles.nextftc)
+//  implementation(libs.bundles.nextftc)
+  implementation(libs.nextftc.robot)
+
   implementation(libs.panels)
+
+  // Kotlin reflection
+  implementation(libs.kotlin.reflect)
 }

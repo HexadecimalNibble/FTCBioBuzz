@@ -4,12 +4,10 @@ import NewCommandGamepad
 import com.pedropathing.follower.ManualDrive
 import com.pedropathing.ivy.commands.Commands.instant
 import com.pedropathing.math.Pose
-import dev.nextftc.robot.coroutine.command
 import dev.nextftc.robot.opmode.BulkReadHook
 import dev.nextftc.robot.opmode.NextOpMode
 import dev.nextftc.robot.opmode.NextTeleop
 import dev.nextftc.units.RotationsPerMinute
-import dev.nextftc.units.degrees
 import dev.nextftc.units.rpm
 import org.firstinspires.ftc.robotcore.external.Telemetry
 import org.firstinspires.ftc.teamcode.AllianceColor
@@ -18,21 +16,6 @@ import org.firstinspires.ftc.teamcode.RobotData
 import org.firstinspires.ftc.teamcode.pedro.PedroConstants
 import org.firstinspires.ftc.teamcode.robot.BiobuzzRobot
 import org.firstinspires.ftc.teamcode.robot.HivePosition
-
-/*
-500us-2500us pulse width
-hood:
-min 1535us (0.035) - bottom
-max 2060us (0.56) - top
-
-flower intake:
-min 1655us (0.155) - extended
-max 2500us (0.4) - retracted
-
-Blocker:
-min 1280us (-0.22) retracted
-max 1743us (0.243) blocking
- */
 
 @NextTeleop(name = "Biobuzz Teleop")
 class Teleop(val robot: BiobuzzRobot) : NextOpMode(robot, BulkReadHook), HexOpMode {
@@ -77,10 +60,13 @@ class Teleop(val robot: BiobuzzRobot) : NextOpMode(robot, BulkReadHook), HexOpMo
 
     // Bind teleop controls
     // region * Driver *
-    driverController.cross.and(driverController.back.negate().and(driverController.start.negate())).onTrue(robot.autoIntake())
-    driverController.cross.and(driverController.back).onTrue(instant { robot.intake.reverseIntake() })
+    driverController.cross.and(driverController.share.negate().and(driverController.options.negate())).onTrue(robot.autoIntake())
+    driverController.cross.and(driverController.share).onTrue(instant { robot.intake.reverseIntake() })
 
-    driverController.square.and(driverController.options.negate()).onTrue(instant { robot.intake.stopIntakeAndTransfer() })
+    driverController.square.and(driverController.options.negate()).onTrue(instant {
+      robot.intake.stopIntake()
+      robot.transfer.stopTransfer()
+    }.requiring(robot.intake, robot.transfer).setPriority(999))
 
     driverController.square.and(driverController.options).onTrue(
       instant {
@@ -105,7 +91,7 @@ class Teleop(val robot: BiobuzzRobot) : NextOpMode(robot, BulkReadHook), HexOpMo
       }
     })
 
-    driverController.dpadUp.and(driverController.ps.negate()).onTrue(robot.intake.retractFlowerIntake())
+    driverController.dpadUp.and(driverController.ps.negate()).onTrue(instant { robot.intake.retractFlowerIntake() })
 
     driverController.dpadDown.and(driverController.ps.negate()).onTrue(instant {
       robot.intake.extendFlowerIntake()

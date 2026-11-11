@@ -1,6 +1,5 @@
 package org.firstinspires.ftc.teamcode.robot
 
-import com.bylazar.configurables.annotations.Configurable
 import com.pedropathing.math.Pose
 import com.pedropathing.math.Velocity
 import dev.nextftc.control.feedback.PIDController
@@ -33,7 +32,7 @@ enum class HivePosition(val pose: Pose) {
   BlueNonAudience(Pose(84.0, 86.0)),
 }
 
-@Configurable
+//@Configurable
 class Shooter : Mechanism {
   companion object {
     @JvmField

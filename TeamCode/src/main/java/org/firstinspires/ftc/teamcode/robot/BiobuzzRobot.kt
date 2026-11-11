@@ -1,31 +1,56 @@
 package org.firstinspires.ftc.teamcode.robot
 
+import com.pedropathing.ivy.CommandBuilder
+import com.pedropathing.ivy.Scheduler
 import dev.nextftc.robot.NextRobot
 import dev.nextftc.robot.coroutine.command
 
 class BiobuzzRobot : NextRobot {
   val intake: Intake = Intake()
+  val transfer: Transfer = Transfer()
   val shooter: Shooter = Shooter()
 
-  override val mechanisms = setOf(intake, shooter)
+  override val mechanisms = setOf(intake, transfer, shooter)
 
-  fun autoIntake() = command {
+  // region Intake & Transfer
+  fun autoIntake() = command { // TODO: DEAL WITH BALLS ALREADY BEING IN TRANSFER
     shooter.engageBlocker()
-    intake.stopIntakeAndTransfer()
+    transfer.startTransfer(1.0)
     intake.startIntake()
-  }.requiring(intake)
 
-  fun stopAutoShoot() {
-//    shooter.stopShooter()
-    shooter.engageBlocker()
-    intake.stopIntakeAndTransfer()
-  }
+    // Wait a little longer after the first ball goes through then turn off the transfer to prevent stalling
+    println("Waiting for counter now")
+    waitUntil { transfer.checkMoveCounterAndReset() }
+    println("0.25s delay")
+    wait(0.25)
+    transfer.stopTransfer()
 
+    waitUntil { transfer.checkMoveCounterAndReset() }
+    waitUntil { transfer.checkMoveCounterAndReset() }
+    // TODO: WAIT FOR DISTANCE SENSOR TO TRIGGER LAST
+//    waitUntil { intake.distanceSensorObjectDetected() }
+    intake.stopIntake()
+  }.requiring(intake, transfer)
+  // endregion
+
+  // region Shooter
   fun autoShoot() = command {
     intake.startIntake()
-    intake.startTransfer()
+    transfer.startTransfer()
     shooter.disengageBlocker()
-    shooter.setHoodPosition()
-//    shooter.setShooterVelocity(3000.0.rpm)
+
+    // TODO: USE DISTANCE SENSORS OR SOMETHING
+    wait(1.0)
+
+    stopAutoShoot()
+  }.requiring(shooter, intake, transfer)
+
+  fun stopAutoShoot() {
+    // Just cancel the command instead of having to make another command with requirements and stuff
+    Scheduler.cancel(autoShoot())
+    shooter.engageBlocker()
+    intake.stopIntake()
+    transfer.stopTransfer()
   }
+  // endregion
 }

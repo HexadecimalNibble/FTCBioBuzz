@@ -5,23 +5,18 @@ import dev.nextftc.robot.Mechanism
 
 class Intake : Mechanism {
   val intakeMotor = NextMotor("IntakeMotor")
-  val transferMotor = NextMotor("TransferMotor").also { it.direction = NextMotor.Direction.REVERSE }
   val flowerIntakeServo = NextServo("FlowerIntakeServo")
 
-  fun startIntake() {
-    intakeMotor.throttle = 1.0
-  }
-  fun startTransfer() {
-    transferMotor.throttle = 1.0
+  fun startIntake(power: Double = 1.0) {
+    intakeMotor.throttle = power
   }
 
-  fun stopIntakeAndTransfer() {
-    intakeMotor.throttle = 0.0
-    transferMotor.throttle = 0.0
+  fun reverseIntake(power: Double = -1.0) {
+    intakeMotor.throttle = power
   }
-  fun reverseIntake() {
-    intakeMotor.throttle = -1.0
-    transferMotor.throttle = -1.0
+
+  fun stopIntake() {
+    intakeMotor.throttle = 0.0
   }
 
   fun extendFlowerIntake() {
@@ -29,7 +24,7 @@ class Intake : Mechanism {
     flowerIntakeServo.position = 0.155
   }
 
-  fun retractFlowerIntake() = instant {
+  fun retractFlowerIntake() {
     println("retracting flower intake set pos")
     flowerIntakeServo.position = 0.4
   }

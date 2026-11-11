@@ -2,9 +2,8 @@
 agp = "8.7.0"
 kotlin = "2.4.0"
 pedro-revhub = "3.0.2"
-pedro-tuning = "1.0.1"
-blaze-ftc = "0.1.57"
-ivy = "1.0.0"
+pedro-tuning = "1.0.3"
+blaze-ftc = "0.1.67"
 nextftc = "0.3.0"
 panels = "0.3.2+1.0.13"
 
@@ -16,15 +15,13 @@ nextftc-control = { group = "dev.nextftc.v2", name = "control", version.ref = "n
 nextftc-hardware = { group = "dev.nextftc.v2", name = "hardware", version.ref = "nextftc" }
 nextftc-robot = { group = "dev.nextftc.v2", name = "robot", version.ref = "nextftc" }
 
-#sloth = { group = "dev.frozenmilk.sinister", name = "Sloth", version.ref = "sloth" }
+sloth = { group = "dev.frozenmilk.sinister", name = "sloth", version = "0.3.2" }
 kotlin-reflect = { group = "org.jetbrains.kotlin", name = "kotlin-reflect", version.ref = "kotlin" }
 
 blaze-ftc = { group = "dev.anygeneric", name = "blazeftc", version.ref = "blaze-ftc" }
-blaze-ftc-pedro = { group = "dev.anygeneric", name = "blazeftc_pedro", version.ref = "blaze-ftc" }
+blaze-ftc-pedro = { group = "dev.anygeneric", name = "blazeftc_pedro3", version.ref = "blaze-ftc" }
 
-ivy = { group = "com.pedropathing", name = "ivy", version.ref = "ivy"}
-
-panels = { group = "com.bylazar.sloth", name = "fullpanels", version.ref = "panels" }
+#panels = { group = "com.bylazar.sloth", name = "fullpanels", version.ref = "panels" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }

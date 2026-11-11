@@ -18,9 +18,10 @@ dependencies {
 
   implementation(libs.blaze.ftc)
   implementation(libs.blaze.ftc.pedro)
+//  implementation(libs.sloth)
 //  implementation(libs.ivy)
 
   implementation(libs.bundles.pedro)
   implementation(libs.bundles.nextftc)
-  implementation(libs.panels)
+//  implementation(libs.panels)
 }

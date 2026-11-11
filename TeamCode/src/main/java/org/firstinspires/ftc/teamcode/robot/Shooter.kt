@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode.robot
 
+import com.bylazar.configurables.annotations.Configurable
 import com.pedropathing.math.Pose
 import com.pedropathing.math.Velocity
 import dev.nextftc.control.feedback.PIDController
@@ -32,7 +33,7 @@ enum class HivePosition(val pose: Pose) {
   BlueNonAudience(Pose(84.0, 86.0)),
 }
 
-//@Configurable
+@Configurable
 class Shooter : Mechanism {
   companion object {
     @JvmField
@@ -96,7 +97,7 @@ class Shooter : Mechanism {
   private val blockerServo = NextServo("BlockerServo")
 
   // Turret is 28mm behind wheel-base center with intake at front.
-  private val turretFBOffsetIn = -28.0 / 25.4
+  private val turretFBOffsetIn = -28.0 / 25.4 // TODO: UPDATE
 
   // Keep track of servo rotations to determine total servo position.
   private var servoNumRotations: Int = 0
@@ -162,17 +163,23 @@ class Shooter : Mechanism {
    */
   fun updateTurretAngle() {
     val newTurretAngle = leftTurretServo.angle + servoOffsetAngle
+    println("turret angle: $newTurretAngle")
     val dTheta = newTurretAngle - prevTurretAngle
+    println("dTheta: $dTheta")
     // Detect analog encoder wraparound.
     if (dTheta > 200.0.degrees) {
+      println("Encoder wraparound!")
       servoNumRotations -= 1
     } else if (dTheta < (-200.0).degrees) {
       servoNumRotations += 1
     }
+    println("Servo num rotations: $servoNumRotations")
 
     val totalServoAngle = (servoNumRotations * 360.0).degrees + newTurretAngle
+    println("Total servo angle: $totalServoAngle")
 
-    totalTurretAngle = totalServoAngle * (40.0 / 20.0) * (80.0 / 176.0)
+    totalTurretAngle = totalServoAngle
+    println("Total turret angle: $totalTurretAngle")
     prevTurretAngle = newTurretAngle
   }
 

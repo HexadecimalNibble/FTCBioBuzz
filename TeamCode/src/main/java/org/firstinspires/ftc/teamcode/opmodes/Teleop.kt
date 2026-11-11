@@ -8,6 +8,7 @@ import dev.nextftc.robot.opmode.BulkReadHook
 import dev.nextftc.robot.opmode.NextOpMode
 import dev.nextftc.robot.opmode.NextTeleop
 import dev.nextftc.units.RotationsPerMinute
+import dev.nextftc.units.degrees
 import dev.nextftc.units.rpm
 import org.firstinspires.ftc.robotcore.external.Telemetry
 import org.firstinspires.ftc.teamcode.AllianceColor
@@ -102,23 +103,23 @@ class Teleop(val robot: BiobuzzRobot) : NextOpMode(robot, BulkReadHook), HexOpMo
     // region * Shooter *
     shooterController.cross.and(driverController.share.negate().and(driverController.options.negate())).onTrue(robot.autoShoot())
 
-//    shooterController.options.and(shooterController.leftTrigger.isOver(0.2)).onTrue(instant {
-//      robot.shooter.resetTurretAngle()
-//    })
-//
-//    shooterController.ps.and(shooterController.leftTrigger.isOver(0.2)).and(shooterController.options.negate()).onTrue(instant {
-//      robot.shooter.setTurretAngle((-90.0).degrees)
-//    })
-//
-//    shooterController.ps.and(shooterController.rightTrigger.isOver(0.2)).and(shooterController.options.negate()).onTrue(instant {
-//      robot.shooter.setTurretAngle(90.0.degrees)
-//    })
-//
-//    shooterController.rightTrigger.isOver(0.2).or(shooterController.leftTrigger.isOver(0.2)).and(shooterController.ps.negate()).and(shooterController.options.negate()).onTrue(instant {
-//      robot.shooter.setTurretPower(shooterController.rightTrigger.value - shooterController.leftTrigger.value)
-//    }).onFalse(instant {
-//      robot.shooter.setTurretPower(0.0)
-//    })
+    shooterController.options.and(shooterController.leftTrigger.isOver(0.2)).onTrue(instant {
+      robot.shooter.resetTurretAngle()
+    })
+
+    shooterController.ps.and(shooterController.leftTrigger.isOver(0.2)).and(shooterController.options.negate()).onTrue(instant {
+      robot.shooter.setTurretAngle((-90.0).degrees)
+    })
+
+    shooterController.ps.and(shooterController.rightTrigger.isOver(0.2)).and(shooterController.options.negate()).onTrue(instant {
+      robot.shooter.setTurretAngle(90.0.degrees)
+    })
+
+    shooterController.rightTrigger.isOver(0.2).or(shooterController.leftTrigger.isOver(0.2)).and(shooterController.ps.negate()).and(shooterController.options.negate()).onTrue(instant {
+      robot.shooter.setTurretPower(shooterController.rightTrigger.value - shooterController.leftTrigger.value)
+    }).onFalse(instant {
+      robot.shooter.setTurretPower(0.0)
+    })
 
     shooterController.touchpad.onTrue(instant {
       robot.shooter.toggleHivePosition()

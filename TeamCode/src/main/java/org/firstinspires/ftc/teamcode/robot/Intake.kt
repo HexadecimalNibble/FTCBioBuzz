@@ -1,11 +1,13 @@
 package org.firstinspires.ftc.teamcode.robot
 import dev.nextftc.hardware.actuators.NextMotor
 import dev.nextftc.hardware.actuators.NextServo
+import dev.nextftc.hardware.sensors.NextDigitalSensor
 import dev.nextftc.robot.Mechanism
 
 class Intake : Mechanism {
-  val intakeMotor = NextMotor("IntakeMotor")
-  val flowerIntakeServo = NextServo("FlowerIntakeServo")
+  private val intakeMotor = NextMotor("IntakeMotor")
+  private val flowerIntakeServo = NextServo("FlowerIntakeServo").also { it.setPwmRange(500.0, 2475.0) }
+  private val distanceSensor = NextDigitalSensor("IntakeDistanceSensor")
 
   fun startIntake(power: Double = 1.0) {
     intakeMotor.throttle = power
@@ -21,11 +23,13 @@ class Intake : Mechanism {
 
   fun extendFlowerIntake() {
     println("extending flower intake set pos")
-    flowerIntakeServo.position = 0.155
+    flowerIntakeServo.position = 0.808
   }
 
   fun retractFlowerIntake() {
     println("retracting flower intake set pos")
-    flowerIntakeServo.position = 0.4
+    flowerIntakeServo.position = 0.33
   }
+
+  fun distanceSensorObjectDetected() = distanceSensor.isTriggered
 }

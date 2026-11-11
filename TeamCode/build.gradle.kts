@@ -23,5 +23,5 @@ dependencies {
 
   implementation(libs.bundles.pedro)
   implementation(libs.bundles.nextftc)
-//  implementation(libs.panels)
+  implementation(libs.panels)
 }

@@ -20,15 +20,15 @@ class BiobuzzRobot : NextRobot {
 
     // Wait a little longer after the first ball goes through then turn off the transfer to prevent stalling
     println("Waiting for counter now")
-    waitUntil { transfer.checkMoveCounterAndReset() }
+    transfer.resetCounter()
+    waitUntil { transfer.checkMoveCounterAndReset() } // 1st ball
     println("0.25s delay")
     wait(0.25)
     transfer.stopTransfer()
 
-    waitUntil { transfer.checkMoveCounterAndReset() }
-    waitUntil { transfer.checkMoveCounterAndReset() }
-    // TODO: WAIT FOR DISTANCE SENSOR TO TRIGGER LAST
-//    waitUntil { intake.distanceSensorObjectDetected() }
+    waitUntil { transfer.checkMoveCounterAndReset() } // 2nd ball
+    waitUntil { transfer.checkMoveCounterAndReset() } // 3rd ball
+    waitUntil { intake.distanceSensorObjectDetected() } // 4th ball
     intake.stopIntake()
   }.requiring(intake, transfer)
   // endregion

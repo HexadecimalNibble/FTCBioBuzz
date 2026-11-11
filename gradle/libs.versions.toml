@@ -1,6 +1,6 @@
 [versions]
 agp = "8.7.0"
-kotlin = "2.4.0"
+kotlin = "2.4.10"
 pedro-revhub = "3.0.2"
 pedro-tuning = "1.0.3"
 blaze-ftc = "0.1.67"
@@ -21,7 +21,7 @@ kotlin-reflect = { group = "org.jetbrains.kotlin", name = "kotlin-reflect", vers
 blaze-ftc = { group = "dev.anygeneric", name = "blazeftc", version.ref = "blaze-ftc" }
 blaze-ftc-pedro = { group = "dev.anygeneric", name = "blazeftc_pedro3", version.ref = "blaze-ftc" }
 
-#panels = { group = "com.bylazar.sloth", name = "fullpanels", version.ref = "panels" }
+panels = { group = "com.bylazar.sloth", name = "fullpanels", version.ref = "panels" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }

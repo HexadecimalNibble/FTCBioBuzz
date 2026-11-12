@@ -38,7 +38,6 @@ dependencies {
   implementation(libs.sloth)
 
   implementation(libs.bundles.pedro)
-//  implementation(libs.bundles.nextftc)
   implementation(libs.nextftc.robot)
 
   implementation(libs.panels)

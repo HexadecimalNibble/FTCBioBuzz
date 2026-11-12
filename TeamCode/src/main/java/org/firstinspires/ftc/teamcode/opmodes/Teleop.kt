@@ -47,11 +47,7 @@ class Teleop(val robot: BiobuzzRobot) : NextOpMode(robot, BulkReadHook), HexOpMo
     checkAndSetAllianceColor()
   }
 
-
   override fun start() {
-    // Start = options
-    // Back = share
-
     // Reset telemetry display format
     telemetry.setDisplayFormat(Telemetry.DisplayFormat.CLASSIC)
 
@@ -69,6 +65,7 @@ class Teleop(val robot: BiobuzzRobot) : NextOpMode(robot, BulkReadHook), HexOpMo
       robot.transfer.stopTransfer()
     }.requiring(robot.intake, robot.transfer).setPriority(999))
 
+    // reset imu
     driverController.square.and(driverController.options).onTrue(
       instant {
         if (RobotData.allianceColor == AllianceColor.Red) {
@@ -84,6 +81,7 @@ class Teleop(val robot: BiobuzzRobot) : NextOpMode(robot, BulkReadHook), HexOpMo
       // TODO
     })
 
+    // Reset in bottom-left corner w/ robot facing away
     driverController.dpadDown.and(driverController.ps).onTrue(instant {
       if (RobotData.allianceColor == AllianceColor.Red) {
         follower.setPose(Pose(BioBuzzConstants.robotLength / 2, 140.0 - BioBuzzConstants.robotWidth / 2, 0.0))
@@ -103,7 +101,12 @@ class Teleop(val robot: BiobuzzRobot) : NextOpMode(robot, BulkReadHook), HexOpMo
     // region * Shooter *
     shooterController.cross.and(driverController.share.negate().and(driverController.options.negate())).onTrue(robot.autoShoot())
 
+    // region Turret
     shooterController.options.and(shooterController.leftTrigger.isOver(0.2)).onTrue(instant {
+      robot.shooter.resetTurretAngle()
+    })
+
+    shooterController.share.and(shooterController.rightTrigger.isOver(0.2)).onTrue(instant {
       robot.shooter.resetTurretAngle()
     })
 
@@ -120,6 +123,7 @@ class Teleop(val robot: BiobuzzRobot) : NextOpMode(robot, BulkReadHook), HexOpMo
     }).onFalse(instant {
       robot.shooter.setTurretPower(0.0)
     })
+    // endregion
 
     shooterController.touchpad.onTrue(instant {
       robot.shooter.toggleHivePosition()

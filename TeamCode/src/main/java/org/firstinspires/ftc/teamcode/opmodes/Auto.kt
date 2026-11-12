@@ -54,7 +54,7 @@ class Auto(val robot: BiobuzzRobot) : NextOpMode(robot, BulkReadHook), HexOpMode
     } else if (!autoCreated) {
       when (RobotData.auto) {
         RobotAuto.Close -> {
-          auto = TestAuto(follower, RobotData.allianceColor!!, robot)
+          auto = AudienceAuto(follower, RobotData.allianceColor!!, robot)
         }
         else -> {
           throw Error("RobotData.auto is somehow null?")
@@ -64,9 +64,13 @@ class Auto(val robot: BiobuzzRobot) : NextOpMode(robot, BulkReadHook), HexOpMode
       // Create selected auto
       autoCommand = auto.createAuto()
       Scheduler.schedule(autoCommand)
-      telemetry.addLine("<big><b>Ready to start</b></big>")
 
-      println("Command scheduled: ${Scheduler.isScheduled(autoCommand)}")
+      // Move initial mechanisms and reset stuff
+      robot.intake.retractFlowerIntake()
+      robot.shooter.engageBlocker()
+      robot.shooter.resetTurretAngle()
+
+      telemetry.addLine("<big><b>Ready to start</b></big>")
       autoCreated = true
     }
 

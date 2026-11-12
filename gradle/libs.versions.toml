@@ -10,9 +10,8 @@ panels = "0.3.2+1.0.13"
 [libraries]
 pedro-revhub = { group = "com.pedropathing", name = "revhub", version.ref = "pedro-revhub" }
 pedro-tuning = { group = "com.pedropathing", name = "tuning", version.ref = "pedro-tuning" }
+ivy = { group = "com.pedropathing.ivy", name = "pedro", version = "1.1.1" }
 
-nextftc-control = { group = "dev.nextftc.v2", name = "control", version.ref = "nextftc" }
-nextftc-hardware = { group = "dev.nextftc.v2", name = "hardware", version.ref = "nextftc" }
 nextftc-robot = { group = "dev.nextftc.v2", name = "robot", version.ref = "nextftc" }
 
 sloth = { group = "dev.frozenmilk.sinister", name = "Sloth", version = "0.3.2" }
@@ -32,9 +31,5 @@ kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
 pedro = [
     "pedro-revhub",
     "pedro-tuning",
+    "ivy",
 ]
-#nextftc = [
-#    "nextftc-control",
-#    "nextftc-hardware",
-#    "nextftc-robot"
-#]

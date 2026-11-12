@@ -163,26 +163,18 @@ class Shooter : Mechanism {
    */
   fun updateTurretAngle() {
     val newTurretAngle = leftTurretServo.angle + servoOffsetAngle
-    println("turret angle: $newTurretAngle")
     val dTheta = newTurretAngle - prevTurretAngle
-    println("dTheta: $dTheta")
     // Detect analog encoder wraparound.
     if (dTheta > 200.0.degrees) {
-      println("Encoder wraparound!")
       servoNumRotations -= 1
     } else if (dTheta < (-200.0).degrees) {
       servoNumRotations += 1
     }
-    println("Servo num rotations: $servoNumRotations")
-
     val totalServoAngle = (servoNumRotations * 360.0).degrees + newTurretAngle
-    println("Total servo angle: $totalServoAngle")
 
     totalTurretAngle = totalServoAngle
-    println("Total turret angle: $totalTurretAngle")
     prevTurretAngle = newTurretAngle
   }
-
 
   fun setTurretAngle(angle: Angle) {
     turretPIDOn = true
@@ -338,8 +330,7 @@ class Shooter : Mechanism {
   override fun periodic() {
     updateTurretAngle()
     if (autoAlign) {
-      setTurretAngle(0.0.degrees)
-//      autoAlign(poseSupplier())
+      autoAlign(poseSupplier())
     }
 
     if (turretPIDOn) {

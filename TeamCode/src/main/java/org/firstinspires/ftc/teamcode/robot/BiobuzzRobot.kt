@@ -1,12 +1,9 @@
 package org.firstinspires.ftc.teamcode.robot
 
 import com.pedropathing.ivy.Command
-import com.pedropathing.ivy.CommandBuilder
 import com.pedropathing.ivy.Scheduler
 import com.pedropathing.ivy.commands.Commands.instant
-import com.pedropathing.ivy.commands.Commands.waitMs
 import com.pedropathing.ivy.commands.Commands.waitUntil
-import com.pedropathing.ivy.groups.Groups.parallel
 import com.pedropathing.ivy.groups.Groups.race
 import com.pedropathing.ivy.groups.Groups.sequential
 import dev.nextftc.robot.NextRobot
@@ -52,13 +49,10 @@ class BiobuzzRobot : NextRobot {
   // endregion
   // region Shooter
   fun autoShoot() = command {
+    shooter.disengageBlocker()
     intake.startIntake()
     transfer.startTransfer()
-    shooter.disengageBlocker()
-
-    // TODO: USE DISTANCE SENSORS OR SOMETHING
     wait(1.0)
-
     stopAutoShoot()
   }.requiring(shooter, intake, transfer)
 

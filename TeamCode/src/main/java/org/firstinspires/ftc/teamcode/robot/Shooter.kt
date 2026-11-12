@@ -207,11 +207,11 @@ class Shooter : Mechanism {
   // endregion
   // region Blocker
   fun engageBlocker() {
-    blockerServo.position = 0.65
+    blockerServo.position = 0.505
   }
 
   fun disengageBlocker() {
-    blockerServo.position = 0.243
+    blockerServo.position = 0.378
   }
   // endregion
   // region Hood

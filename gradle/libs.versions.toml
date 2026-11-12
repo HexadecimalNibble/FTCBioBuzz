@@ -15,7 +15,7 @@ nextftc-control = { group = "dev.nextftc.v2", name = "control", version.ref = "n
 nextftc-hardware = { group = "dev.nextftc.v2", name = "hardware", version.ref = "nextftc" }
 nextftc-robot = { group = "dev.nextftc.v2", name = "robot", version.ref = "nextftc" }
 
-#sloth = { group = "dev.frozenmilk.sinister", name = "Sloth", version = "0.3.2" }
+sloth = { group = "dev.frozenmilk.sinister", name = "Sloth", version = "0.3.2" }
 kotlin-reflect = { group = "org.jetbrains.kotlin", name = "kotlin-reflect", version.ref = "kotlin" }
 
 blaze-ftc = { group = "dev.anygeneric", name = "blazeftc", version.ref = "blaze-ftc" }

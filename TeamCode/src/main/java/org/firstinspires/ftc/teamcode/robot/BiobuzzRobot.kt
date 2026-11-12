@@ -16,19 +16,24 @@ class BiobuzzRobot : NextRobot {
   fun autoIntake() = command { // TODO: DEAL WITH BALLS ALREADY BEING IN TRANSFER
     shooter.engageBlocker()
     transfer.startTransfer(1.0)
-    intake.startIntake()
+    intake.startIntake(1.0)
 
     // Wait a little longer after the first ball goes through then turn off the transfer to prevent stalling
     println("Waiting for counter now")
     transfer.resetCounter()
     waitUntil { transfer.checkMoveCounterAndReset() } // 1st ball
+    println("1st ball detected")
     println("0.25s delay")
     wait(0.25)
     transfer.stopTransfer()
 
     waitUntil { transfer.checkMoveCounterAndReset() } // 2nd ball
+    println("2nd ball detected")
     waitUntil { transfer.checkMoveCounterAndReset() } // 3rd ball
+    println("3rd ball detected")
     waitUntil { intake.distanceSensorObjectDetected() } // 4th ball
+    println("4th ball detected")
+    wait(0.25)
     intake.stopIntake()
   }.requiring(intake, transfer)
   // endregion

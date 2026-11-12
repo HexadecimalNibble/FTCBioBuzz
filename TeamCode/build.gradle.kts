@@ -35,6 +35,8 @@ dependencies {
   implementation(libs.blaze.ftc)
   implementation(libs.blaze.ftc.pedro)
 
+  implementation(libs.sloth)
+
   implementation(libs.bundles.pedro)
 //  implementation(libs.bundles.nextftc)
   implementation(libs.nextftc.robot)

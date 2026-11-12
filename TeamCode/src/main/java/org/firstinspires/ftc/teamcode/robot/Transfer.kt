@@ -1,6 +1,7 @@
 package org.firstinspires.ftc.teamcode.robot
 import dev.nextftc.hardware.actuators.NextMotor
 import dev.nextftc.robot.Mechanism
+import dev.nextftc.units.amperes
 import kotlin.math.abs
 import kotlin.math.floor
 
@@ -8,23 +9,37 @@ class Transfer : Mechanism {
   private val transferMotor = NextMotor("TransferMotor")
 
   private var lastCounterTicks = 0.0
-  private val countsForRotation = 1600
+  private val degPerTick = 360 / 8192
+  private val counterDegThreshold = 80
 
   private val counter = NextMotor("LFMotor")
 
-  var numBallsInTransfer = 0
+  var transferMotorRunning = false
     private set
 
+  init {
+    transferMotor.currentAlert = 3.0.amperes
+  }
+
+  // TODO: Prob can consolidate startTransfer() and reverseTransfer()
   fun startTransfer(power: Double = 1.0) {
     transferMotor.throttle = power
+    transferMotorRunning = true
   }
 
   fun reverseTransfer(power: Double = -1.0) {
     transferMotor.throttle = power
+    transferMotorRunning = true
   }
 
   fun stopTransfer() {
     transferMotor.throttle = 0.0
+    transferMotorRunning = false
+  }
+
+  fun transferMotorOverCurrent(): Boolean {
+    println("Checking transfer motor over current. Is: ${transferMotor.isOverCurrent}")
+    return transferMotor.isOverCurrent
   }
 
   // region counter
@@ -42,12 +57,12 @@ class Transfer : Mechanism {
 
   fun getNumBallsCounted(): Int {
     printCounterTicks()
-    val totalDegrees = abs(getCounterTicks() - lastCounterTicks) * 360 / 8192
+    val totalDegrees = abs(getCounterTicks() - lastCounterTicks) * degPerTick
     var rotations = floor(totalDegrees / 120).toInt()
     println("initial rotations: $rotations")
     val remainder = (totalDegrees % 120).toInt()
-    // 80 deg threshold to count rotation
-    if (remainder > 80) {
+    // Threshold to count rotation
+    if (remainder > counterDegThreshold) {
       println("remainder: $remainder")
       rotations += 1
     }
@@ -55,16 +70,7 @@ class Transfer : Mechanism {
     return rotations
   }
 
-  /**
-   * Return whether a ball has moved the counter
-   * Note: this resets the counter if the ball moved
-   */
-  fun checkMoveCounterAndReset(): Boolean {
-    printCounterTicks()
-    if (getCounterTicks() < lastCounterTicks - countsForRotation) {
-      resetCounter()
-      return true
-    }
-    return false
+  override fun periodic() {
+    println("Transfer motor current: ${transferMotor.current}; overcurrent: ${transferMotor.isOverCurrent}; current alert: ${transferMotor.currentAlert}")
   }
 }

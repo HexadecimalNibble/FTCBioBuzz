@@ -9,7 +9,7 @@ import dev.nextftc.units.measuretypes.Time
 class Intake : Mechanism {
   private val intakeMotor = NextMotor("IntakeMotor")
   private val flowerIntakeServo = NextServo("FlowerIntakeServo").also { it.setPwmRange(500.0, 2475.0) }
-  private val distanceSensor = NextDigitalSensor("IntakeDistanceSensor")
+  private val distanceSensor = NextDigitalSensor("IntakeDistanceSensor", false)
 
   fun startIntake(power: Double = 1.0) {
     intakeMotor.throttle = power
@@ -48,12 +48,14 @@ class Intake : Mechanism {
     while (true) {
       val now = System.nanoTime()
       if (distanceSensor.isTriggered) {
+        println("Distance sensor triggered")
         // Start a new timing window if one hasn't started
         val start = activeSince ?: now.also {
           activeSince = it
         }
         // Check whether the continuous active time is sufficient
         if ((now - start).toDouble() >= requiredNanos) {
+          println("Continuously triggered for: $totalTime")
           break
         }
       } else {

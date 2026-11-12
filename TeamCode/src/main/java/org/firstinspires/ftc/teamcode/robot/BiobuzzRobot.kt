@@ -1,7 +1,10 @@
 package org.firstinspires.ftc.teamcode.robot
 
 import com.pedropathing.ivy.Command
+import com.pedropathing.ivy.Command.NOOP
 import com.pedropathing.ivy.Scheduler
+import com.pedropathing.ivy.commands.Commands.conditional
+import com.pedropathing.ivy.commands.Commands.infinite
 import com.pedropathing.ivy.commands.Commands.instant
 import com.pedropathing.ivy.commands.Commands.waitUntil
 import com.pedropathing.ivy.groups.Groups.race
@@ -24,8 +27,6 @@ class BiobuzzRobot : NextRobot {
       transfer.startTransfer(1.0)
       intake.startIntake(1.0)
 
-      // Wait a little longer after the first ball goes through then turn off the transfer to prevent stalling
-      println("Waiting for counter now")
       transfer.resetCounter()
     },
     // command end stuff
@@ -35,10 +36,23 @@ class BiobuzzRobot : NextRobot {
       // Also finishes when 3 balls and distance sensor detects for a decent amount of time
       sequential(
         waitUntil { transfer.getNumBallsCounted() == 3 },
+        instant { transfer.stopTransfer() }, // stop transfer to prevent stalling
         intake.waitForContinuousDistanceSensorDetection(250.0.milliseconds)
       ),
       // Also finishes if distance sensor detects for a long time
       intake.waitForContinuousDistanceSensorDetection(750.0.milliseconds),
+
+      // Continuously monitor transfer motor current to stop it if it spikes
+      infinite {
+        conditional(
+          { transfer.transferMotorRunning && transfer.transferMotorOverCurrent() },
+          instant {
+            println("Stopped transfer bc overcurrent")
+            transfer.stopTransfer()
+          },
+          NOOP,
+        )
+      }
     ),
     // Cleanup
     instant {

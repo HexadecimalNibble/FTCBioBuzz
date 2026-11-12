@@ -250,6 +250,9 @@ class Shooter : Mechanism {
     val turretOffsetFieldCentric = Pose(offsetX, offsetY)
     println("align - turretOffsetFieldCentric: $turretOffsetFieldCentric")
 
+    // TODO: add offset for where ball exits the turret rotated by the turret's position
+//    val ballExitTurretOffsetFieldCentric =
+
     val turretFieldCentric = turretOffsetFieldCentric + currentPosition
     println("align - turretFieldCentric: $turretFieldCentric")
 

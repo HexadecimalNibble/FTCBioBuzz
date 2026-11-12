@@ -1,6 +1,8 @@
 package org.firstinspires.ftc.teamcode.robot
 import dev.nextftc.hardware.actuators.NextMotor
 import dev.nextftc.robot.Mechanism
+import kotlin.math.abs
+import kotlin.math.floor
 
 class Transfer : Mechanism {
   private val transferMotor = NextMotor("TransferMotor")
@@ -36,6 +38,21 @@ class Transfer : Mechanism {
   fun resetCounter() {
     println("Reseting counter")
     lastCounterTicks = getCounterTicks()
+  }
+
+  fun getNumBallsCounted(): Int {
+    printCounterTicks()
+    val totalDegrees = abs(getCounterTicks() - lastCounterTicks) * 360 / 8192
+    var rotations = floor(totalDegrees / 120).toInt()
+    println("initial rotations: $rotations")
+    val remainder = (totalDegrees % 120).toInt()
+    // 80 deg threshold to count rotation
+    if (remainder > 80) {
+      println("remainder: $remainder")
+      rotations += 1
+    }
+    println("final rotations: $rotations")
+    return rotations
   }
 
   /**

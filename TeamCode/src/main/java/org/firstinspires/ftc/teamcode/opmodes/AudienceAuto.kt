@@ -25,20 +25,38 @@ class AudienceAuto(val follower: Follower, val allianceColor: AllianceColor, val
 
   private val start = poseFactory.of(56.0, BioBuzzConstants.robotWidth / 2, 180.0)
   private val gardenEndCoord = poseFactory.of(15.0, BioBuzzConstants.robotWidth / 2, 180.0)
-  private val point2 = poseFactory.of(47.0886, 128.0232, 90.4528)
+  private val nonAudienceSideFlowerCoord = poseFactory.of(47.0886, 128.0232, 90.0)
   private val point2Control1 = poseFactory.of(27.2208, 106.4198, 0.0)
   private val point2Control2 = poseFactory.of(47.2667, 105.4864, 0.0)
   private val point2Segment1Heading = poseFactory.of(47.0886, 128.0232, 180.0)
-  private val point3 = poseFactory.of(10.7052, 46.715, 179.6996)
+  private val humanPlayerFlowerCoord = poseFactory.of(10.7052, 46.715, 180.0)
   private val point3Control1 = poseFactory.of(24.0106, 92.1561, 0.0)
   private val point3Control2 = poseFactory.of(41.0673, 46.5558, 0.0)
   private val point3Segment1Heading = poseFactory.of(10.7052, 46.715, 90.0)
 
-  fun driveToGarden(): Path = Paths.line(start, gardenEndCoord).linear(start, gardenEndCoord)
+  fun driveToGarden(): Path = Paths.line(
+    start,
+    gardenEndCoord
+  ).linear(start, gardenEndCoord)
 
-  fun driveToNonAudienceSideFlower(): Path = Paths.curve(gardenEndCoord, point2Control1, point2Control2, point2).heading(Interpolator.piecewise().until(0.05, Interpolator.constant(point2Segment1Heading)).until(1.0, Interpolator.tangent))
+  fun driveToNonAudienceSideFlower(): Path = Paths.curve(
+    gardenEndCoord,
+    point2Control1,
+    point2Control2,
+    nonAudienceSideFlowerCoord
+  ).heading(Interpolator.piecewise()
+    .until(0.05, Interpolator.constant(point2Segment1Heading))
+    .until(1.0, Interpolator.tangent))
 
-  fun driveToHumanPlayerFlower(): Path = Paths.curve(point2, point3Control1, point3Control2, point3).heading(Interpolator.piecewise().until(0.05, Interpolator.constant(point3Segment1Heading)).until(1.0, Interpolator.tangent))
+  fun driveToHumanPlayerFlower(): Path = Paths.curve(
+    nonAudienceSideFlowerCoord,
+    point3Control1,
+    point3Control2,
+    humanPlayerFlowerCoord
+  ).heading(Interpolator.piecewise()
+    .until(0.05, Interpolator.constant(point3Segment1Heading))
+    .until(1.0, Interpolator.tangent)
+  )
 
   init {
     if (allianceColor == AllianceColor.Blue) {

@@ -152,6 +152,7 @@ class Shooter : Mechanism {
 
   // region Turret
   fun resetTurretAngle() {
+    println("Reset turret angle")
     servoOffsetAngle = -leftTurretServo.angle
     servoNumRotations = 0
     totalTurretAngle = 0.0.degrees
@@ -240,13 +241,17 @@ class Shooter : Mechanism {
    * Automatically aligns turret and shooter with the selected HIVE
    */
   fun autoAlign(currentPosition: Pose) {
+    println("auto aligning")
     val heading = currentPosition.heading()
+    println("align - robot heading: $heading")
     // Calculate turret pivot offset in field coordinates.
     val offsetX = turretFBOffsetIn * cos(heading)
     val offsetY = turretFBOffsetIn * sin(heading)
     val turretOffsetFieldCentric = Pose(offsetX, offsetY)
+    println("align - turretOffsetFieldCentric: $turretOffsetFieldCentric")
 
     val turretFieldCentric = turretOffsetFieldCentric + currentPosition
+    println("align - turretFieldCentric: $turretFieldCentric")
 
     // Vector from turret pivot to HIVE
     val vecToHive = (hivePosition.pose - turretFieldCentric).toVector2D()
@@ -295,6 +300,7 @@ class Shooter : Mechanism {
     // endregion
 
     val angleToHive = atan2(aimY, aimX)
+    println("align - angle to hive: $angleToHive")
 
     // Use the predicted distance for shooter RPM compensation.
     // When stationary, this is simply the ordinary distance.

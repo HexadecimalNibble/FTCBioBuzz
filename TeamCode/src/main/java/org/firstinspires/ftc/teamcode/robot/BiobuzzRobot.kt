@@ -1,9 +1,17 @@
 package org.firstinspires.ftc.teamcode.robot
 
+import com.pedropathing.ivy.Command
 import com.pedropathing.ivy.CommandBuilder
 import com.pedropathing.ivy.Scheduler
+import com.pedropathing.ivy.commands.Commands.instant
+import com.pedropathing.ivy.commands.Commands.waitMs
+import com.pedropathing.ivy.commands.Commands.waitUntil
+import com.pedropathing.ivy.groups.Groups.parallel
+import com.pedropathing.ivy.groups.Groups.race
+import com.pedropathing.ivy.groups.Groups.sequential
 import dev.nextftc.robot.NextRobot
 import dev.nextftc.robot.coroutine.command
+import dev.nextftc.units.milliseconds
 
 class BiobuzzRobot : NextRobot {
   val intake: Intake = Intake()
@@ -13,31 +21,35 @@ class BiobuzzRobot : NextRobot {
   override val mechanisms = setOf(intake, transfer, shooter)
 
   // region Intake & Transfer
-  fun autoIntake() = command { // TODO: DEAL WITH BALLS ALREADY BEING IN TRANSFER
-    shooter.engageBlocker()
-    transfer.startTransfer(1.0)
-    intake.startIntake(1.0)
+  fun autoIntake(): Command = sequential(
+    instant {
+      shooter.engageBlocker()
+      transfer.startTransfer(1.0)
+      intake.startIntake(1.0)
 
-    // Wait a little longer after the first ball goes through then turn off the transfer to prevent stalling
-    println("Waiting for counter now")
-    transfer.resetCounter()
-    waitUntil { transfer.checkMoveCounterAndReset() } // 1st ball
-    println("1st ball detected")
-    println("0.25s delay")
-    wait(0.25)
-    transfer.stopTransfer()
-
-    waitUntil { transfer.checkMoveCounterAndReset() } // 2nd ball
-    println("2nd ball detected")
-    waitUntil { transfer.checkMoveCounterAndReset() } // 3rd ball
-    println("3rd ball detected")
-    waitUntil { intake.distanceSensorObjectDetected() } // 4th ball
-    println("4th ball detected")
-    wait(0.25)
-    intake.stopIntake()
-  }.requiring(intake, transfer)
+      // Wait a little longer after the first ball goes through then turn off the transfer to prevent stalling
+      println("Waiting for counter now")
+      transfer.resetCounter()
+    },
+    // command end stuff
+    race(
+      // Finishes when 4 balls detected
+      waitUntil { transfer.getNumBallsCounted() > 3 },
+      // Also finishes when 3 balls and distance sensor detects for a decent amount of time
+      sequential(
+        waitUntil { transfer.getNumBallsCounted() == 3 },
+        intake.waitForContinuousDistanceSensorDetection(250.0.milliseconds)
+      ),
+      // Also finishes if distance sensor detects for a long time
+      intake.waitForContinuousDistanceSensorDetection(750.0.milliseconds),
+    ),
+    // Cleanup
+    instant {
+      intake.stopIntake()
+      transfer.stopTransfer()
+    }
+  ).requiring(intake, transfer)
   // endregion
-
   // region Shooter
   fun autoShoot() = command {
     intake.startIntake()

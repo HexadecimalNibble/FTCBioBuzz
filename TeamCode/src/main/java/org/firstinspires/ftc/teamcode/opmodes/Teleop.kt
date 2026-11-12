@@ -58,7 +58,10 @@ class Teleop(val robot: BiobuzzRobot) : NextOpMode(robot, BulkReadHook), HexOpMo
     // Bind teleop controls
     // region * Driver *
     driverController.cross.and(driverController.share.negate().and(driverController.options.negate())).onTrue(robot.autoIntake())
-    driverController.cross.and(driverController.share).onTrue(instant { robot.intake.reverseIntake() })
+    driverController.cross.and(driverController.share).onTrue(instant {
+      robot.intake.reverseIntake()
+      robot.transfer.reverseTransfer()
+    })
 
     driverController.square.and(driverController.options.negate()).onTrue(instant {
       robot.intake.stopIntake()

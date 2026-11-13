@@ -9,7 +9,7 @@ class Transfer : Mechanism {
   private val transferMotor = NextMotor("TransferMotor")
 
   private var lastCounterTicks = 0.0
-  private val degPerTick = 360 / 8192
+  private val degPerTick = 360.0 / 8192
   private val counterDegThreshold = 80
 
   private val counter = NextMotor("LFMotor")
@@ -18,7 +18,7 @@ class Transfer : Mechanism {
     private set
 
   init {
-    transferMotor.currentAlert = 3.0.amperes
+    transferMotor.currentAlert = 6.0.amperes
   }
 
   // TODO: Prob can consolidate startTransfer() and reverseTransfer()
@@ -51,7 +51,7 @@ class Transfer : Mechanism {
   }
 
   fun resetCounter() {
-    println("Reseting counter")
+    println("Resetting counter")
     lastCounterTicks = getCounterTicks()
   }
 

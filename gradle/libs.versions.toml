@@ -30,6 +30,6 @@ kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
 [bundles]
 pedro = [
     "pedro-revhub",
-    "pedro-tuning",
+#    "pedro-tuning",
     "ivy",
 ]

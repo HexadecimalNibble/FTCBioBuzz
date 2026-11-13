@@ -44,13 +44,9 @@ class BiobuzzRobot : NextRobot {
 
       // Continuously monitor transfer motor current to stop it if it spikes
       infinite {
-        conditional(
-          { transfer.transferMotorRunning && transfer.transferMotorOverCurrent() },
-          instant {
-            println("Stopped transfer bc overcurrent")
-            transfer.stopTransfer()
-          },
-          NOOP,
+        sequential(
+          waitUntil { transfer.transferMotorRunning && transfer.transferMotorOverCurrent() },
+          instant { transfer.stopTransfer() }
         )
       }
     ),

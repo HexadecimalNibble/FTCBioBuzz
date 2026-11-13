@@ -51,7 +51,7 @@ class Shooter : Mechanism {
     var turretkS = 0.03
 
     @JvmField
-    var turretAutoAlign = false
+    var turretAutoAlign = true
     @JvmField
     var shooterAutoAlign = false
     @JvmField
@@ -315,6 +315,7 @@ class Shooter : Mechanism {
       // turret's current continuous encoder position.
       val currentTurretRadians = totalTurretAngle.baseUnitMagnitude
       val continuousTarget = currentTurretRadians + wrapRadians(robotRelativeAngle - currentTurretRadians)
+      // TODO: ENSURE TARGET IS WITHIN TURRET RANGE
       setTurretAngle(continuousTarget.radians)
     }
     if (shooterAutoAlign) {

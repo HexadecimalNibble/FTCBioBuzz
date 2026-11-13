@@ -11,7 +11,8 @@ import org.firstinspires.ftc.teamcode.pedro.PedroConstants
 import org.firstinspires.ftc.teamcode.robot.BiobuzzRobot
 
 enum class RobotAuto {
-  Close,
+  HiveUp,
+  HiveDown,
 }
 
 @NextAutonomous("Biobuzz Auto")
@@ -26,6 +27,8 @@ class Auto(val robot: BiobuzzRobot) : NextOpMode(robot, BulkReadHook), HexOpMode
   init {
     // Set telemetry display format to HTML for cooler setup menu
     telemetry.setDisplayFormat(Telemetry.DisplayFormat.HTML)
+    RobotData.allianceColor = null
+    RobotData.auto = null
   }
 
   fun checkAndSetAllianceInfo() {
@@ -53,8 +56,8 @@ class Auto(val robot: BiobuzzRobot) : NextOpMode(robot, BulkReadHook), HexOpMode
       }
     } else if (!autoCreated) {
       when (RobotData.auto) {
-        RobotAuto.Close -> {
-          auto = AudienceAuto(follower, RobotData.allianceColor!!, robot)
+        RobotAuto.HiveUp -> {
+          auto = HiveUpAuto(follower, RobotData.allianceColor!!, robot)
         }
         else -> {
           throw Error("RobotData.auto is somehow null?")
@@ -85,5 +88,9 @@ class Auto(val robot: BiobuzzRobot) : NextOpMode(robot, BulkReadHook), HexOpMode
     println("Command scheduled: ${Scheduler.isScheduled(autoCommand)}")
     // Reset telemetry display format
     telemetry.setDisplayFormat(Telemetry.DisplayFormat.CLASSIC)
+  }
+
+  override fun end() {
+    RobotData.pose = follower.pose()
   }
 }

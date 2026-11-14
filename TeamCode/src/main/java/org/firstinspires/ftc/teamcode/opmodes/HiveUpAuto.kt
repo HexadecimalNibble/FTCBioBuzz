@@ -47,7 +47,7 @@ class HiveUpAuto(
 //  private val point3Control2 = poseFactory.of(41.0673, 46.5558, 0.0)
 //  private val point3Segment1Heading = poseFactory.of(10.7052, 46.715, 90.0)
 
-  private val park = poseFactory.of(8.0, 115.0, 0.0)
+  private val park = poseFactory.of(8.0, 110.0, 0.0)
   private val parkControl = poseFactory.of(43.0, 114.0, 0.0)
 
 

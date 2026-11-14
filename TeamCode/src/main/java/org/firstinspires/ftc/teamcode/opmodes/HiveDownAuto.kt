@@ -56,9 +56,9 @@ class HiveDownAuto(
         instant {
           println("new current turret angle ${robot.shooter.totalTurretAngle}")
           robot.shooter.setTurretAngle((-30.0).degrees)
-          robot.shooter.setShooterVelocity(2450.0.rpm)
+          robot.shooter.setShooterVelocity(2425.0.rpm)
         },
-        waitMs(5000.0),
+        waitMs(7000.0),
         robot.autoShoot(),
         instant { robot.stopAutoShoot() },
         follow(follower, park()).withTimeout(5000.0.milliseconds),

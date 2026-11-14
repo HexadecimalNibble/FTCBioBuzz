@@ -49,14 +49,14 @@ class BiobuzzRobot : NextRobot {
 //          instant { transfer.stopTransfer() }
 //        )
 //      }
-      // Continuously monitor transfer motor current.
-      infinite {
-        if (transfer.transferMotorRunning && transfer.transferMotorOverCurrent()) {
-          println("TRANSFER OVERCURRENT DETECTED! STOPPING TRANSFER")
-
-          transfer.stopTransfer()
-        }
-      },
+//      // Continuously monitor transfer motor current.
+//      infinite {
+//        if (transfer.transferMotorRunning && transfer.transferMotorOverCurrent()) {
+//          println("TRANSFER OVERCURRENT DETECTED! STOPPING TRANSFER")
+//
+//          transfer.stopTransfer()
+//        }
+//      },
 
       // End entire command if intake is overcurrent
       waitUntil {

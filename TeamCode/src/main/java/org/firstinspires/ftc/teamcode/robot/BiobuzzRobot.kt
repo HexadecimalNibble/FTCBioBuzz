@@ -43,11 +43,22 @@ class BiobuzzRobot : NextRobot {
       intake.waitForContinuousDistanceSensorDetection(750.0.milliseconds),
 
       // Continuously monitor transfer motor current to stop it if it spikes
+//      infinite {
+//        sequential(
+//          waitUntil { transfer.transferMotorRunning && transfer.transferMotorOverCurrent() },
+//          instant { transfer.stopTransfer() }
+//        )
+//      }
+      // Continuously monitor transfer motor current.
       infinite {
-        sequential(
-          waitUntil { transfer.transferMotorRunning && transfer.transferMotorOverCurrent() },
-          instant { transfer.stopTransfer() }
-        )
+        if (
+          transfer.transferMotorRunning &&
+          transfer.transferMotorOverCurrent()
+        ) {
+          println("TRANSFER OVERCURRENT DETECTED! STOPPING TRANSFER")
+
+          transfer.stopTransfer()
+        }
       }
     ),
     // Cleanup

@@ -159,7 +159,7 @@ class Shooter : Mechanism {
   private var turretPIDOn = false
   private var shooterPIDOn = false
 
-  private var blockerEngagedPos = 0.27
+  private var blockerEngagedPos = 0.24
   private var blockerRetractedPos = 0.43
   // endregion
 

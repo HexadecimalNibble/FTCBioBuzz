@@ -11,6 +11,7 @@ import dev.nextftc.hardware.actuators.NextMotor
 import dev.nextftc.hardware.actuators.NextServo
 import dev.nextftc.hardware.sensors.NextAnalogInput
 import dev.nextftc.robot.Mechanism
+import dev.nextftc.units.Radians
 import dev.nextftc.units.degrees
 import dev.nextftc.units.measuretypes.Angle
 import dev.nextftc.units.measuretypes.AngularVelocity
@@ -25,6 +26,7 @@ import kotlin.math.hypot
 import kotlin.math.pow
 import kotlin.math.sign
 import kotlin.math.sin
+import kotlin.math.sqrt
 
 enum class HivePosition(val pose: Pose) {
   RedAudience(Pose(58.0, 54.0)),
@@ -37,16 +39,16 @@ enum class HivePosition(val pose: Pose) {
 class Shooter : Mechanism {
   companion object {
     @JvmField
-    var shooterP = 0.01
+    var shooterP = 0.005
     @JvmField
     var shooterD = 0.0
     @JvmField
     var shooterkV = 0.00020
 
     @JvmField
-    var turretP = 0.4
+    var turretP = 0.3
     @JvmField
-    var turretD = 0.008
+    var turretD = 0.01
     @JvmField
     var turretkS = 0.03
 
@@ -54,8 +56,8 @@ class Shooter : Mechanism {
     var turretAutoAlign = true
     @JvmField
     var shooterAutoAlign = false
-    @JvmField
-    var hoodAutoAlign = false
+//    @JvmField
+//    var hoodAutoAlign = false
 
     @JvmField
     var shooterVelocity1 = 0.0
@@ -68,7 +70,7 @@ class Shooter : Mechanism {
     @JvmField
     var shootOnMoveEnabled = false
 
-    // Effective horizontal projectile velocity (in/s)
+    // Effective horizontal projectile velocity (in/s).
     @JvmField
     var projectileHorizontalSpeedInPerSec = 0.0
   }
@@ -93,19 +95,18 @@ class Shooter : Mechanism {
       it.reverse()
     }
 
-  private val hoodServo = NextServo("HoodServo")
+//  private val hoodServo = NextServo("HoodServo")
   private val blockerServo = NextServo("BlockerServo")
 
-  // Turret is 28mm behind wheel-base center with intake at front.
-  private val turretFBOffsetIn = -28.0 / 25.4 // TODO: UPDATE
+  // Turret is 28 mm behind the wheel-base center, with intake at the front.
+  // TODO: UPDATE
+  private val turretFBOffsetIn = -28.0 / 25.4
 
-  // Keep track of servo rotations to determine total servo position.
-  private var servoNumRotations: Int = 0
+  // Tracks continuous servo rotations across encoder wraparound.
+  private var servoNumRotations = 0
 
   private var prevTurretAngle: Angle = 0.0.degrees
-
   private var totalTurretAngle: Angle = 0.0.degrees
-
   private var servoOffsetAngle: Angle = 0.0.degrees
 
   private val turretPID = PIDController(
@@ -114,36 +115,44 @@ class Shooter : Mechanism {
   )
 
   var targetTurretAngle: Angle = 0.0.degrees
+
+  var hiveAlignmentTurretOffset: Angle = 0.0.degrees
   // endregion
   // region Shooter Motor Vars
-  // Shooter motor 1 has encoder.
+  // Shooter motor 1 has an encoder.
   val shooterMotor1 = NextMotor(
     "ShooterMotor1",
     anglePerCount = (2 * PI / 28).radians
   )
 
-  private val shooterMotor2 =
-    NextMotor("ShooterMotor2").also {
-      it.direction = NextMotor.Direction.REVERSE
-    }
+//  private val shooterMotor2 =
+//    NextMotor("ShooterMotor2").also {
+//      it.direction = NextMotor.Direction.REVERSE
+//    }
 
-  private var targetShooterVelocity = 3000.0.rpm
+  private var targetShooterVelocity = 3100.0.rpm
 
-  private val shooterMotorPID = PIDController(kP = shooterP, kD = shooterD)
+  private val shooterMotorPID = PIDController(
+    kP = shooterP,
+    kD = shooterD
+  )
 
-  private val shooterMotorFeedforward = SimpleFeedforward(kV = shooterkV, kS = 0.0, kA = 0.0)
+  private val shooterMotorFeedforward = SimpleFeedforward(
+    kV = shooterkV,
+    kS = 0.0,
+    kA = 0.0
+  )
 
   var autoAlign = false
 
   var hivePosition = HivePosition.RedAudience
 
   lateinit var poseSupplier: () -> Pose
-
   lateinit var velocitySupplier: () -> Velocity
 
   private var turretPIDOn = false
   private var shooterPIDOn = false
-  // endregion Shooter Motor Vars
+  // endregion
 
   fun initSystem() {
     leftTurretServo.power = 0.0
@@ -152,7 +161,6 @@ class Shooter : Mechanism {
 
   // region Turret
   fun resetTurretAngle() {
-    println("Reset turret angle")
     servoOffsetAngle = -leftTurretServo.angle
     servoNumRotations = 0
     totalTurretAngle = 0.0.degrees
@@ -165,12 +173,14 @@ class Shooter : Mechanism {
   fun updateTurretAngle() {
     val newTurretAngle = leftTurretServo.angle + servoOffsetAngle
     val dTheta = newTurretAngle - prevTurretAngle
+
     // Detect analog encoder wraparound.
     if (dTheta > 200.0.degrees) {
       servoNumRotations -= 1
     } else if (dTheta < (-200.0).degrees) {
       servoNumRotations += 1
     }
+
     val totalServoAngle = (servoNumRotations * 360.0).degrees + newTurretAngle
 
     totalTurretAngle = totalServoAngle
@@ -179,14 +189,23 @@ class Shooter : Mechanism {
 
   fun setTurretAngle(angle: Angle) {
     turretPIDOn = true
-    targetTurretAngle = angle
+    targetTurretAngle = wrapRadians(angle.into(Radians)).radians
   }
+
+  fun offsetTurretAlignmentRight() {
+    hiveAlignmentTurretOffset += 1.0.degrees
+  }
+
+  fun offsetTurretAlignmentLeft() {
+    hiveAlignmentTurretOffset -= 1.0.degrees
+  }
+
   // endregion
   // region Shooter
   fun stopShooter() {
     shooterPIDOn = false
     shooterMotor1.throttle = 0.0
-    shooterMotor2.throttle = 0.0
+//    shooterMotor2.throttle = 0.0
   }
 
   fun setShooterVelocity(velocity: AngularVelocity) {
@@ -207,19 +226,19 @@ class Shooter : Mechanism {
     blockerServo.position = 0.378
   }
   // endregion
-  // region Hood
-  fun decrementHoodPosition() {
-    hoodServo.position -= 0.05
-  }
-
-  fun incrementHoodPosition() {
-    hoodServo.position += 0.05
-  }
-
-  fun setHoodPosition() {
-    hoodServo.position = 0.72
-  }
-  // endregion
+//  // region Hood
+//  fun decrementHoodPosition() {
+//    hoodServo.position = (hoodServo.position - 0.05).coerceIn(0.0, 1.0)
+//  }
+//
+//  fun incrementHoodPosition() {
+//    hoodServo.position = (hoodServo.position + 0.05).coerceIn(0.0, 1.0)
+//  }
+//
+//  fun setHoodPosition() {
+//    hoodServo.position = 0.72
+//  }
+//  // endregion
 
   fun toggleHivePosition() {
     hivePosition = when (hivePosition) {
@@ -231,32 +250,94 @@ class Shooter : Mechanism {
   }
 
   /**
-   * Wrap an angle to [-PI, PI].
+   * Wraps an angle to [-PI, PI].
    */
   private fun wrapRadians(angle: Double): Double {
     return atan2(sin(angle), cos(angle))
   }
 
   /**
-   * Automatically aligns turret and shooter with the selected HIVE
+   * Calculates the time needed for a projectile to intercept a stationary
+   * target while the shooter is moving.
+   *
+   * Returns null when no positive, finite interception time exists.
+   *
+   * All velocities must use compatible units.
+   */
+  private fun calculateInterceptTime(
+    dx: Double,
+    dy: Double,
+    velocityX: Double,
+    velocityY: Double,
+    projectileSpeed: Double
+  ): Double? {
+    val a =
+      velocityX * velocityX +
+          velocityY * velocityY -
+          projectileSpeed * projectileSpeed
+
+    val b = -2.0 * (dx * velocityX + dy * velocityY)
+    val c = dx * dx + dy * dy
+
+    if (!a.isFinite() || !b.isFinite() || !c.isFinite()) {
+      return null
+    }
+
+    // Already at the target.
+    if (c <= 1e-12) {
+      return 0.0
+    }
+
+    // Handle the approximately linear case.
+    if (abs(a) < 1e-9) {
+      if (abs(b) < 1e-9) {
+        return null
+      }
+
+      val time = -c / b
+      return time.takeIf { it > 0.0 && it.isFinite() }
+    }
+
+    val discriminant = b * b - 4.0 * a * c
+
+    if (discriminant < 0.0 || !discriminant.isFinite()) {
+      return null
+    }
+
+    val sqrtDiscriminant = sqrt(discriminant)
+    val denominator = 2.0 * a
+
+    val time1 = (-b - sqrtDiscriminant) / denominator
+    val time2 = (-b + sqrtDiscriminant) / denominator
+
+    var bestTime = Double.POSITIVE_INFINITY
+
+    if (time1 > 0.0 && time1.isFinite()) {
+      bestTime = time1
+    }
+
+    if (time2 > 0.0 && time2.isFinite() && time2 < bestTime) {
+      bestTime = time2
+    }
+
+    return bestTime.takeIf { it.isFinite() }
+  }
+
+  /**
+   * Automatically aligns the turret and shooter with the selected HIVE.
    */
   fun autoAlign(currentPosition: Pose) {
-    println("auto aligning")
+    println("Aligning")
     val heading = currentPosition.heading()
-    println("align - robot heading: $heading")
+
     // Calculate turret pivot offset in field coordinates.
     val offsetX = turretFBOffsetIn * cos(heading)
     val offsetY = turretFBOffsetIn * sin(heading)
+
     val turretOffsetFieldCentric = Pose(offsetX, offsetY)
-    println("align - turretOffsetFieldCentric: $turretOffsetFieldCentric")
-
-    // TODO: add offset for where ball exits the turret rotated by the turret's position
-//    val ballExitTurretOffsetFieldCentric =
-
     val turretFieldCentric = turretOffsetFieldCentric + currentPosition
-    println("align - turretFieldCentric: $turretFieldCentric")
 
-    // Vector from turret pivot to HIVE
+    // Vector from turret pivot to HIVE.
     val vecToHive = (hivePosition.pose - turretFieldCentric).toVector2D()
 
     val dx = vecToHive.x()
@@ -267,109 +348,145 @@ class Shooter : Mechanism {
     var aimY = dy
     var distanceForShot = hypot(dx, dy)
 
-    // region Shoot on the Move
-    if (shootOnMoveEnabled && projectileHorizontalSpeedInPerSec > 0.0) {
-      val fieldVelocity = velocitySupplier()
-      // Velocity of the turret pivot, including the velocity
-      // caused by rotation around the robot's center.
-      val turretVx = fieldVelocity.vx - fieldVelocity.omega * offsetY
-      val turretVy = fieldVelocity.vy + fieldVelocity.omega * offsetX
-      val projectileSpeed = projectileHorizontalSpeedInPerSec
-
-      val turretSpeed = hypot(turretVx, turretVy)
-
-      // A projectile cannot reliably intercept a target if
-      // its effective horizontal speed is not greater than
-      // the turret's translational speed.
-      if (projectileSpeed > turretSpeed + 1e-6) {
-
-        // Initial estimate assuming no movement.
-        var flightTime = distanceForShot / projectileSpeed
-
-        // Iteratively calculate interception time.
-        repeat(6) {
-          // Predict where the HIVE will be relative to
-          // the moving turret pivot at impact.
-          aimX = dx - turretVx * flightTime
-          aimY = dy - turretVy * flightTime
-          distanceForShot = hypot(aimX, aimY)
-
-          // Update estimated projectile flight time.
-          flightTime = distanceForShot / projectileSpeed
-        }
-      }
-    }
-
-    // endregion
+//    // region Shoot on the Move
+//    if (
+//      shootOnMoveEnabled &&
+//      projectileHorizontalSpeedInPerSec > 0.0 &&
+//      projectileHorizontalSpeedInPerSec.isFinite() &&
+//      ::velocitySupplier.isInitialized
+//    ) {
+//      val fieldVelocity = velocitySupplier()
+//
+//      // Velocity of the turret pivot, including velocity caused by
+//      // rotation around the robot's center.
+//      val turretVx = fieldVelocity.vx - fieldVelocity.omega * offsetY
+//      val turretVy = fieldVelocity.vy + fieldVelocity.omega * offsetX
+//
+//      val flightTime = calculateInterceptTime(
+//        dx = dx,
+//        dy = dy,
+//        velocityX = turretVx,
+//        velocityY = turretVy,
+//        projectileSpeed = projectileHorizontalSpeedInPerSec
+//      )
+//
+//      // If no valid intercept exists, retain the direct aiming vector.
+//      if (flightTime != null) {
+//        val predictedAimX = dx - turretVx * flightTime
+//        val predictedAimY = dy - turretVy * flightTime
+//
+//        if (predictedAimX.isFinite() && predictedAimY.isFinite()) {
+//          aimX = predictedAimX
+//          aimY = predictedAimY
+//          distanceForShot = hypot(aimX, aimY)
+//        }
+//      }
+//    }
+//    // endregion
 
     val angleToHive = atan2(aimY, aimX)
-    println("align - angle to hive: $angleToHive")
 
-    // Use the predicted distance for shooter RPM compensation.
-    // When stationary, this is simply the ordinary distance.
     if (turretAutoAlign) {
       // Convert field-relative bearing into robot-relative angle.
-      val robotRelativeAngle = wrapRadians(angleToHive - heading)
+      val robotRelativeAngle = wrapRadians(heading - angleToHive)
 
-      // Select the equivalent target angle nearest to the
-      // turret's current continuous encoder position.
+      println(
+        """
+    ----- AUTO ALIGN DEBUG -----
+    Robot X: ${currentPosition.x()}
+    Robot Y: ${currentPosition.y()}
+    Robot Heading: ${Math.toDegrees(heading)}
+
+    HIVE X: ${hivePosition.pose.x()}
+    HIVE Y: ${hivePosition.pose.y()}
+
+    Turret X: ${turretFieldCentric.x()}
+    Turret Y: ${turretFieldCentric.y()}
+
+    Field Bearing: ${Math.toDegrees(angleToHive)}
+    Target Turret: ${Math.toDegrees(robotRelativeAngle)}
+    Current Turret: ${Math.toDegrees(totalTurretAngle.baseUnitMagnitude)}
+    ----------------------------
+    """.trimIndent()
+      )
+
+      // Select the equivalent target angle nearest to the current
+      // continuous encoder position.
       val currentTurretRadians = totalTurretAngle.baseUnitMagnitude
+
       val continuousTarget = currentTurretRadians + wrapRadians(robotRelativeAngle - currentTurretRadians)
-      // TODO: ENSURE TARGET IS WITHIN TURRET RANGE
-      setTurretAngle(continuousTarget.radians)
+
+      setTurretAngle(continuousTarget.radians + hiveAlignmentTurretOffset)
     }
+
     if (shooterAutoAlign) {
-      val shooterVelocity = (shooterVelocity1 * distanceForShot.pow(2) + shooterVelocity2 * distanceForShot + shooterVelocity3).rpm
+      val shooterVelocity = (
+          shooterVelocity1 * distanceForShot.pow(2) +
+              shooterVelocity2 * distanceForShot +
+              shooterVelocity3
+          ).rpm
+
       setShooterVelocity(shooterVelocity)
     }
-    if (hoodAutoAlign) {
-      // TODO: IMPLEMENT
-    }
+
+//    if (hoodAutoAlign) {
+//      // TODO: Implement hood auto-alignment.
+//    }
   }
 
   /**
-   * Manually set the turret power
-   * Used for manual teleop turret movements
+   * Manually sets turret power.
+   * Used for manual teleop turret movements.
    */
   fun setTurretPower(power: Double) {
     turretPIDOn = false
+    autoAlign = false
     leftTurretServo.power = power
     rightTurretServo.power = power
   }
 
   override fun periodic() {
     updateTurretAngle()
-    if (autoAlign) {
+
+    if (autoAlign && ::poseSupplier.isInitialized) {
       autoAlign(poseSupplier())
     }
 
+    // region Turret PID
+
     if (turretPIDOn) {
-      // PID tuning
       turretPID.coefficients.kP = turretP
       turretPID.coefficients.kD = turretD
 
-      // region Turret
-      val turretError = (targetTurretAngle - totalTurretAngle).baseUnitMagnitude
+      val turretError =
+        (targetTurretAngle - totalTurretAngle).baseUnitMagnitude
 
-      // Static friction compensation
+      // Static friction compensation.
       val turretFF = if (abs(turretError) > 0.01) {
         turretkS * sign(turretError)
       } else {
         0.0
       }
 
-      val turretPower = (turretPID.calculate(error = turretError) + turretFF).coerceIn(-1.0, 1.0)
+      val turretPower = (
+          turretPID.calculate(error = turretError) + turretFF
+          ).coerceIn(-1.0, 1.0)
+
       leftTurretServo.power = turretPower
       rightTurretServo.power = turretPower
     }
+
     // endregion
-    // region Shooter Motor
+
+    // region Shooter Motor PID
+
     if (shooterPIDOn) {
       shooterMotorPID.coefficients.kP = shooterP
       shooterMotorPID.coefficients.kD = shooterD
       shooterMotorFeedforward.coefficients.kV = shooterkV
 
       val motorVelocity = shooterMotor1.encoderVelocity
+
       val motorFF = shooterMotorFeedforward.calculate(
         MotionState(
           position = shooterMotor1.encoderPosition,
@@ -379,11 +496,14 @@ class Shooter : Mechanism {
 
       val velocityError = (targetShooterVelocity - motorVelocity).baseUnitMagnitude
 
-      val shooterPower = (shooterMotorPID.calculate(error = velocityError) + motorFF).coerceIn(-1.0, 1.0)
+      val shooterPower = (
+          shooterMotorPID.calculate(error = velocityError) + motorFF
+          ).coerceIn(-1.0, 1.0)
 
       shooterMotor1.throttle = shooterPower
-      shooterMotor2.throttle = shooterPower
+//      shooterMotor2.throttle = shooterPower
     }
+
     // endregion
   }
 }

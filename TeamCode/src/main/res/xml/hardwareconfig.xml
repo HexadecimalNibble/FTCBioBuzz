@@ -20,7 +20,6 @@
             <goBILDA5202SeriesMotor name="IntakeMotor" port="0" />
             <goBILDA5202SeriesMotor name="TransferMotor" port="1" />
             <goBILDA5202SeriesMotor name="ShooterMotor1" port="2" />
-            <goBILDA5202SeriesMotor name="ShooterMotor2" port="3" />
         </LynxModule>
         <LynxModule name="Control Hub" port="173">
             <DigitalDevice name="IntakeDistanceSensor" port="0" />
@@ -31,6 +30,7 @@
             <goBILDA5202SeriesMotor name="RBMotor" port="3" />
             <AnalogInput name="TurretServoEncoder1" port="0"/>
             <AnalogInput name="TurretServoEncoder2" port="1"/>
+            <Servo name="BackLED" port="5" />
         </LynxModule>
         <ServoHub name="Servo Hub 3" port="3">
             <Servo name="FlowerIntakeServo" port="0"/>

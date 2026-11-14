@@ -54,9 +54,6 @@ class HiveUpAuto(
     nonAudienceSideFlowerCoord
   ).heading(
     Interpolator.tangent
-//    Interpolator.piecewise()
-//      .until(0.2, Interpolator.constant(gardenEndCoord))
-//      .until(1.0, Interpolator.tangent)
   )
 
   fun driveToHumanPlayerFlower(): Path = Paths.curve(

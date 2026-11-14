@@ -35,6 +35,11 @@ class Teleop(val robot: BiobuzzRobot) : NextOpMode(robot, BulkReadHook), HexOpMo
       RobotData.allianceColor = null
     }
 
+    if (RobotData.pose != null) {
+      println("Setting saved pose: ${RobotData.pose}")
+      follower.setPose(RobotData.pose)
+    }
+
     // Set alliance color if not previously set
     if (RobotData.allianceColor == null) {
       setAllianceColor(gamepad1, telemetry)
@@ -121,8 +126,8 @@ class Teleop(val robot: BiobuzzRobot) : NextOpMode(robot, BulkReadHook), HexOpMo
       robot.shooter.setTurretAngle(90.0.degrees)
     })
 
-    shooterController.rightTrigger.isOver(0.2).or(shooterController.leftTrigger.isOver(0.2)).and(shooterController.ps.negate()).and(shooterController.options.negate()).onTrue(instant {
-      robot.shooter.setTurretPower(shooterController.rightTrigger.value - shooterController.leftTrigger.value)
+    shooterController.rightTrigger.isOver(0.1).or(shooterController.leftTrigger.isOver(0.1)).and(shooterController.ps.negate()).and(shooterController.options.negate()).onTrue(instant {
+      robot.shooter.setTurretPower((shooterController.rightTrigger.value - shooterController.leftTrigger.value) * 0.5)
     }).onFalse(instant {
       robot.shooter.setTurretPower(0.0)
     })
@@ -141,6 +146,10 @@ class Teleop(val robot: BiobuzzRobot) : NextOpMode(robot, BulkReadHook), HexOpMo
       robot.stopAutoShoot()
     })
 
+    shooterController.circle.onTrue(instant {
+      robot.shooter.stopShooter()
+    })
+
     shooterController.rightStickY.isUnder(-0.2).onTrue(instant {
       robot.shooter.engageBlocker()
     })
@@ -149,19 +158,26 @@ class Teleop(val robot: BiobuzzRobot) : NextOpMode(robot, BulkReadHook), HexOpMo
       robot.shooter.disengageBlocker()
     })
 
-    shooterController.leftStickY.isUnder(-0.2).onTrue(instant {
-      robot.shooter.incrementHoodPosition()
-    })
-
-    shooterController.leftStickY.isOver(0.2).onTrue(instant {
-      robot.shooter.decrementHoodPosition()
-    })
+//    shooterController.leftStickY.isUnder(-0.2).onTrue(instant {
+//      robot.shooter.incrementHoodPosition()
+//    })
+//
+//    shooterController.leftStickY.isOver(0.2).onTrue(instant {
+//      robot.shooter.decrementHoodPosition()
+//    })
 
     shooterController.dpadUp.onTrue(instant {
       robot.shooter.changeShooterVelocity(100.0.rpm)
     })
     shooterController.dpadDown.onTrue(instant {
       robot.shooter.changeShooterVelocity((-100.0).rpm)
+    })
+
+    shooterController.leftBumper.onTrue(instant {
+      robot.shooter.offsetTurretAlignmentLeft()
+    })
+    shooterController.rightBumper.onTrue(instant {
+      robot.shooter.offsetTurretAlignmentRight()
     })
     // endregion * Shooter *
 
@@ -175,8 +191,8 @@ class Teleop(val robot: BiobuzzRobot) : NextOpMode(robot, BulkReadHook), HexOpMo
     }
     robot.shooter.poseSupplier = { follower.pose() }
 
-    // Move hood to default position
-    robot.shooter.setHoodPosition()
+//    // Move hood to default position
+//    robot.shooter.setHoodPosition()
   }
 
   override fun periodic() {

@@ -174,7 +174,7 @@ class Teleop(val robot: BiobuzzRobot) : NextOpMode(robot, BulkReadHook), HexOpMo
     shooterController.triangle.and(shooterController.share).onTrue(instant {
       robot.shooter.autoAlign = false
       robot.shooter.setTurretAngle(0.0.degrees)
-      robot.shooter.setShooterVelocity(2650.0.rpm)
+      robot.shooter.setShooterVelocity(2450.0.rpm)
     })
     // endregion * Shooter *
 

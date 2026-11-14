@@ -7,6 +7,7 @@ import com.pedropathing.ivy.Command
 import com.pedropathing.ivy.commands.Commands.infinite
 import com.pedropathing.ivy.commands.Commands.instant
 import com.pedropathing.ivy.commands.Commands.waitMs
+import com.pedropathing.ivy.groups.Groups.parallel
 import com.pedropathing.ivy.groups.Groups.race
 import com.pedropathing.ivy.groups.Groups.sequential
 import com.pedropathing.ivy.pedro.PedroCommands.follow
@@ -36,7 +37,7 @@ class HiveUpAuto(
 
   private val start = poseFactory.of(32.0, BioBuzzConstants.robotWidth / 2, 180.0)
   private val gardenEndCoord = poseFactory.of(10.0, BioBuzzConstants.robotWidth / 2, 180.0)
-  private val nonAudienceSideFlowerCoord = poseFactory.of(46.0, 112.0, 90.0)
+  private val nonAudienceSideFlowerCoord = poseFactory.of(47.0, 108.0, 90.0)
   private val point2Control1 = poseFactory.of(29.0, 91.0, 0.0)
   private val humanPlayerFlowerCoord = poseFactory.of(10.7052, 46.715, 180.0)
   private val point3Control1 = poseFactory.of(24.0106, 92.1561, 0.0)
@@ -52,15 +53,17 @@ class HiveUpAuto(
     gardenEndCoord
   ).linear(start, gardenEndCoord)
 
-  fun driveToNonAudienceSideFlower(): Path = Paths.curve(
-    gardenEndCoord,
-    point2Control1,
-    nonAudienceSideFlowerCoord
-  ).heading(
-    Interpolator.piecewise()
-      .until(0.7, Interpolator.tangent)
-      .until(1.0, Interpolator.linear(follower.pose().heading(), 180.0))
-  )
+  fun driveToNonAudienceSideFlower(): Path =
+    Paths.curve(
+      gardenEndCoord,
+      point2Control1,
+      nonAudienceSideFlowerCoord
+    ).heading(
+      Interpolator.linear(
+        gardenEndCoord,
+        nonAudienceSideFlowerCoord
+      )
+    )
 
   fun park(): Path = Paths.curve(nonAudienceSideFlowerCoord, parkControl, park)
     .heading(
@@ -74,24 +77,29 @@ class HiveUpAuto(
   }
 
   override fun createAuto(): Command {
-
     return race(
       sequential(
         instant {
           println("new current turret angle ${robot.shooter.totalTurretAngle}")
           robot.shooter.setTurretAngle(120.0.degrees)
-          robot.shooter.setShooterVelocity(3300.0.rpm)
+          robot.shooter.setShooterVelocity(3000.0.rpm)
         },
         waitMs(1000.0),
         robot.autoShoot(),
-        race(
+        parallel(
           sequential(
             follow(follower, driveToGarden()).withTimeout(2000.0.milliseconds),
-            waitMs(500.0)
+            waitMs(500.0),
           ),
           robot.autoIntake().withTimeout(2000.0.milliseconds),
         ),
-        follow(follower, driveToNonAudienceSideFlower()),
+        parallel(
+          instant {
+            robot.intake.stopIntake()
+            robot.transfer.stopTransfer()
+          },
+          follow(follower, driveToNonAudienceSideFlower()).withTimeout(5000.0.milliseconds),
+        ),
 //        follow(follower, park()),
         instant {
           stopFollower()

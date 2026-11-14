@@ -102,9 +102,9 @@ class HiveUpAuto(
         instant {
           println("new current turret angle ${robot.shooter.totalTurretAngle}")
           robot.shooter.setTurretAngle(120.0.degrees)
-          robot.shooter.setShooterVelocity(3000.0.rpm)
+          robot.shooter.setShooterVelocity(2800.0.rpm)
         },
-        waitMs(2000.0),
+        waitMs(3000.0),
         robot.autoShoot(),
 //        parallel(
 //          sequential(

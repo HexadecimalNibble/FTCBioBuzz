@@ -15,7 +15,7 @@ enum class RobotAuto {
   HiveDown,
 }
 
-@NextAutonomous("Biobuzz Auto")
+@NextAutonomous("Biobuzz Auto", preselectTeleop = "Biobuzz Teleop")
 class Auto(val robot: BiobuzzRobot) : NextOpMode(robot, BulkReadHook), HexOpMode {
   var selectedAutoIndex = 0
   val follower = PedroConstants.create(hardwareMap)

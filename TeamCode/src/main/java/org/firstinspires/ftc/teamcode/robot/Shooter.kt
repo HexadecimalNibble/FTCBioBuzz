@@ -55,13 +55,15 @@ class Shooter : Mechanism {
     @JvmField
     var turretAutoAlign = true
     @JvmField
-    var shooterAutoAlign = false
+    var shooterAutoAlign = true
+
+    // https://www.desmos.com/calculator/z10no2pcxe
     @JvmField
-    var shooterVelocity1 = 0.0
+    var shooterVelocity1 = 0.100715
     @JvmField
-    var shooterVelocity2 = 0.0
+    var shooterVelocity2 = 1.77419
     @JvmField
-    var shooterVelocity3 = 0.0
+    var shooterVelocity3 = 2288.48708
 
     // SOM settings
     @JvmField

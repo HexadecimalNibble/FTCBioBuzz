@@ -24,6 +24,8 @@ class Teleop(val robot: BiobuzzRobot) : NextOpMode(robot, BulkReadHook), HexOpMo
   lateinit var shooterController: NewCommandGamepad
   val follower = PedroConstants.create(hardwareMap)
 
+  private var manualTurretWasActive = false
+
   init {
     // Set telemetry display format to HTML for cooler setup menu
     telemetry.setDisplayFormat(Telemetry.DisplayFormat.HTML)
@@ -53,6 +55,8 @@ class Teleop(val robot: BiobuzzRobot) : NextOpMode(robot, BulkReadHook), HexOpMo
   }
 
   override fun start() {
+    robot.intake.retractFlowerIntake()
+
     // Reset telemetry display format
     telemetry.setDisplayFormat(Telemetry.DisplayFormat.CLASSIC)
 
@@ -125,19 +129,13 @@ class Teleop(val robot: BiobuzzRobot) : NextOpMode(robot, BulkReadHook), HexOpMo
     shooterController.ps.and(shooterController.rightTrigger.isOver(0.2)).and(shooterController.options.negate()).onTrue(instant {
       robot.shooter.setTurretAngle(90.0.degrees)
     })
-
-    shooterController.rightTrigger.isOver(0.1).or(shooterController.leftTrigger.isOver(0.1)).and(shooterController.ps.negate()).and(shooterController.options.negate()).onTrue(instant {
-      robot.shooter.setTurretPower((shooterController.rightTrigger.value - shooterController.leftTrigger.value) * 0.5)
-    }).onFalse(instant {
-      robot.shooter.setTurretPower(0.0)
-    })
     // endregion
 
     shooterController.touchpad.onTrue(instant {
       robot.shooter.toggleHivePosition()
     })
 
-    shooterController.triangle.onTrue(instant {
+    shooterController.triangle.and(shooterController.share.negate()).onTrue(instant {
       robot.shooter.autoAlign = true
     })
 
@@ -171,6 +169,13 @@ class Teleop(val robot: BiobuzzRobot) : NextOpMode(robot, BulkReadHook), HexOpMo
     shooterController.rightBumper.onTrue(instant {
       robot.shooter.offsetTurretAlignmentRight()
     })
+
+    // Fail-safe shooter position
+    shooterController.triangle.and(shooterController.share).onTrue(instant {
+      robot.shooter.autoAlign = false
+      robot.shooter.setTurretAngle(0.0.degrees)
+      robot.shooter.setShooterVelocity(2650.0.rpm)
+    })
     // endregion * Shooter *
 
     // Initialize shooter subsystem
@@ -188,6 +193,37 @@ class Teleop(val robot: BiobuzzRobot) : NextOpMode(robot, BulkReadHook), HexOpMo
   }
 
   override fun periodic() {
+    // Manual turret control
+    val rightTrigger = shooterController.rightTrigger.value.coerceIn(0.0, 1.0)
+    val leftTrigger = shooterController.leftTrigger.value.coerceIn(0.0, 1.0)
+
+    val turretInput = rightTrigger - leftTrigger
+
+    val manualTurretActive = !gamepad2.ps && !gamepad2.options && (rightTrigger > 0.02 || leftTrigger > 0.02)
+
+    if (manualTurretActive) {
+      // Deadband to prevent accidental movement
+      val deadband = 0.1
+
+      // Rescale input after deadband
+      val adjustedInput = when {
+        turretInput > deadband -> (turretInput - deadband) / (1.0 - deadband)
+        turretInput < -deadband -> (turretInput + deadband) / (1.0 - deadband)
+        else -> 0.0
+      }
+
+      // Limit maximum manual power
+      val turretPower = adjustedInput * 0.5
+
+      robot.shooter.setTurretPower(turretPower)
+
+    } else if (manualTurretWasActive) {
+      // Stop turret when triggers are released
+      robot.shooter.setTurretPower(0.0)
+    }
+
+    manualTurretWasActive = manualTurretActive
+
     // Driving
     var heading = follower.pose().heading()
     if (RobotData.allianceColor == AllianceColor.Blue) {

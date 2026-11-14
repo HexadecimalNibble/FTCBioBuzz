@@ -23,6 +23,10 @@ class Intake : Mechanism {
     intakeMotor.throttle = 0.0
   }
 
+  fun intakeMotorOverCurrent(): Boolean {
+    return intakeMotor.isOverCurrent
+  }
+
   fun extendFlowerIntake() {
     println("extending flower intake set pos")
     flowerIntakeServo.position = 0.808

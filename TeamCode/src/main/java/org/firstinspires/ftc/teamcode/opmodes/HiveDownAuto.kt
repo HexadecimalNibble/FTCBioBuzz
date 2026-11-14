@@ -35,51 +35,19 @@ class HiveDownAuto(
       PoseFactory.degrees()
     }
 
-  private val start = poseFactory.of(32.0, BioBuzzConstants.robotWidth / 2, 180.0)
-  private val gardenEndCoord = poseFactory.of(10.0, BioBuzzConstants.robotWidth / 2, 180.0)
-  private val gardenToInitialFlowerControl = poseFactory.of(29.0, 91.0, 0.0)
-  private val nonAudienceInitialSideFlowerCoord = poseFactory.of(47.0, 108.0, 90.0)
+  private val start = poseFactory.of(62.0, 141.5 - BioBuzzConstants.robotWidth / 2, 180.0)
+  private val flowerInitialControl = poseFactory.of(54.7886, 99.8731, 0.0)
+  private val flowerInitial = poseFactory.of(47.0, 126.0, 90.0)
+  private val flowerFinal = poseFactory.of(47.0, 130.0, 90.0)
 
-  private val nonAudienceFinalSideFlowerCoord = poseFactory.of (47.0, 118.0, 90.0)
-
-//  private val humanPlayerFlowerCoord = poseFactory.of(10.7052, 46.715, 180.0)
-//  private val point3Control1 = poseFactory.of(24.0106, 92.1561, 0.0)
-//  private val point3Control2 = poseFactory.of(41.0673, 46.5558, 0.0)
-//  private val point3Segment1Heading = poseFactory.of(10.7052, 46.715, 90.0)
+  fun initialFlowerApproach(): Path = Paths.curve(start, flowerInitialControl, flowerInitial).linear(start, flowerInitial)
+  fun finalFlowerApproach(): Path = Paths.line(flowerInitial, flowerFinal).linear(flowerInitial, flowerFinal)
 
   private val park = poseFactory.of(8.0, 115.0, 0.0)
   private val parkControl = poseFactory.of(43.0, 114.0, 0.0)
 
 
-  fun driveToGarden(): Path = Paths.line(
-    start,
-    gardenEndCoord
-  ).linear(start, gardenEndCoord)
-
-  fun driveToNonAudienceSideInitialFlower(): Path =
-    Paths.curve(
-      gardenEndCoord,
-      gardenToInitialFlowerControl,
-      nonAudienceInitialSideFlowerCoord
-    ).heading(
-      Interpolator.linear(
-        gardenEndCoord,
-        nonAudienceInitialSideFlowerCoord
-      )
-    )
-
-  fun driveIntoFlower(): Path =
-    Paths.line(
-      nonAudienceInitialSideFlowerCoord,
-      nonAudienceFinalSideFlowerCoord,
-    ).heading(
-      Interpolator.linear(
-        nonAudienceInitialSideFlowerCoord,
-        nonAudienceFinalSideFlowerCoord,
-      )
-    )
-
-  fun park(): Path = Paths.curve(nonAudienceInitialSideFlowerCoord, parkControl, park)
+  fun park(): Path = Paths.curve(flowerFinal, parkControl, park)
     .heading(
       Interpolator.tangent.reverse()
     )
@@ -95,37 +63,20 @@ class HiveDownAuto(
       sequential(
         instant {
           println("new current turret angle ${robot.shooter.totalTurretAngle}")
-          robot.shooter.setTurretAngle(120.0.degrees)
-          robot.shooter.setShooterVelocity(3000.0.rpm)
+          robot.shooter.setTurretAngle(170.0.degrees)
+          robot.shooter.setShooterVelocity(2450.0.rpm)
         },
         waitMs(1000.0),
         robot.autoShoot(),
-        parallel(
-          sequential(
-            follow(follower, driveToGarden()).withTimeout(2000.0.milliseconds),
-            waitMs(500.0),
-          ),
-          robot.autoIntake().withTimeout(2000.0.milliseconds),
-        ),
-
-        parallel(
-          instant {
-            robot.intake.stopIntake()
-            robot.transfer.stopTransfer()
-            robot.shooter.setTurretAngle(175.0.degrees)
-          },
-          follow(follower, driveToNonAudienceSideInitialFlower()).withTimeout(5000.0.milliseconds),
-        ),
-
-        robot.autoShoot().withTimeout(1000.0.milliseconds),
         instant { robot.stopAutoShoot() },
+        follow(follower, initialFlowerApproach()).withTimeout(2000.0.milliseconds),
 
         race(
           robot.autoIntake(),
           sequential(
             instant { robot.intake.extendFlowerIntake() },
             waitMs(500.0), // wait for flower intake to extend
-            follow(follower, driveIntoFlower()).withTimeout(1000.0.milliseconds),
+            follow(follower, finalFlowerApproach()).withTimeout(1000.0.milliseconds),
             waitMs(2000.0), // wait for balls to go into intake
           )
         ),

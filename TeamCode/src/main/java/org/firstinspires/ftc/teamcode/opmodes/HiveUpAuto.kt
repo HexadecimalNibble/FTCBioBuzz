@@ -50,7 +50,7 @@ class HiveUpAuto(
 //  private val parkControl = poseFactory.of(43.0, 114.0, 0.0)
 //  private val park = poseFactory.of(8.0, 110.0, 0.0)
   private val parkControl = poseFactory.of(30.0, 50.0, 0.0)
-  private val park = poseFactory.of(11.0, 96.0, 0.0)
+  private val park = poseFactory.of(13.0, 96.0, 0.0)
 
 
 //  fun driveToGarden(): Path = Paths.line(

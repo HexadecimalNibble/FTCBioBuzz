@@ -43,7 +43,7 @@ class Shooter : Mechanism {
     @JvmField
     var shooterD = 0.0
     @JvmField
-    var shooterkV = 0.00020
+    var shooterkV = 0.00023
 
     @JvmField
     var turretP = 0.4

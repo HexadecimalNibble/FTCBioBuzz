@@ -4,6 +4,7 @@ import com.pedropathing.ivy.Command
 import com.pedropathing.ivy.Scheduler
 import com.pedropathing.ivy.commands.Commands.infinite
 import com.pedropathing.ivy.commands.Commands.instant
+import com.pedropathing.ivy.commands.Commands.waitMs
 import com.pedropathing.ivy.commands.Commands.waitUntil
 import com.pedropathing.ivy.groups.Groups.race
 import com.pedropathing.ivy.groups.Groups.sequential
@@ -29,6 +30,7 @@ class BiobuzzRobot : NextRobot {
       transfer.resetCounter()
       transfer.setTransferLEDColor(NextRGBIndicator.Color.RED)
     },
+    waitMs(250.0),
     // command end stuff
     race(
       // Finishes when 4 balls detected
@@ -82,8 +84,12 @@ class BiobuzzRobot : NextRobot {
     intake.startIntake()
     transfer.startTransfer()
     wait(1.0)
-    stopAutoShoot()
+    transfer.reverseTransfer()
+    wait(0.2)
+    transfer.startTransfer()
+    wait(1.0)
     transfer.setTransferLEDColor(NextRGBIndicator.Color.RED)
+    stopAutoShoot()
   }.requiring(shooter, intake, transfer)
 
   fun stopAutoShoot() {

@@ -49,15 +49,14 @@ class HiveUpAuto(
 
 //  private val parkControl = poseFactory.of(43.0, 114.0, 0.0)
 //  private val park = poseFactory.of(8.0, 110.0, 0.0)
-  private val parkControl = poseFactory.of(30.0, 50.0, 0.0)
+  private val parkControl = poseFactory.of(35.0, 50.0, 0.0)
   private val park = poseFactory.of(13.0, 96.0, 0.0)
 
+  fun driveToGarden(): Path = Paths.line(
+    start,
+    gardenEndCoord
+  ).linear(start, gardenEndCoord)
 
-//  fun driveToGarden(): Path = Paths.line(
-//    start,
-//    gardenEndCoord
-//  ).linear(start, gardenEndCoord)
-//
 //  fun driveToNonAudienceSideInitialFlower(): Path =
 //    Paths.curve(
 //      gardenEndCoord,
@@ -85,7 +84,7 @@ class HiveUpAuto(
 //    .heading(
 //      Interpolator.tangent.reverse()
 //    )
-  fun park(): Path = Paths.curve(nonAudienceInitialSideFlowerCoord, parkControl, park)
+  fun park(): Path = Paths.curve(gardenEndCoord, parkControl, park)
       .heading(
         Interpolator.tangent
       )
@@ -102,18 +101,22 @@ class HiveUpAuto(
         instant {
           println("new current turret angle ${robot.shooter.totalTurretAngle}")
           robot.shooter.setTurretAngle(120.0.degrees)
-          robot.shooter.setShooterVelocity(2800.0.rpm)
+          robot.shooter.setShooterVelocity(2400.0.rpm)
         },
         waitMs(3000.0),
         robot.autoShoot(),
-//        parallel(
-//          sequential(
-//            follow(follower, driveToGarden()).withTimeout(2000.0.milliseconds),
-//            waitMs(500.0),
-//          ),
-//          robot.autoIntake().withTimeout(2000.0.milliseconds),
-//        ),
-//
+        parallel(
+          instant {
+            robot.shooter.setTurretAngle(135.0.degrees)
+            robot.shooter.setShooterVelocity(2500.0.rpm)
+          },
+          sequential(
+            follow(follower, driveToGarden()).withTimeout(2000.0.milliseconds),
+            waitMs(500.0),
+          ),
+          robot.autoIntake().withTimeout(2000.0.milliseconds),
+        ),
+
 //        parallel(
 //          instant {
 //            robot.intake.stopIntake()

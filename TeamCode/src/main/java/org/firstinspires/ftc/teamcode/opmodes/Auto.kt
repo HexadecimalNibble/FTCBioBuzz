@@ -55,12 +55,13 @@ class Auto(val robot: BiobuzzRobot) : NextOpMode(robot, BulkReadHook), HexOpMode
         RobotData.auto = RobotAuto.entries[selectedAutoIndex]
       }
     } else if (!autoCreated) {
-      when (RobotData.auto) {
+      auto = when (RobotData.auto) {
         RobotAuto.HiveUp -> {
-          auto = HiveUpAuto(follower, RobotData.allianceColor!!, robot)
+          HiveUpAuto(follower, RobotData.allianceColor!!, robot)
         }
+
         else -> {
-          throw Error("RobotData.auto is somehow null?")
+          HiveDownAuto(follower, RobotData.allianceColor!!, robot)
         }
       }
 
@@ -68,6 +69,8 @@ class Auto(val robot: BiobuzzRobot) : NextOpMode(robot, BulkReadHook), HexOpMode
       autoCommand = auto.createAuto()
 
       // Move initial mechanisms and reset stuff
+      robot.shooter.initSystem()
+
       robot.intake.retractFlowerIntake()
       robot.shooter.engageBlocker()
       robot.shooter.resetTurretAngle()

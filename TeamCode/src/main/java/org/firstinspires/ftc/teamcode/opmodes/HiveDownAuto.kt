@@ -35,21 +35,13 @@ class HiveDownAuto(
       PoseFactory.degrees()
     }
 
-  private val start = poseFactory.of(62.0, 141.5 - BioBuzzConstants.robotWidth / 2, 180.0)
-  private val flowerInitialControl = poseFactory.of(54.7886, 99.8731, 0.0)
-  private val flowerInitial = poseFactory.of(47.0, 126.0, 90.0)
-  private val flowerFinal = poseFactory.of(47.0, 130.0, 90.0)
-
-  fun initialFlowerApproach(): Path = Paths.curve(start, flowerInitialControl, flowerInitial).linear(start, flowerInitial)
-  fun finalFlowerApproach(): Path = Paths.line(flowerInitial, flowerFinal).linear(flowerInitial, flowerFinal)
-
-  private val park = poseFactory.of(8.0, 115.0, 0.0)
-  private val parkControl = poseFactory.of(43.0, 114.0, 0.0)
+  private val start = poseFactory.of(30.0, 133.0, -90.0)
+  private val park = poseFactory.of(10.0, 95.0, -90.0)
 
 
-  fun park(): Path = Paths.curve(flowerFinal, parkControl, park)
+  fun park(): Path = Paths.line(start, park)
     .heading(
-      Interpolator.tangent.reverse()
+      Interpolator.constant(start)
     )
 
   init {
@@ -63,32 +55,12 @@ class HiveDownAuto(
       sequential(
         instant {
           println("new current turret angle ${robot.shooter.totalTurretAngle}")
-          robot.shooter.setTurretAngle(170.0.degrees)
+          robot.shooter.setTurretAngle((-30.0).degrees)
           robot.shooter.setShooterVelocity(2450.0.rpm)
         },
-        waitMs(1000.0),
+        waitMs(5000.0),
         robot.autoShoot(),
         instant { robot.stopAutoShoot() },
-        follow(follower, initialFlowerApproach()).withTimeout(2000.0.milliseconds),
-
-        race(
-          robot.autoIntake(),
-          sequential(
-            instant { robot.intake.extendFlowerIntake() },
-            waitMs(500.0), // wait for flower intake to extend
-            follow(follower, finalFlowerApproach()).withTimeout(1000.0.milliseconds),
-            waitMs(2000.0), // wait for balls to go into intake
-          )
-        ),
-        instant {
-          robot.intake.stopIntake()
-          robot.transfer.stopTransfer()
-        },
-        robot.autoShoot().withTimeout(1000.0.milliseconds),
-        instant {
-          robot.stopAutoShoot()
-          robot.intake.retractFlowerIntake()
-        },
         follow(follower, park()).withTimeout(5000.0.milliseconds),
 
         instant {

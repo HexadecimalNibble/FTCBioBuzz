@@ -158,6 +158,9 @@ class Shooter : Mechanism {
 
   private var turretPIDOn = false
   private var shooterPIDOn = false
+
+  private var blockerEngagedPos = 0.27
+  private var blockerRetractedPos = 0.43
   // endregion
 
   fun initSystem() {
@@ -298,12 +301,21 @@ class Shooter : Mechanism {
   }
   // endregion
   // region Blocker
+
+  fun decrementBlockerEngaged() {
+    blockerEngagedPos -= 0.02
+  }
+
+  fun incrementBlockerEngaged() {
+    blockerEngagedPos += 0.02
+  }
+
   fun engageBlocker() {
-    blockerServo.position = 0.27
+    blockerServo.position = blockerEngagedPos
   }
 
   fun disengageBlocker() {
-    blockerServo.position = 0.43
+    blockerServo.position = blockerRetractedPos
   }
 
   fun toggleHivePosition() {

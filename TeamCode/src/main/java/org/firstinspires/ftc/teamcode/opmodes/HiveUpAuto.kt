@@ -7,8 +7,7 @@ import com.pedropathing.ivy.Command
 import com.pedropathing.ivy.commands.Commands.infinite
 import com.pedropathing.ivy.commands.Commands.instant
 import com.pedropathing.ivy.commands.Commands.waitMs
-import com.pedropathing.ivy.commands.Commands.waitUntil
-import com.pedropathing.ivy.groups.Groups.parallel
+import com.pedropathing.ivy.groups.Groups.race
 import com.pedropathing.ivy.groups.Groups.sequential
 import com.pedropathing.ivy.pedro.PedroCommands.follow
 import com.pedropathing.paths.Path
@@ -18,6 +17,7 @@ import dev.nextftc.units.milliseconds
 import dev.nextftc.units.rpm
 import org.firstinspires.ftc.teamcode.AllianceColor
 import org.firstinspires.ftc.teamcode.BioBuzzConstants
+import org.firstinspires.ftc.teamcode.RobotData
 import org.firstinspires.ftc.teamcode.robot.BiobuzzRobot
 import org.firstinspires.ftc.teamcode.withTimeout
 
@@ -35,13 +35,17 @@ class HiveUpAuto(
     }
 
   private val start = poseFactory.of(32.0, BioBuzzConstants.robotWidth / 2, 180.0)
-  private val gardenEndCoord = poseFactory.of(15.0, BioBuzzConstants.robotWidth / 2, 180.0)
-  private val nonAudienceSideFlowerCoord = poseFactory.of(47.0, 122.0, 90.0)
-  private val point2Control1 = poseFactory.of(33.0, 102.0, 0.0)
+  private val gardenEndCoord = poseFactory.of(10.0, BioBuzzConstants.robotWidth / 2, 180.0)
+  private val nonAudienceSideFlowerCoord = poseFactory.of(46.0, 112.0, 90.0)
+  private val point2Control1 = poseFactory.of(29.0, 91.0, 0.0)
   private val humanPlayerFlowerCoord = poseFactory.of(10.7052, 46.715, 180.0)
   private val point3Control1 = poseFactory.of(24.0106, 92.1561, 0.0)
   private val point3Control2 = poseFactory.of(41.0673, 46.5558, 0.0)
   private val point3Segment1Heading = poseFactory.of(10.7052, 46.715, 90.0)
+
+  private val park = poseFactory.of(9.0, 121.0, 0.0)
+  private val parkControl = poseFactory.of(43.0, 114.0, 0.0)
+
 
   fun driveToGarden(): Path = Paths.line(
     start,
@@ -53,19 +57,15 @@ class HiveUpAuto(
     point2Control1,
     nonAudienceSideFlowerCoord
   ).heading(
-    Interpolator.tangent
+    Interpolator.piecewise()
+      .until(0.7, Interpolator.tangent)
+      .until(1.0, Interpolator.linear(follower.pose().heading(), 180.0))
   )
 
-  fun driveToHumanPlayerFlower(): Path = Paths.curve(
-    nonAudienceSideFlowerCoord,
-    point3Control1,
-    point3Control2,
-    humanPlayerFlowerCoord
-  ).heading(
-    Interpolator.piecewise()
-      .until(0.05, Interpolator.constant(point3Segment1Heading))
-      .until(1.0, Interpolator.tangent)
-  )
+  fun park(): Path = Paths.curve(nonAudienceSideFlowerCoord, parkControl, park)
+    .heading(
+      Interpolator.tangent.reverse()
+    )
 
   init {
     // Set starting pose
@@ -74,26 +74,41 @@ class HiveUpAuto(
   }
 
   override fun createAuto(): Command {
-    robot.shooter.setTurretAngle(125.0.degrees)
 
-    return parallel(
+    return race(
       sequential(
         instant {
+          println("new current turret angle ${robot.shooter.totalTurretAngle}")
+          robot.shooter.setTurretAngle(120.0.degrees)
           robot.shooter.setShooterVelocity(3300.0.rpm)
         },
-        waitMs(2000.0),
+        waitMs(1000.0),
         robot.autoShoot(),
-        parallel(
-          follow(follower, driveToGarden()),
+        race(
           sequential(
-            waitUntil { follower.parametricCompletion() > 0.2 },
-            robot.autoIntake().withTimeout(1000.0.milliseconds),
+            follow(follower, driveToGarden()).withTimeout(2000.0.milliseconds),
+            waitMs(500.0)
           ),
+          robot.autoIntake().withTimeout(2000.0.milliseconds),
         ),
         follow(follower, driveToNonAudienceSideFlower()),
-//        follow(follower, driveToHumanPlayerFlower())
+//        follow(follower, park()),
+        instant {
+          stopFollower()
+          println("Autonomous drivetrain stopped")
+        }
       ),
-      infinite { follower.update() }
+      infinite {
+        follower.update()
+        RobotData.pose = follower.pose()
+      }
     )
+  }
+
+  private fun stopFollower() {
+    follower.stop()
+    follower.update()
+
+    RobotData.pose = follower.pose()
   }
 }

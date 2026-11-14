@@ -66,7 +66,6 @@ class Auto(val robot: BiobuzzRobot) : NextOpMode(robot, BulkReadHook), HexOpMode
 
       // Create selected auto
       autoCommand = auto.createAuto()
-      Scheduler.schedule(autoCommand)
 
       // Move initial mechanisms and reset stuff
       robot.intake.retractFlowerIntake()
@@ -85,12 +84,15 @@ class Auto(val robot: BiobuzzRobot) : NextOpMode(robot, BulkReadHook), HexOpMode
   }
 
   override fun start() {
-    println("Command scheduled: ${Scheduler.isScheduled(autoCommand)}")
     // Reset telemetry display format
     telemetry.setDisplayFormat(Telemetry.DisplayFormat.CLASSIC)
-  }
 
-  override fun end() {
-    RobotData.pose = follower.pose()
+    check(autoCreated && ::autoCommand.isInitialized) {
+      "Autonomous was not initialized. Select an alliance and auto first."
+    }
+
+    Scheduler.schedule(autoCommand)
+
+    println("Command scheduled: ${Scheduler.isScheduled(autoCommand)}")
   }
 }

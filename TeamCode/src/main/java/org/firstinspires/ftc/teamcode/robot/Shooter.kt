@@ -56,9 +56,6 @@ class Shooter : Mechanism {
     var turretAutoAlign = true
     @JvmField
     var shooterAutoAlign = false
-//    @JvmField
-//    var hoodAutoAlign = false
-
     @JvmField
     var shooterVelocity1 = 0.0
     @JvmField
@@ -95,7 +92,6 @@ class Shooter : Mechanism {
       it.reverse()
     }
 
-//  private val hoodServo = NextServo("HoodServo")
   private val blockerServo = NextServo("BlockerServo")
 
   // Turret is 28 mm behind the wheel-base center, with intake at the front.
@@ -105,9 +101,17 @@ class Shooter : Mechanism {
   // Tracks continuous servo rotations across encoder wraparound.
   private var servoNumRotations = 0
 
-  private var prevTurretAngle: Angle = 0.0.degrees
-  private var totalTurretAngle: Angle = 0.0.degrees
+  private var prevRawTurretAngle: Angle? = null
+
+  var totalTurretAngle: Angle = 0.0.degrees
+    private set
+
   private var servoOffsetAngle: Angle = 0.0.degrees
+
+  // Used to wait for the encoder to stabilize during zeroing.
+  private var turretZeroPending = false
+  private var turretZeroCandidate: Angle? = null
+  private var turretZeroStableSamples = 0
 
   private val turretPID = PIDController(
     kP = turretP,
@@ -161,30 +165,104 @@ class Shooter : Mechanism {
 
   // region Turret
   fun resetTurretAngle() {
-    servoOffsetAngle = -leftTurretServo.angle
+    // Disable the PID while resetting.
+    turretPIDOn = false
+
+    leftTurretServo.power = 0.0
+    rightTurretServo.power = 0.0
+
     servoNumRotations = 0
     totalTurretAngle = 0.0.degrees
-    prevTurretAngle = 0.0.degrees
+
+    prevRawTurretAngle = null
+
+    // Wait for stable encoder readings before establishing zero.
+    turretZeroPending = true
+    turretZeroCandidate = null
+    turretZeroStableSamples = 0
   }
 
   /**
    * Updates turret position by reading the servo encoder.
    */
   fun updateTurretAngle() {
-    val newTurretAngle = leftTurretServo.angle + servoOffsetAngle
-    val dTheta = newTurretAngle - prevTurretAngle
+    val rawAngle = leftTurretServo.angle
 
-    // Detect analog encoder wraparound.
-    if (dTheta > 200.0.degrees) {
+    // Wait for three consistent readings before establishing zero.
+    if (turretZeroPending) {
+      val candidate = turretZeroCandidate
+
+      if (candidate != null) {
+        val difference = wrapRadians(
+          rawAngle.baseUnitMagnitude -
+              candidate.baseUnitMagnitude
+        )
+
+        if (abs(difference) < Math.toRadians(1.0)) {
+          turretZeroStableSamples++
+        } else {
+          turretZeroStableSamples = 0
+        }
+      }
+
+      turretZeroCandidate = rawAngle
+
+      if (turretZeroStableSamples >= 2) {
+        servoOffsetAngle = -rawAngle
+        servoNumRotations = 0
+        prevRawTurretAngle = rawAngle
+        totalTurretAngle = 0.0.degrees
+
+        turretZeroPending = false
+
+        println("Turret encoder zero established: $rawAngle")
+      }
+
+      return
+    }
+
+    val previousRaw = prevRawTurretAngle
+
+    // Initialize the encoder if no reference has been established.
+    if (previousRaw == null) {
+      servoOffsetAngle = -rawAngle
+      prevRawTurretAngle = rawAngle
+      totalTurretAngle = 0.0.degrees
+      return
+    }
+
+    val previousRadians = previousRaw.baseUnitMagnitude
+    val currentRadians = rawAngle.baseUnitMagnitude
+
+    val delta = currentRadians - previousRadians
+
+    // Only recognize actual transitions across the 0/360 boundary.
+    val lowThreshold = PI / 2.0
+    val highThreshold = 3.0 * PI / 2.0
+
+    if (
+      delta > PI &&
+      previousRadians < lowThreshold &&
+      currentRadians > highThreshold
+    ) {
+      // Crossed 0 degrees in the negative direction.
       servoNumRotations -= 1
-    } else if (dTheta < (-200.0).degrees) {
+
+    } else if (
+      delta < -PI &&
+      previousRadians > highThreshold &&
+      currentRadians < lowThreshold
+    ) {
+      // Crossed 360 degrees in the positive direction.
       servoNumRotations += 1
     }
 
-    val totalServoAngle = (servoNumRotations * 360.0).degrees + newTurretAngle
+    prevRawTurretAngle = rawAngle
 
-    totalTurretAngle = totalServoAngle
-    prevTurretAngle = newTurretAngle
+    totalTurretAngle =
+      (servoNumRotations * 360.0).degrees +
+          rawAngle +
+          servoOffsetAngle
   }
 
   fun setTurretAngle(angle: Angle) {
@@ -219,26 +297,12 @@ class Shooter : Mechanism {
   // endregion
   // region Blocker
   fun engageBlocker() {
-    blockerServo.position = 0.505
+    blockerServo.position = 0.28
   }
 
   fun disengageBlocker() {
-    blockerServo.position = 0.378
+    blockerServo.position = 0.44
   }
-  // endregion
-//  // region Hood
-//  fun decrementHoodPosition() {
-//    hoodServo.position = (hoodServo.position - 0.05).coerceIn(0.0, 1.0)
-//  }
-//
-//  fun incrementHoodPosition() {
-//    hoodServo.position = (hoodServo.position + 0.05).coerceIn(0.0, 1.0)
-//  }
-//
-//  fun setHoodPosition() {
-//    hoodServo.position = 0.72
-//  }
-//  // endregion
 
   fun toggleHivePosition() {
     hivePosition = when (hivePosition) {
@@ -256,72 +320,72 @@ class Shooter : Mechanism {
     return atan2(sin(angle), cos(angle))
   }
 
-  /**
-   * Calculates the time needed for a projectile to intercept a stationary
-   * target while the shooter is moving.
-   *
-   * Returns null when no positive, finite interception time exists.
-   *
-   * All velocities must use compatible units.
-   */
-  private fun calculateInterceptTime(
-    dx: Double,
-    dy: Double,
-    velocityX: Double,
-    velocityY: Double,
-    projectileSpeed: Double
-  ): Double? {
-    val a =
-      velocityX * velocityX +
-          velocityY * velocityY -
-          projectileSpeed * projectileSpeed
-
-    val b = -2.0 * (dx * velocityX + dy * velocityY)
-    val c = dx * dx + dy * dy
-
-    if (!a.isFinite() || !b.isFinite() || !c.isFinite()) {
-      return null
-    }
-
-    // Already at the target.
-    if (c <= 1e-12) {
-      return 0.0
-    }
-
-    // Handle the approximately linear case.
-    if (abs(a) < 1e-9) {
-      if (abs(b) < 1e-9) {
-        return null
-      }
-
-      val time = -c / b
-      return time.takeIf { it > 0.0 && it.isFinite() }
-    }
-
-    val discriminant = b * b - 4.0 * a * c
-
-    if (discriminant < 0.0 || !discriminant.isFinite()) {
-      return null
-    }
-
-    val sqrtDiscriminant = sqrt(discriminant)
-    val denominator = 2.0 * a
-
-    val time1 = (-b - sqrtDiscriminant) / denominator
-    val time2 = (-b + sqrtDiscriminant) / denominator
-
-    var bestTime = Double.POSITIVE_INFINITY
-
-    if (time1 > 0.0 && time1.isFinite()) {
-      bestTime = time1
-    }
-
-    if (time2 > 0.0 && time2.isFinite() && time2 < bestTime) {
-      bestTime = time2
-    }
-
-    return bestTime.takeIf { it.isFinite() }
-  }
+//  /**
+//   * Calculates the time needed for a projectile to intercept a stationary
+//   * target while the shooter is moving.
+//   *
+//   * Returns null when no positive, finite interception time exists.
+//   *
+//   * All velocities must use compatible units.
+//   */
+//  private fun calculateInterceptTime(
+//    dx: Double,
+//    dy: Double,
+//    velocityX: Double,
+//    velocityY: Double,
+//    projectileSpeed: Double
+//  ): Double? {
+//    val a =
+//      velocityX * velocityX +
+//          velocityY * velocityY -
+//          projectileSpeed * projectileSpeed
+//
+//    val b = -2.0 * (dx * velocityX + dy * velocityY)
+//    val c = dx * dx + dy * dy
+//
+//    if (!a.isFinite() || !b.isFinite() || !c.isFinite()) {
+//      return null
+//    }
+//
+//    // Already at the target.
+//    if (c <= 1e-12) {
+//      return 0.0
+//    }
+//
+//    // Handle the approximately linear case.
+//    if (abs(a) < 1e-9) {
+//      if (abs(b) < 1e-9) {
+//        return null
+//      }
+//
+//      val time = -c / b
+//      return time.takeIf { it > 0.0 && it.isFinite() }
+//    }
+//
+//    val discriminant = b * b - 4.0 * a * c
+//
+//    if (discriminant < 0.0 || !discriminant.isFinite()) {
+//      return null
+//    }
+//
+//    val sqrtDiscriminant = sqrt(discriminant)
+//    val denominator = 2.0 * a
+//
+//    val time1 = (-b - sqrtDiscriminant) / denominator
+//    val time2 = (-b + sqrtDiscriminant) / denominator
+//
+//    var bestTime = Double.POSITIVE_INFINITY
+//
+//    if (time1 > 0.0 && time1.isFinite()) {
+//      bestTime = time1
+//    }
+//
+//    if (time2 > 0.0 && time2.isFinite() && time2 < bestTime) {
+//      bestTime = time2
+//    }
+//
+//    return bestTime.takeIf { it.isFinite() }
+//  }
 
   /**
    * Automatically aligns the turret and shooter with the selected HIVE.
@@ -418,7 +482,7 @@ class Shooter : Mechanism {
 
       setTurretAngle(continuousTarget.radians + hiveAlignmentTurretOffset)
     }
-
+    println("Distance for shot: $distanceForShot")
     if (shooterAutoAlign) {
       val shooterVelocity = (
           shooterVelocity1 * distanceForShot.pow(2) +
@@ -428,10 +492,6 @@ class Shooter : Mechanism {
 
       setShooterVelocity(shooterVelocity)
     }
-
-//    if (hoodAutoAlign) {
-//      // TODO: Implement hood auto-alignment.
-//    }
   }
 
   /**
@@ -453,7 +513,8 @@ class Shooter : Mechanism {
     }
 
     // region Turret PID
-    if (turretPIDOn) {
+    if (turretPIDOn && !turretZeroPending) {
+      println("Target turret angle: $targetTurretAngle")
       turretPID.coefficients.kP = turretP
       turretPID.coefficients.kD = turretD
 

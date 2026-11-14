@@ -30,7 +30,7 @@ class Intake : Mechanism {
 
   fun retractFlowerIntake() {
     println("retracting flower intake set pos")
-    flowerIntakeServo.position = 0.45
+    flowerIntakeServo.position = 0.41
   }
 
   fun distanceSensorObjectDetected() = distanceSensor.isTriggered

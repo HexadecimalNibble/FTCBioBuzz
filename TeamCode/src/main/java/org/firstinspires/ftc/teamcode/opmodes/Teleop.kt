@@ -158,14 +158,6 @@ class Teleop(val robot: BiobuzzRobot) : NextOpMode(robot, BulkReadHook), HexOpMo
       robot.shooter.disengageBlocker()
     })
 
-//    shooterController.leftStickY.isUnder(-0.2).onTrue(instant {
-//      robot.shooter.incrementHoodPosition()
-//    })
-//
-//    shooterController.leftStickY.isOver(0.2).onTrue(instant {
-//      robot.shooter.decrementHoodPosition()
-//    })
-
     shooterController.dpadUp.onTrue(instant {
       robot.shooter.changeShooterVelocity(100.0.rpm)
     })

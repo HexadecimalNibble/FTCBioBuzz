@@ -453,13 +453,11 @@ class Shooter : Mechanism {
     }
 
     // region Turret PID
-
     if (turretPIDOn) {
       turretPID.coefficients.kP = turretP
       turretPID.coefficients.kD = turretD
 
-      val turretError =
-        (targetTurretAngle - totalTurretAngle).baseUnitMagnitude
+      val turretError = (targetTurretAngle - totalTurretAngle).baseUnitMagnitude
 
       // Static friction compensation.
       val turretFF = if (abs(turretError) > 0.01) {
@@ -468,25 +466,19 @@ class Shooter : Mechanism {
         0.0
       }
 
-      val turretPower = (
-          turretPID.calculate(error = turretError) + turretFF
-          ).coerceIn(-1.0, 1.0)
+      val turretPower = (turretPID.calculate(error = turretError) + turretFF).coerceIn(-1.0, 1.0)
 
       leftTurretServo.power = turretPower
       rightTurretServo.power = turretPower
     }
-
     // endregion
-
     // region Shooter Motor PID
-
     if (shooterPIDOn) {
       shooterMotorPID.coefficients.kP = shooterP
       shooterMotorPID.coefficients.kD = shooterD
       shooterMotorFeedforward.coefficients.kV = shooterkV
 
       val motorVelocity = shooterMotor1.encoderVelocity
-
       val motorFF = shooterMotorFeedforward.calculate(
         MotionState(
           position = shooterMotor1.encoderPosition,
@@ -496,14 +488,11 @@ class Shooter : Mechanism {
 
       val velocityError = (targetShooterVelocity - motorVelocity).baseUnitMagnitude
 
-      val shooterPower = (
-          shooterMotorPID.calculate(error = velocityError) + motorFF
-          ).coerceIn(-1.0, 1.0)
+      val shooterPower = (shooterMotorPID.calculate(error = velocityError) + motorFF).coerceIn(-1.0, 1.0)
 
       shooterMotor1.throttle = shooterPower
 //      shooterMotor2.throttle = shooterPower
     }
-
     // endregion
   }
 }

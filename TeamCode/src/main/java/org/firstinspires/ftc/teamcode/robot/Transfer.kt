@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode.robot
 import dev.nextftc.hardware.actuators.NextMotor
+import dev.nextftc.hardware.actuators.NextRGBIndicator
 import dev.nextftc.robot.Mechanism
 import dev.nextftc.units.amperes
 import kotlin.math.abs
@@ -13,6 +14,8 @@ class Transfer : Mechanism {
   private val counterDegThreshold = 80
 
   private val counter = NextMotor("LFMotor")
+
+  private val backLED = NextRGBIndicator("BackLED")
 
   var transferMotorRunning = false
     private set
@@ -69,6 +72,8 @@ class Transfer : Mechanism {
     println("final rotations: $rotations")
     return rotations
   }
+
+  fun setTransferLEDColor(color: NextRGBIndicator.Color) = backLED.setColor(color)
 
   override fun periodic() {
     println("Transfer motor current: ${transferMotor.current}; overcurrent: ${transferMotor.isOverCurrent}; current alert: ${transferMotor.currentAlert}")

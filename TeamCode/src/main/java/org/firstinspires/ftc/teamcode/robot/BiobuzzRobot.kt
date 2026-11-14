@@ -7,6 +7,7 @@ import com.pedropathing.ivy.commands.Commands.instant
 import com.pedropathing.ivy.commands.Commands.waitUntil
 import com.pedropathing.ivy.groups.Groups.race
 import com.pedropathing.ivy.groups.Groups.sequential
+import dev.nextftc.hardware.actuators.NextRGBIndicator
 import dev.nextftc.robot.NextRobot
 import dev.nextftc.robot.coroutine.command
 import dev.nextftc.units.milliseconds
@@ -26,6 +27,7 @@ class BiobuzzRobot : NextRobot {
       intake.startIntake(1.0)
 
       transfer.resetCounter()
+      transfer.setTransferLEDColor(NextRGBIndicator.Color.RED)
     },
     // command end stuff
     race(
@@ -52,6 +54,7 @@ class BiobuzzRobot : NextRobot {
     instant {
       intake.stopIntake()
       transfer.stopTransfer()
+      transfer.setTransferLEDColor(NextRGBIndicator.Color.GREEN)
     }
   ).requiring(intake, transfer)
   // endregion
@@ -62,6 +65,7 @@ class BiobuzzRobot : NextRobot {
     transfer.startTransfer()
     wait(1.0)
     stopAutoShoot()
+    transfer.setTransferLEDColor(NextRGBIndicator.Color.RED)
   }.requiring(shooter, intake, transfer)
 
   fun stopAutoShoot() {
